@@ -5,7 +5,16 @@ commands, settings and the `config/Myau` profile folder — and adds a ClickGui,
 config keybinds and in-GUI module binding.
 
 The mod id (`myau`) and the config folder (`config/Myau`) are unchanged, so existing profiles, friends and enemies keep working.
-Only the display name and jar name changed (`BetterMyau-1.0.0.jar`).
+Only the display name and jar name changed (`BetterMyau-3.1.0.jar`).
+
+## Version 3.1.0
+
+- **Scaffold telly tower fix.** Tower `TELLY` no longer falls when you walk straight or diagonally while jumping. The takeoff
+  only triggers on the tick the jump actually fires, so landing no longer locks placement for a tick, and diagonal turn-backs
+  are no longer slowed down.
+- **Scaffold rotation smoothing.** New `rotation-smoothing` setting (default **65**, 0–100). It is only visible when
+  `rotations` is set to `DEFAULT`, and it controls how quickly yaw and pitch move toward the placement target.
+- Mod version is now `3.1.0` (shown as `myau@3.1.0` in Forge).
 
 ## What's new compared to the original Myau
 
@@ -55,13 +64,37 @@ The `name` setting can now be typed directly in the ClickGui.
 New classes in `myau/`: `BacktrackModule`, `ClickGuiModule`, `ClickGuiScreen`, `FreelookModule`, `ConfigBinds`,
 `mixin/MixinFreelookEntity`, `mixin/MixinFreelookRenderer`.
 
-Edited: `MyauClient` (registers the new modules), `MyauForgeMod` (mod name), `mixins.myau.json` (two new mixins), `mcmod.info`.
+Edited: `MyauClient` (registers the new modules), `MyauForgeMod` (mod name and version 3.1.0), `ScaffoldModule` (telly fix and
+rotation smoothing), `mixins.myau.json` (two new mixins), `mcmod.info` (version 3.1.0).
 
 ## Not changed
 Chat messages still show the `[Myau]` prefix, and the mod id, package name and `config/Myau` folder keep the original names
 so nothing existing breaks.
 
-## Notes on building
-The original jar is SRG-named (`func_*` / `field_*`). The new classes were compiled against a Minecraft 1.8.9 jar remapped to SRG
-and patched into the existing jar; no other classes were rebuilt. A copy of the original jar is kept as
-`myau-forge-1.8.9-1.0.0-original-backup.jar` next to this folder.
+Proprietary License Notice
+
+Copyright (c) [2026] [BetterMyau Maintained by Sande10]. All rights reserved.
+
+Terms and Conditions for Use and Distribution:
+
+1. GRANT OF LICENSE: Permission is hereby granted, free of charge, to any person 
+   obtaining a copy of this software (the "Software"), to download, install, and 
+   run the Software for personal, non-commercial use only.
+
+2. RESTRICTIONS:
+   - NO DECOMPILATION: You may not reverse engineer, decompile, disassemble, or 
+     otherwise attempt to derive the source code or inner workings of the Software.
+   - NO MODIFICATION: You may not modify, adapt, translate, or create derivative 
+     works based upon the Software.
+   - NO REDISTRIBUTION: You may not re-upload, re-distribute, re-license, sell, 
+     or mirror the Software without explicit prior written consent from the copyright holder.
+
+3. DISCLAIMER OF WARRANTY:
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+   FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER 
+   LIABILITY, WHETHER IN AN ACTION ACTION OF CONTRACT, TORT, OR OTHERWISE, 
+   ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+   DEALINGS IN THE SOFTWARE.
+
