@@ -5,7 +5,25 @@ commands, settings and the `config/Myau` profile folder — and adds a ClickGui,
 config keybinds and in-GUI module binding.
 
 The mod id (`myau`) and the config folder (`config/Myau`) are unchanged, so existing profiles, friends and enemies keep working.
-Only the display name and jar name changed (`BetterMyau-3.1.0.jar`).
+Only the display name and jar name changed (`BetterMyau-4.0.0.jar`).
+
+## Version 4.0.0
+
+- **Displace (new module, Combat).** Ported from the Raven `Displace` module. While you attack, it swings your aim sideways
+  on alternating ticks so hits land on a displaced yaw. Two modes:
+  - `OFFSET` pushes the aim by `yaw-offset` degrees to the left or right (`direction`). `find-void` picks the side with the void.
+  - `VOID` scans around the target for a void-side direction and aims there, within `scan-radius`.
+  Other settings: `delay` (ms), `ignore-one-block-wall` (VOID), `blink` (holds outgoing packets for the displaced ticks),
+  `only-knockback-items`, `render-arrow`.
+  - **Targets follow KillAura.** Displace only acts when KillAura's own combat input is allowed (its `require-press`,
+    `weapons-only`, `inventory-check` and mining rules), and it uses KillAura's `players`, `bot-check`, `teams` and
+    `swing-range` settings. With KillAura off, it works from left-click using the same rules.
+  - Displace no longer presses the attack key itself, so it won't land hits while your hands are off the mouse.
+  - Not ported: Raven's Override attack mode and the void debug overlay.
+- **Velocity `dynamic-delay`.** A new option in Velocity's `DELAY` mode. When on, the hold time is set from your ping:
+  `ceil(ping / 50)` ticks, clamped to 1–20. It falls back to `delay-ticks` when your tab-list entry isn't available.
+  `delay-ticks` is hidden while dynamic delay is on.
+- Mod version is now `4.0.0` (shown as `myau@4.0.0` in Forge).
 
 ## Version 3.1.0
 
@@ -14,7 +32,6 @@ Only the display name and jar name changed (`BetterMyau-3.1.0.jar`).
   are no longer slowed down.
 - **Scaffold rotation smoothing.** New `rotation-smoothing` setting (default **65**, 0–100). It is only visible when
   `rotations` is set to `DEFAULT`, and it controls how quickly yaw and pitch move toward the placement target.
-- Mod version is now `3.1.0` (shown as `myau@3.1.0` in Forge).
 
 ## What's new compared to the original Myau
 
@@ -62,10 +79,10 @@ The `name` setting can now be typed directly in the ClickGui.
 ## Changed / added files
 
 New classes in `myau/`: `BacktrackModule`, `ClickGuiModule`, `ClickGuiScreen`, `FreelookModule`, `ConfigBinds`,
-`mixin/MixinFreelookEntity`, `mixin/MixinFreelookRenderer`.
+`DisplaceModule`, `mixin/MixinFreelookEntity`, `mixin/MixinFreelookRenderer`.
 
-Edited: `MyauClient` (registers the new modules), `MyauForgeMod` (mod name and version 3.1.0), `ScaffoldModule` (telly fix and
-rotation smoothing), `mixins.myau.json` (two new mixins), `mcmod.info` (version 3.1.0).
+Edited: `MyauClient` (registers the new modules), `MyauForgeMod` (mod name and version 4.0.0), `ScaffoldModule` (telly fix and
+rotation smoothing), `VelocityModule` (dynamic delay), `mixins.myau.json` (two new mixins), `mcmod.info` (version 4.0.0).
 
 ## Not changed
 Chat messages still show the `[Myau]` prefix, and the mod id, package name and `config/Myau` folder keep the original names
@@ -97,4 +114,3 @@ Terms and Conditions for Use and Distribution:
    LIABILITY, WHETHER IN AN ACTION ACTION OF CONTRACT, TORT, OR OTHERWISE, 
    ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
    DEALINGS IN THE SOFTWARE.
-
