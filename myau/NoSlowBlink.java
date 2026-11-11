@@ -48,15 +48,9 @@ public final class NoSlowBlink {
         return world != null && world == mc.field_71441_e && connection != null && connection == connection();
     }
 
-    private boolean auraUse() {
-        KillAuraModule aura = (KillAuraModule) MyauClient.moduleManager.modules.get(KillAuraModule.class);
-        return aura != null && aura.isEnabled()
-                && (aura.isServerBlocking() || aura.isAutoBlockActive() || aura.wantsNoSlowBlock());
-    }
-
     private boolean canUse() {
         if (((AccessorPlayerControllerMP) mc.field_71442_b).getIsHittingBlock()) return false;
-        if (mc.field_71439_g.func_71039_bw() || auraUse()) return true;
+        if (mc.field_71439_g.func_71039_bw()) return true;
         MovingObjectPosition hit = mc.field_71476_x;
         if (hit == null) return true;
         if (hit.field_72313_a == MovingObjectPosition.MovingObjectType.ENTITY) {
@@ -89,9 +83,17 @@ public final class NoSlowBlink {
         connection = connection();
         inputScope = true;
         physicalUse = mc.field_71474_y.field_74313_G.func_151470_d() || PlayerUtils.isUseItemKeyDown();
+        boolean automaticUse = false;
+        if (owner.isSwordBlinkSelected()) {
+            KillAuraModule aura = (KillAuraModule) MyauClient.moduleManager.modules.get(KillAuraModule.class);
+            if (aura != null) {
+                aura.yieldAutoBlockToBlink();
+                automaticUse = !physicalUse && aura.wantsNoSlowBlock();
+            }
+        }
         NoFallModule noFall = (NoFallModule) MyauClient.moduleManager.modules.get(NoFallModule.class);
         if (mc.field_71462_r != null || !mc.field_71415_G || mc.field_71439_g.field_70128_L
-                || mc.field_71439_g.func_70115_ae() || otherBufferOwner() || !physicalUse
+                || mc.field_71439_g.func_70115_ae() || otherBufferOwner() || (!physicalUse && !automaticUse)
                 || (noFall != null && noFall.isEnabled() && noFall.isPacketModeActive()) || !canUse()) {
             resetCycle();
             return;
@@ -100,8 +102,12 @@ public final class NoSlowBlink {
         qualified = true;
         if (++useTick == 1) {
             forceHeld = true;
-            forcePress = !useRead;
+            forcePress = !automaticUse && !useRead;
             rearmAfterMotion = true;
+            if (automaticUse && !mc.field_71439_g.func_71039_bw()) {
+                // Use the sword directly. A synthetic right click could interact with the crosshair target.
+                mc.field_71442_b.func_78769_a(mc.field_71439_g, mc.field_71441_e, mc.field_71439_g.func_70694_bm());
+            }
         } else {
             buffering = true;
             suppressUse = true;
@@ -110,13 +116,13 @@ public final class NoSlowBlink {
     }
 
     public boolean held(KeyBinding key) {
-        if (!inputScope || key != mc.field_71474_y.field_74313_G || auraUse()) return key.func_151470_d();
+        if (!inputScope || key != mc.field_71474_y.field_74313_G) return key.func_151470_d();
         return !suppressUse && (forceHeld || physicalUse);
     }
 
     public boolean pressed(KeyBinding key) {
         boolean actual = key.func_151468_f();
-        if (!inputScope || key != mc.field_71474_y.field_74313_G || auraUse()) return actual;
+        if (!inputScope || key != mc.field_71474_y.field_74313_G) return actual;
         if (suppressUse) return false;
         if (!forcePress) return actual;
         forcePress = false;

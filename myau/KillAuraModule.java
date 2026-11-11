@@ -172,7 +172,7 @@ extends Module {
         if (MyauClient.packetActionTracker.sentDigging || MyauClient.packetActionTracker.sentBlockPlacement) {
             return false;
         }
-        if (this.isBlockingSword() && this.autoBlock.getValue() != AUTO_BLOCK_FULL) {
+        if (this.mustReleaseSwordBeforeAttack()) {
             return false;
         }
         if (this.attackCooldownMillis > 0L) {
@@ -212,7 +212,7 @@ extends Module {
     boolean replayDisplacedAttack(EntityLivingBase target) {
         if (!this.isEnabled() || this.currentTarget == null || this.currentTarget.entity != target
                 || !this.canRunCombat() || !this.isWithinAttackRange(RotationUtils.distanceToEntity(target))
-                || (this.isBlockingSword() && this.autoBlock.getValue() != AUTO_BLOCK_FULL)) return false;
+                || this.mustReleaseSwordBeforeAttack()) return false;
         this.attackCooldownMillis += this.nextAttackDelayMillis();
         minecraft.field_71439_g.func_71038_i();
         this.sendAttack(target);
@@ -291,9 +291,27 @@ extends Module {
         return (Boolean)this.requirePress.getValue() == false || bl;
     }
 
+    private NoSlowModule noSlow() {
+        return (NoSlowModule) MyauClient.moduleManager.modules.get(NoSlowModule.class);
+    }
+
+    private boolean blinkOwnsBlock() {
+        NoSlowModule noSlow = this.noSlow();
+        return noSlow != null && noSlow.isSwordBlinkSelected();
+    }
+
+    private boolean mustReleaseSwordBeforeAttack() {
+        return this.isBlockingSword() && (this.autoBlock.getValue() != AUTO_BLOCK_FULL || this.blinkOwnsBlock());
+    }
+
+    void yieldAutoBlockToBlink() {
+        this.resetAutoBlock();
+    }
+
     boolean wantsNoSlowBlock() {
         return this.isEnabled() && this.currentTarget != null && this.autoBlock.getValue() != AUTO_BLOCK_NONE
-                && this.canRunCombat() && this.canAutoBlock();
+                && this.canRunCombat() && this.canAutoBlock()
+                && MyauClient.hurtTimeTracker.remainingHurtTicks() <= this.autoBlockHurtTime.getValue();
     }
 
     private boolean canAutoBlock() {
@@ -489,10 +507,11 @@ extends Module {
         int blockMode = this.autoBlock.getValue();
         boolean combatEligible = this.canRunCombat();
         boolean canAttack = combatEligible;
-        NoSlowModule noSlow = (NoSlowModule) MyauClient.moduleManager.modules.get(NoSlowModule.class);
-        boolean noSlowOwnsBlock = blockMode == AUTO_BLOCK_PREDICTIVE && noSlow.isEnabled()
+        NoSlowModule noSlow = this.noSlow();
+        boolean blinkOwnsBlock = noSlow != null && noSlow.isSwordBlinkSelected();
+        boolean predictiveYields = blockMode == AUTO_BLOCK_PREDICTIVE && noSlow != null && noSlow.isEnabled()
                 && noSlow.swordMode.getValue() > 1 && ItemUtils.isHoldingSword();
-        boolean canBlock = combatEligible && this.canAutoBlock() && !noSlowOwnsBlock;
+        boolean canBlock = combatEligible && !blinkOwnsBlock && !predictiveYields && this.canAutoBlock();
         boolean blockSuppressed = blockMode != AUTO_BLOCK_NONE && canBlock
                 && (MyauClient.hurtTimeTracker.remainingHurtTicks() > this.autoBlockHurtTime.getValue()
                         || this.blockReleaseDelayMillis > 0L);
@@ -501,7 +520,7 @@ extends Module {
         this.blockReleaseDelayMillis = Math.max(0L, this.blockReleaseDelayMillis - 50L);
 
         boolean fullGraceHold = false;
-        if (blockMode == AUTO_BLOCK_FULL) {
+        if (!blinkOwnsBlock && blockMode == AUTO_BLOCK_FULL) {
             if (canBlock && !blockSuppressed) {
                 this.fullGrace = 2 + this.blockRandom.nextInt(2);
             } else if (!canBlock && this.fullGrace > 0 && this.autoBlockActive && this.isBlockingSword()) {
@@ -510,7 +529,9 @@ extends Module {
                 canAttack = false;
             }
         }
-        if (noSlowOwnsBlock) {
+        if (blinkOwnsBlock) {
+            this.yieldAutoBlockToBlink();
+        } else if (predictiveYields) {
             this.resetBlockCycle();
             this.autoBlockActive = combatEligible && this.canAutoBlock();
             this.renderBlocking = this.autoBlockActive;
@@ -658,6 +679,10 @@ extends Module {
 
     @EventHandler(priority=-50)
     public void onPostPlayerUpdate(PostPlayerUpdateEvent event) {
+        if (this.bufferRestartPending && this.blinkOwnsBlock()) {
+            this.yieldAutoBlockToBlink();
+            return;
+        }
         if (this.lagBlockFlushPending || this.bufferRestartPending) {
             MyauClient.outgoingPacketBuffer.setEnabled(false, OutgoingBufferOwner.AUTO_BLOCK);
         }
@@ -768,7 +793,7 @@ extends Module {
     @EventHandler
     public void onPostTick(PostTickEvent postTickEvent) {
         ItemStack itemStack;
-        if (this.isEnabled() && this.isBlockingSword() && !KillAuraModule.minecraft.field_71439_g.func_70632_aY() && (itemStack = KillAuraModule.minecraft.field_71439_g.func_70694_bm()) != null) {
+        if (this.isEnabled() && !this.blinkOwnsBlock() && this.isBlockingSword() && !KillAuraModule.minecraft.field_71439_g.func_70632_aY() && (itemStack = KillAuraModule.minecraft.field_71439_g.func_70694_bm()) != null) {
             KillAuraModule.minecraft.field_71439_g.func_71008_a(itemStack, itemStack.func_77988_m());
         }
     }
@@ -867,6 +892,7 @@ extends Module {
 
     @EventHandler
     public void onRightClick(RightClickEvent rightClickEvent) {
+        if (this.blinkOwnsBlock()) return;
         if (this.autoBlockActive) {
             rightClickEvent.setCancelled(true);
             return;
@@ -889,7 +915,7 @@ extends Module {
 
     @EventHandler
     public void onStopUsingItem(StopUsingItemEvent stopUsingItemEvent) {
-        if (this.autoBlockActive) {
+        if (this.autoBlockActive && !this.blinkOwnsBlock()) {
             stopUsingItemEvent.setCancelled(true);
         }
     }

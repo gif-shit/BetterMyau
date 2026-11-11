@@ -1,10 +1,15 @@
 # BetterMyau
 
-BetterMyau 5.0.0 is a client-side mod for Minecraft Forge 1.8.9. The client sources are in `myau/`, and the bundled profile and Forge metadata are in `resources/`.
+BetterMyau 5.1 is a client-side mod for Minecraft Forge 1.8.9. The client sources are in `myau/`, and the bundled profile and Forge metadata are in `resources/`.
 
 ## Install
 
-Download [`5.0.0.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
+Download [`5.1.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.1) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
+
+## What's new in 5.1
+
+- NoSlow Blink takes priority over KillAura AutoBlock while holding a sword. The selected AutoBlock mode resumes when Blink stops taking priority.
+- NoSlow shows its current mode in the ArrayList when HUD suffixes are enabled.
 
 ## What's new in 5.0.0
 
@@ -25,7 +30,7 @@ Download [`5.0.0.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5) a
 The PowerShell build compiles the updated classes with JDK 8 and overlays them onto an existing BetterMyau JAR. The tree includes decompiled client sources. A rebuild also requires an SRG-mapped Minecraft 1.8.9 JAR and the Forge 1.8.9 client libraries.
 
 ```powershell
-.\build.ps1 -BaseJar 'C:/path/to/5.0.0.jar' -MinecraftSrg 'C:/path/to/mc-srg.jar' -Libraries 'C:/path/to/libraries' -Jdk 'C:/path/to/jdk8/bin'
+.\build.ps1 -BaseJar 'C:/path/to/5.1.jar' -MinecraftSrg 'C:/path/to/mc-srg.jar' -Libraries 'C:/path/to/libraries' -Jdk 'C:/path/to/jdk8/bin'
 ```
 
-The build writes `build/5.0.0.jar`.
+The build writes `build/5.1.jar`.

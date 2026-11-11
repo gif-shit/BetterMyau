@@ -1,5 +1,6 @@
 package myau;
 
+import com.google.common.base.CaseFormat;
 import myau.BlockUtils;
 import myau.BooleanSetting;
 import myau.EntityUtils;
@@ -57,6 +58,23 @@ extends Module {
         super("NoSlow", false, 0);
     }
 
+    @Override
+    public String[] getHudInfo() {
+        ModeSetting mode = null;
+        if (minecraft.field_71439_g != null) {
+            if (this.isSwordModeActive()) mode = this.swordMode;
+            else if (this.isFoodModeActive()) mode = this.foodMode;
+            else if (this.isBowModeActive()) mode = this.bowMode;
+        }
+        if (mode == null) {
+            if (this.swordMode.getValue() != 0) mode = this.swordMode;
+            else if (this.foodMode.getValue() != 0) mode = this.foodMode;
+            else if (this.bowMode.getValue() != 0) mode = this.bowMode;
+        }
+        return mode == null ? super.getHudInfo()
+                : new String[]{CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, mode.getModeName())};
+    }
+
     private static ModeSetting blinkMode(String name, int defaultMode, String... modes) {
         return new ModeSetting(name, defaultMode, modes) {
             @Override
@@ -67,10 +85,15 @@ extends Module {
         };
     }
 
-    boolean isBlinkSelected() {
+    boolean isSwordBlinkSelected() {
         return this.isEnabled() && minecraft.field_71439_g != null
-                && ((swordMode.getValue() == SWORD_BLINK && ItemUtils.isHoldingSword())
-                        || (foodMode.getValue() == FOOD_BLINK && ItemUtils.isHoldingConsumable()));
+                && swordMode.getValue() == SWORD_BLINK && ItemUtils.isHoldingSword();
+    }
+
+    boolean isBlinkSelected() {
+        return this.isSwordBlinkSelected()
+                || (this.isEnabled() && minecraft.field_71439_g != null
+                        && foodMode.getValue() == FOOD_BLINK && ItemUtils.isHoldingConsumable());
     }
 
     @EventHandler(priority = -200)
