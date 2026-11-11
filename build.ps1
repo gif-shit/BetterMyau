@@ -29,7 +29,8 @@ $sources = @(
     'ScaffoldModule', 'HypixelScaffoldPacing', 'DisplaceModule',
     'HUDModule', 'TabGui', 'ModuleCategory', 'ClickGuiScreen', 'MyauForgeMod',
     'KillAuraModule', 'ModuleModeIds', 'AutoClickerModule', 'OutgoingBufferOwner',
-    'NoSlowModule', 'NoSlowBlink', 'mixin/MixinNoSlowBlinkInput', 'mixin/MixinNoSlowBlinkController'
+    'NoSlowModule', 'NoSlowBlink', 'mixin/MixinNoSlowBlinkInput', 'mixin/MixinNoSlowBlinkController',
+    'mixin/MixinNoSlowBlinkItemRenderer', 'mixin/MixinNoSlowBlinkRenderPlayer'
 )
 
 $out = Join-Path $PSScriptRoot 'build'

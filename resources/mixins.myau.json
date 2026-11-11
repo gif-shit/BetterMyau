@@ -51,6 +51,8 @@
     "MixinWorld",
     "MixinWorldRenderer",
     "MixinNoSlowBlinkInput",
-    "MixinNoSlowBlinkController"
+    "MixinNoSlowBlinkController",
+    "MixinNoSlowBlinkItemRenderer",
+    "MixinNoSlowBlinkRenderPlayer"
   ]
 }

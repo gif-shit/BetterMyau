@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import myau.mixin.AccessorPlayerControllerMP;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.network.Packet;
@@ -38,6 +39,13 @@ public final class NoSlowBlink {
         if (MyauClient.moduleManager == null) return null;
         NoSlowModule module = (NoSlowModule) MyauClient.moduleManager.modules.get(NoSlowModule.class);
         return module == null ? null : module.blink;
+    }
+
+    public static boolean shouldRenderSwordBlock(AbstractClientPlayer player) {
+        if (player != mc.field_71439_g) return false;
+        NoSlowBlink blink = current();
+        return blink != null && blink.qualified && blink.owner.isSwordBlinkSelected()
+                && blink.sameSession();
     }
 
     private Object connection() {
