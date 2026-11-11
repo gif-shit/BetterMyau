@@ -1,0 +1,7 @@
+/build/
+/config/
+/logs/
+/saves/
+*.jar
+*.class
+.idea/

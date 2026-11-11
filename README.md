@@ -1,116 +1,31 @@
 # BetterMyau
 
-BetterMyau is an updated build of **Myau** (Forge 1.8.9, client-side). It keeps everything the original has — all modules,
-commands, settings and the `config/Myau` profile folder — and adds a ClickGui, a Backtrack module, a FreeLook module,
-config keybinds and in-GUI module binding.
+BetterMyau 5.0.0 is a client-side mod for Minecraft Forge 1.8.9. The client sources are in `myau/`, and the bundled profile and Forge metadata are in `resources/`.
 
-The mod id (`myau`) and the config folder (`config/Myau`) are unchanged, so existing profiles, friends and enemies keep working.
-Only the display name and jar name changed (`BetterMyau-4.0.0.jar`).
+## Install
 
-## Version 4.0.0
+Download [`5.0.0.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
 
-- **Displace (new module, Combat).** Ported from the Raven `Displace` module. While you attack, it swings your aim sideways
-  on alternating ticks so hits land on a displaced yaw. Two modes:
-  - `OFFSET` pushes the aim by `yaw-offset` degrees to the left or right (`direction`). `find-void` picks the side with the void.
-  - `VOID` scans around the target for a void-side direction and aims there, within `scan-radius`.
-  Other settings: `delay` (ms), `ignore-one-block-wall` (VOID), `blink` (holds outgoing packets for the displaced ticks),
-  `only-knockback-items`, `render-arrow`.
-  - **Targets follow KillAura.** Displace only acts when KillAura's own combat input is allowed (its `require-press`,
-    `weapons-only`, `inventory-check` and mining rules), and it uses KillAura's `players`, `bot-check`, `teams` and
-    `swing-range` settings. With KillAura off, it works from left-click using the same rules.
-  - Displace no longer presses the attack key itself, so it won't land hits while your hands are off the mouse.
-  - Not ported: Raven's Override attack mode and the void debug overlay.
-- **Velocity `dynamic-delay`.** A new option in Velocity's `DELAY` mode. When on, the hold time is set from your ping:
-  `ceil(ping / 50)` ticks, clamped to 1–20. It falls back to `delay-ticks` when your tab-list entry isn't available.
-  `delay-ticks` is hidden while dynamic delay is on.
-- Mod version is now `4.0.0` (shown as `myau@4.0.0` in Forge).
+## What's new in 5.0.0
 
-## Version 3.1.0
+- Displace adapted from [OpenB4](https://codeberg.org/abusez/OpenB4/commit/3d63944cc79be890c013cc79e5ed92d3533b48a5), with Left, Right, Random, and Void modes.
+- Scaffold's Hypixel rotation mode and NoSlow's Blink mode adapted from BetterIvory.
+- KillAura AutoBlock includes Full, Predictive, Legit, and Blink.
+- Cleaner ClickGUI with draggable category panels, plus a vanilla-font `myau` watermark and TabGUI.
+- Optional `wrap-bar` setting under HUD for an outline around the entire ArrayList. Enable `bar` to show the option.
 
-- **Scaffold telly tower fix.** Tower `TELLY` no longer falls when you walk straight or diagonally while jumping. The takeoff
-  only triggers on the tick the jump actually fires, so landing no longer locks placement for a tick, and diagonal turn-backs
-  are no longer slowed down.
-- **Scaffold rotation smoothing.** New `rotation-smoothing` setting (default **65**, 0–100). It is only visible when
-  `rotations` is set to `DEFAULT`, and it controls how quickly yaw and pitch move toward the placement target.
+## Controls
 
-## What's new compared to the original Myau
+- **Insert** opens the ClickGUI by default. Left-click a module to toggle it, right-click to expand its settings, and use **B** to bind or **H** to hide it from the ArrayList.
+- **Up/Down** move through the TabGUI, **Right** opens a category, **Left** closes it, and **Enter** toggles the selected module. The watermark, TabGUI, and accent color are configurable under HUD.
+- In **Configs**, click a profile to load it or use **B** to assign a shortcut.
 
-### ClickGui
-- Opens with **Insert** (default). The same key closes it; Esc also closes it. Rebind it with the **ClickGui** module in the Render
-  panel, or with `.bind ClickGui <key>`.
-- Insert was chosen because Meowtils' own GUI uses Right Shift, and both reacting to one key made the GUI flash closed.
-- Modules are grouped into draggable panels: Combat, Movement, Player, Render, Misc and Configs. The mouse wheel scrolls.
-- **Left-click** toggles a module. **Right-click** expands its settings. Right-click a panel header to collapse it.
-- Settings are real controls: checkboxes, click-to-cycle modes, sliders for numbers, R/G/B sliders for colors, and inline text
-  editing for string settings (click, type, Enter to confirm, Esc to revert).
-- **Hide button (H)** on every module row toggles "hide in HUD", the same as the `.hide` command.
-- **Bind button (B)** on every module row: click it, then press a key or mouse button to bind. Right-click **B** to unbind.
-  Delete/Backspace while listening also unbinds, Esc cancels. Middle-clicking a module row also starts a bind.
-- A large **BetterMyau** watermark is drawn in the middle of the screen behind the panels, coloured from the HUD colour setting.
-- A hint line at the bottom of the screen lists the controls.
+## Build
 
-### Configs panel and config keybinds
-- The **Configs** panel lists every `.json` profile in `config/Myau`. Left-click one to load it (same as `.config load <name>`).
-  The active config is highlighted.
-- Each config has a **B** button to bind it to a key or mouse button; pressing that key in-game loads the config.
-  Right-click **B** to unbind. Binds are stored in `config/Myau/config_binds.txt`.
+The PowerShell build compiles the updated classes with JDK 8 and overlays them onto an existing BetterMyau JAR. The tree includes decompiled client sources. A rebuild also requires an SRG-mapped Minecraft 1.8.9 JAR and the Forge 1.8.9 client libraries.
 
-### Backtrack (new module, Combat)
-Ported from the Raven (keystrokesmod) `Backtrack`. It briefly holds back the target's movement packets while you attack, so you hit
-them at their older server-side position. Delay is adaptive, and packets are flushed on damage, velocity, explosions, teleports,
-respawn and world change. The delayed position is drawn as a box.
+```powershell
+.\build.ps1 -BaseJar 'C:/path/to/5.0.0.jar' -MinecraftSrg 'C:/path/to/mc-srg.jar' -Libraries 'C:/path/to/libraries' -Jdk 'C:/path/to/jdk8/bin'
+```
 
-Settings: `delay`, `min-distance`, `max-distance`, `cooldown`, `max-hurt-time`, `only-attacking`, `attack-window`,
-`adaptive-delay`, `disable-adventure`, `flush-on-damage`, `ignore-teammates`, `weapon-only`, `show-position` (NONE / DEFAULT / HUD).
-
-Differences from the Raven version: attacks are detected from the outgoing attack packet, and the position display is a mode setting
-instead of a toggle plus colour picker.
-
-### FreeLook (new module, Render)
-Ported from the Raven `Freelook`. Look around in third person without changing the direction your player faces.
-It uses the module's own keybind (default **Left Alt**, hold) instead of a separate key setting.
-
-Settings: `hold`, `invert-pitch`, `lock-pitch`, `custom-fov`, `fov`. Opening a menu or changing world turns it off.
-This adds two mixins (`MixinFreelookEntity`, `MixinFreelookRenderer`), registered in `mixins.myau.json`.
-
-### NickHider
-The `name` setting can now be typed directly in the ClickGui.
-
-## Changed / added files
-
-New classes in `myau/`: `BacktrackModule`, `ClickGuiModule`, `ClickGuiScreen`, `FreelookModule`, `ConfigBinds`,
-`DisplaceModule`, `mixin/MixinFreelookEntity`, `mixin/MixinFreelookRenderer`.
-
-Edited: `MyauClient` (registers the new modules), `MyauForgeMod` (mod name and version 4.0.0), `ScaffoldModule` (telly fix and
-rotation smoothing), `VelocityModule` (dynamic delay), `mixins.myau.json` (two new mixins), `mcmod.info` (version 4.0.0).
-
-## Not changed
-Chat messages still show the `[Myau]` prefix, and the mod id, package name and `config/Myau` folder keep the original names
-so nothing existing breaks.
-
-Proprietary License Notice
-
-Copyright (c) [2026] [BetterMyau Maintained by Sande10]. All rights reserved.
-
-Terms and Conditions for Use and Distribution:
-
-1. GRANT OF LICENSE: Permission is hereby granted, free of charge, to any person 
-   obtaining a copy of this software (the "Software"), to download, install, and 
-   run the Software for personal, non-commercial use only.
-
-2. RESTRICTIONS:
-   - NO DECOMPILATION: You may not reverse engineer, decompile, disassemble, or 
-     otherwise attempt to derive the source code or inner workings of the Software.
-   - NO MODIFICATION: You may not modify, adapt, translate, or create derivative 
-     works based upon the Software.
-   - NO REDISTRIBUTION: You may not re-upload, re-distribute, re-license, sell, 
-     or mirror the Software without explicit prior written consent from the copyright holder.
-
-3. DISCLAIMER OF WARRANTY:
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-   FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER 
-   LIABILITY, WHETHER IN AN ACTION ACTION OF CONTRACT, TORT, OR OTHERWISE, 
-   ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
-   DEALINGS IN THE SOFTWARE.
+The build writes `build/5.0.0.jar`.
