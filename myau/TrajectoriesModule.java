@@ -14,7 +14,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
@@ -42,34 +41,37 @@ extends Module {
         super("Trajectories", false, 0, true);
     }
 
-    @EventHandler
-    public void onRenderWorld(RenderWorldEvent event) {
+    static final class Prediction {
+        final ArrayList<Vec3> points = new ArrayList<>();
+        MovingObjectPosition hit;
+    }
+
+    Prediction predictPath() {
         float radius;
         float gravity;
-        if (!this.isEnabled()) {
-            return;
+        if (!this.isEnabled() || minecraft.field_71439_g == null || minecraft.field_71441_e == null) {
+            return null;
         }
         if (TrajectoriesModule.minecraft.field_71439_g.func_70694_bm() == null) {
-            return;
+            return null;
         }
         if (TrajectoriesModule.minecraft.field_71474_y.field_74320_O != 0) {
-            return;
+            return null;
         }
         Item item = TrajectoriesModule.minecraft.field_71439_g.func_70694_bm().func_77973_b();
-        RenderManager renderManager = minecraft.func_175598_ae();
         boolean arrow = false;
         float speed = 1.5f;
         float drag = 0.99f;
         if (item instanceof ItemBow && ((Boolean)this.bow.getValue()).booleanValue()) {
             if (!TrajectoriesModule.minecraft.field_71439_g.func_71039_bw()) {
-                return;
+                return null;
             }
             arrow = true;
             gravity = 0.05f;
-            radius = 0.3f;
+            radius = 0.25f;
             float charge = (float)TrajectoriesModule.minecraft.field_71439_g.func_71057_bx() / 20.0f;
             if ((charge = (charge * charge + charge * 2.0f) / 3.0f) < 0.1f) {
-                return;
+                return null;
             }
             if (charge > 1.0f) {
                 charge = 1.0f;
@@ -77,23 +79,23 @@ extends Module {
             speed = charge * 3.0f;
         } else if (item instanceof ItemFishingRod && ((Boolean)this.projectiles.getValue()).booleanValue()) {
             gravity = 0.04f;
-            radius = 0.25f;
+            radius = 0.125f;
             drag = 0.92f;
         } else if ((item instanceof ItemSnowball || item instanceof ItemEgg) && ((Boolean)this.projectiles.getValue()).booleanValue()) {
             gravity = 0.03f;
-            radius = 0.25f;
+            radius = 0.125f;
         } else {
             if (!(item instanceof ItemEnderPearl) || !((Boolean)this.pearls.getValue()).booleanValue()) {
-                return;
+                return null;
             }
             gravity = 0.03f;
-            radius = 0.25f;
+            radius = 0.125f;
         }
-        float yaw = TrajectoriesModule.minecraft.field_71439_g.field_70177_z;
-        float pitch = TrajectoriesModule.minecraft.field_71439_g.field_70125_A;
-        double x = ((AccessorRenderManager)renderManager).getRenderPosX() - (double)MathHelper.func_76134_b((float)(yaw / 180.0f * (float)Math.PI)) * 0.16;
-        double y = ((AccessorRenderManager)renderManager).getRenderPosY() + (double)TrajectoriesModule.minecraft.field_71439_g.func_70047_e() - (double)0.1f;
-        double z = ((AccessorRenderManager)renderManager).getRenderPosZ() - (double)MathHelper.func_76126_a((float)(yaw / 180.0f * (float)Math.PI)) * 0.16;
+        float yaw = RotationState.isActiveWithinTicks(1) ? RotationState.headYaw() : minecraft.field_71439_g.field_70177_z;
+        float pitch = RotationState.isActiveWithinTicks(1) ? RotationState.pitch() : minecraft.field_71439_g.field_70125_A;
+        double x = minecraft.field_71439_g.field_70165_t - (double)MathHelper.func_76134_b((float)(yaw / 180.0f * (float)Math.PI)) * (double)0.16f;
+        double y = minecraft.field_71439_g.field_70163_u + (double)TrajectoriesModule.minecraft.field_71439_g.func_70047_e() - (double)0.1f;
+        double z = minecraft.field_71439_g.field_70161_v - (double)MathHelper.func_76126_a((float)(yaw / 180.0f * (float)Math.PI)) * (double)0.16f;
         double motionX = (double)(MathHelper.func_76126_a((float)(yaw / 180.0f * (float)Math.PI)) * MathHelper.func_76134_b((float)(pitch / 180.0f * (float)Math.PI))) * (arrow ? 1.0 : 0.4) * -1.0;
         double motionY = (double)MathHelper.func_76126_a((float)(pitch / 180.0f * (float)Math.PI)) * (arrow ? 1.0 : 0.4) * -1.0;
         double motionZ = (double)(MathHelper.func_76134_b((float)(yaw / 180.0f * (float)Math.PI)) * MathHelper.func_76134_b((float)(pitch / 180.0f * (float)Math.PI))) * (arrow ? 1.0 : 0.4);
@@ -104,65 +106,86 @@ extends Module {
         motionX *= (double)speed;
         motionY *= (double)speed;
         motionZ *= (double)speed;
-        MovingObjectPosition hit = null;
-        boolean collided = false;
-        boolean hitEntity = false;
-        WorldRenderer renderer = Tessellator.func_178181_a().func_178180_c();
-        ArrayList<Vec3> points = new ArrayList<Vec3>();
-        while (!collided && y > 0.0) {
+        Prediction prediction = new Prediction();
+        prediction.points.add(new Vec3(x, y, z));
+        while (prediction.points.size() < 512 && y > 0.0) {
             Vec3 start = new Vec3(x, y, z);
             Vec3 end = new Vec3(x + motionX, y + motionY, z + motionZ);
-            hit = TrajectoriesModule.minecraft.field_71441_e.func_147447_a(start, end, false, true, false);
-            start = new Vec3(x, y, z);
-            end = new Vec3(x + motionX, y + motionY, z + motionZ);
+            MovingObjectPosition hit = minecraft.field_71441_e.func_147447_a(start, end, false, arrow, false);
+            if (hit != null) end = hit.field_72307_f;
+            double nearest = start.func_72438_d(end);
             AxisAlignedBB searchBox = new AxisAlignedBB(x - (double)radius, y - (double)radius, z - (double)radius, x + (double)radius, y + (double)radius, z + (double)radius).func_72321_a(motionX, motionY, motionZ).func_72314_b(1.0, 1.0, 1.0);
             int firstChunkX = MathHelper.func_76128_c((double)((searchBox.field_72340_a - 2.0) / 16.0));
             int lastChunkX = MathHelper.func_76128_c((double)((searchBox.field_72336_d + 2.0) / 16.0));
             int firstChunkZ = MathHelper.func_76128_c((double)((searchBox.field_72339_c - 2.0) / 16.0));
             int lastChunkZ = MathHelper.func_76128_c((double)((searchBox.field_72334_f + 2.0) / 16.0));
-            ArrayList entities = new ArrayList();
+            ArrayList<Entity> entities = new ArrayList<>();
             for (int chunkX = firstChunkX; chunkX <= lastChunkX; ++chunkX) {
                 for (int chunkZ = firstChunkZ; chunkZ <= lastChunkZ; ++chunkZ) {
                     TrajectoriesModule.minecraft.field_71441_e.func_72964_e(chunkX, chunkZ).func_177414_a((Entity)TrajectoriesModule.minecraft.field_71439_g, searchBox, entities, null);
                 }
             }
             for (Entity entity : entities) {
-                AxisAlignedBB bounds;
-                MovingObjectPosition intercept;
-                if (!entity.func_70067_L() || entity == TrajectoriesModule.minecraft.field_71439_g || (intercept = (bounds = entity.func_174813_aQ().func_72314_b((double)radius, (double)radius, (double)radius)).func_72327_a(start, end)) == null) continue;
-                hitEntity = true;
-                collided = true;
-                hit = intercept;
+                if (!entity.func_70067_L() || entity == minecraft.field_71439_g) continue;
+                MovingObjectPosition intercept = entity.func_174813_aQ().func_72314_b(0.3, 0.3, 0.3).func_72327_a(start, end);
+                if (intercept == null) continue;
+                double distance = start.func_72438_d(intercept.field_72307_f);
+                if (distance >= nearest) continue;
+                nearest = distance;
+                hit = new MovingObjectPosition(entity, intercept.field_72307_f);
             }
-            if (TrajectoriesModule.minecraft.field_71441_e.func_180495_p(new BlockPos(x += motionX, y += motionY, z += motionZ)).func_177230_c().func_149688_o() == Material.field_151586_h) {
-                motionX *= 0.6;
-                motionY *= 0.6;
-                motionZ *= 0.6;
-            } else {
-                motionX *= (double)drag;
-                motionY *= (double)drag;
-                motionZ *= (double)drag;
+            if (hit != null) {
+                prediction.hit = hit;
+                prediction.points.add(hit.field_72307_f);
+                return prediction;
             }
-            motionY -= (double)gravity;
-            points.add(new Vec3(x - ((AccessorRenderManager)renderManager).getRenderPosX(), y - ((AccessorRenderManager)renderManager).getRenderPosY(), z - ((AccessorRenderManager)renderManager).getRenderPosZ()));
+            x += motionX;
+            y += motionY;
+            z += motionZ;
+            prediction.points.add(new Vec3(x, y, z));
+            boolean water = minecraft.field_71441_e.func_180495_p(new BlockPos(x, y, z)).func_177230_c().func_149688_o() == Material.field_151586_h;
+            float slowdown = water ? (arrow ? 0.6f : 0.8f) : drag;
+            if (item instanceof ItemFishingRod) motionY -= gravity;
+            motionX *= slowdown;
+            motionY *= slowdown;
+            motionZ *= slowdown;
+            if (!(item instanceof ItemFishingRod)) motionY -= gravity;
         }
-        if (points.size() <= 1) {
-            return;
-        }
+        return prediction;
+    }
+
+    @EventHandler
+    public void onRenderWorld(RenderWorldEvent event) {
+        Prediction prediction = predictPath();
+        if (prediction == null || prediction.points.size() < 2) return;
+        AccessorRenderManager camera = (AccessorRenderManager)minecraft.func_175598_ae();
+        boolean hitEntity = prediction.hit != null && prediction.hit.field_72313_a == MovingObjectPosition.MovingObjectType.ENTITY;
+        Color color = new Color(hitEntity ? 85 : 255, 255, hitEntity ? 85 : 255, (int)(opacity.getValue() / 100.0f * 255.0f));
         RenderUtils.beginOverlay();
-        RenderUtils.setColor(new Color(hitEntity ? 85 : 255, 255, hitEntity ? 85 : 255, (int)(((Integer)this.opacity.getValue()).floatValue() / 100.0f * 255.0f)).getRGB());
-        GL11.glLineWidth((float)1.5f);
-        GL11.glEnable((int)2848);
-        GL11.glHint((int)3154, (int)4354);
-        renderer.func_181668_a(3, DefaultVertexFormats.field_181705_e);
-        points.forEach(point -> renderer.func_181662_b(point.field_72450_a, point.field_72448_b, point.field_72449_c).func_181675_d());
-        Tessellator.func_178181_a().func_78381_a();
-        GlStateManager.func_179094_E();
-        GlStateManager.func_179137_b((double)(x - ((AccessorRenderManager)renderManager).getRenderPosX()), (double)(y - ((AccessorRenderManager)renderManager).getRenderPosY()), (double)(z - ((AccessorRenderManager)renderManager).getRenderPosZ()));
-        GlStateManager.func_179121_F();
-        GL11.glDisable((int)2848);
-        GL11.glLineWidth((float)2.0f);
-        GlStateManager.func_179117_G();
-        RenderUtils.endOverlay();
+        try {
+            RenderUtils.setColor(color.getRGB());
+            GL11.glLineWidth(1.5f);
+            GL11.glEnable(2848);
+            GL11.glHint(3154, 4354);
+            WorldRenderer renderer = Tessellator.func_178181_a().func_178180_c();
+            renderer.func_181668_a(3, DefaultVertexFormats.field_181705_e);
+            for (Vec3 point : prediction.points) {
+                renderer.func_181662_b(point.field_72450_a - camera.getRenderPosX(), point.field_72448_b - camera.getRenderPosY(), point.field_72449_c - camera.getRenderPosZ()).func_181675_d();
+            }
+            Tessellator.func_178181_a().func_78381_a();
+            if (prediction.hit != null) {
+                Vec3 hit = prediction.hit.field_72307_f;
+                double x = hit.field_72450_a - camera.getRenderPosX();
+                double y = hit.field_72448_b - camera.getRenderPosY();
+                double z = hit.field_72449_c - camera.getRenderPosZ();
+                RenderUtils.outlineBounds(new AxisAlignedBB(x - 0.08, y - 0.08, z - 0.08, x + 0.08, y + 0.08, z + 0.08),
+                        color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha(), 1.5f);
+            }
+        } finally {
+            GL11.glDisable(2848);
+            GL11.glLineWidth(2.0f);
+            GlStateManager.func_179117_G();
+            RenderUtils.endOverlay();
+        }
     }
 }

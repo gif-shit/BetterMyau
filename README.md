@@ -9,6 +9,7 @@ Download [`5.4.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.4) a
 ## What's new in 5.4
 
 - Added pit module, sword swap, and pantswap.
+- Fixed Trajectories to stop at the first block or entity impact and mark the landing point.
 
 -bleach
 

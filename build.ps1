@@ -31,7 +31,7 @@ $sources = @(
     'modules/Pit', 'modules/pit/PitAutoMath', 'modules/pit/PitHud', 'modules/pit/PitMinecraft',
     'modules/PantSwap', 'modules/pantswap/PantSwapMinecraft',
     'modules/SwordSwap', 'modules/swordswap/SwordSwapMinecraft', 'modules/swordswap/SwordSwapMinecraftAccess',
-    'ScaffoldModule', 'HypixelScaffoldPacing', 'DisplaceModule',
+    'ScaffoldModule', 'HypixelScaffoldPacing', 'DisplaceModule', 'TrajectoriesModule',
     'FlyModule', 'mixin/AccessorC03PacketPlayer', 'mixin/MixinFlyPlayer',
     'HUDModule', 'TabGui', 'ModuleCategory', 'ClickGuiScreen', 'MyauForgeMod',
     'KillAuraModule', 'ModuleModeIds', 'AutoClickerModule', 'OutgoingBufferOwner',
