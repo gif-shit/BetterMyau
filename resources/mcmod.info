@@ -3,7 +3,7 @@
     "modid": "myau",
     "name": "BetterMyau",
     "description": "BetterMyau client mod for Minecraft Forge 1.8.9.",
-    "version": "5.3",
+    "version": "5.4",
     "mcversion": "1.8.9",
     "clientSideOnly": true
   }

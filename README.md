@@ -1,10 +1,16 @@
 # BetterMyau
 
-BetterMyau 5.3 is a client-side mod for Minecraft Forge 1.8.9. The client sources are in `myau/`, and the bundled profile and Forge metadata are in `resources/`.
+BetterMyau 5.4 is a client-side mod for Minecraft Forge 1.8.9. The client sources are in `myau/`, and the bundled profile and Forge metadata are in `resources/`.
 
 ## Install
 
-Download [`5.3.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.3) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
+Download [`5.4.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.4) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
+
+## What's new in 5.4
+
+- Added pit module, sword swap, and pantswap.
+
+-bleach
 
 ## What's new in 5.3
 
@@ -14,9 +20,6 @@ Download [`5.3.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.3) a
 - Stable checks placement again after movement to place newly reachable blocks in the same tick.
 - Added tower-on-press: hold right-click to activate the selected tower mode.
 - Fixed Stable + Extra diagonal tower missing reachable block faces at corners.
-- Added Pit, PantSwap, and SwordSwap. Pit includes player lists, chat filters, auto-math, inventory cleaning, and player hiding. PantSwap waits for server confirmations; SwordSwap includes animation and full item spoofing.
-- Pit uses loaded equipment, friends/enemies, and matching cached profile data. Spawn hiding learns the spawn level from the scoreboard's idle/spawn status; it waits until that level is known. Event scheduling reports unavailable because a schedule provider is not included.
-- Pit's inventory cleaner is disabled by default. When enabled, it drops whole iron armor stacks, including named or enchanted armor, and plain iron swords when a diamond sword is in the hotbar.
 
 -bleach
 
@@ -44,6 +47,12 @@ Download [`5.3.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.3) a
 - **Up/Down** move through the TabGUI, **Right** opens a category, **Left** closes it, and **Enter** toggles the selected module. The watermark, TabGUI, and accent color are configurable under HUD.
 - In **Configs**, click a profile to load it or use **B** to assign a shortcut.
 
+## Pit and swaps
+
+- Added Pit, PantSwap, and SwordSwap. Pit includes player lists, chat filters, auto-math, inventory cleaning, and player hiding. PantSwap waits for server confirmations; SwordSwap includes animation and full item spoofing.
+- Pit uses loaded equipment, friends/enemies, and matching cached profile data. Spawn hiding learns the spawn level from the scoreboard's idle/spawn status; it waits until that level is known. Event scheduling reports unavailable because a schedule provider is not included.
+- Pit's inventory cleaner is disabled by default. When enabled, it drops whole iron armor stacks, including named or enchanted armor, and plain iron swords when a diamond sword is in the hotbar.
+
 ## Build
 
 The PowerShell build compiles the updated classes with JDK 8 and overlays them onto an existing BetterMyau JAR. The tree includes decompiled client sources. A rebuild also requires an SRG-mapped Minecraft 1.8.9 JAR and the Forge 1.8.9 client libraries.
@@ -52,7 +61,7 @@ The PowerShell build compiles the updated classes with JDK 8 and overlays them o
 .\build.ps1 -BaseJar 'C:/path/to/5.1.jar' -MinecraftSrg 'C:/path/to/mc-srg.jar' -Libraries 'C:/path/to/libraries' -Jdk 'C:/path/to/jdk8/bin'
 ```
 
-The build writes `build/5.3.jar`.
+The build writes `build/5.4.jar`.
 
 Run the headless Fly regression checks after building:
 
