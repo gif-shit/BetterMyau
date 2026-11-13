@@ -10,7 +10,7 @@ import myau.MyauClient;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
-@Mod(modid="myau", name="BetterMyau", version="5.2", clientSideOnly=true, acceptedMinecraftVersions="[1.8.9]")
+@Mod(modid="myau", name="BetterMyau", version="5.3", clientSideOnly=true, acceptedMinecraftVersions="[1.8.9]")
 public final class MyauForgeMod {
     public static final String MOD_ID = "myau";
 

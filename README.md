@@ -1,19 +1,21 @@
 # BetterMyau
 
-BetterMyau 5.2 is a client-side mod for Minecraft Forge 1.8.9. The client sources are in `myau/`, and the bundled profile and Forge metadata are in `resources/`.
+BetterMyau 5.3 is a client-side mod for Minecraft Forge 1.8.9. The client sources are in `myau/`, and the bundled profile and Forge metadata are in `resources/`.
 
 ## Install
 
-Download [`5.2.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.2) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
+Download [`5.3.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.3) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
 
-## Development changes
+## What's new in 5.3
 
-- Scaffold now uses the supplied 260811 reconstruction for placement, hotbar selection, movement, towers, keep-Y, sneaking, and multi-place. The existing Hypixel rotation smoothing and turn pacing are retained. STABLE rotations, OLDNCP keep-Y, vertical tower prediction, and tower-on-press are available.
-- The supplied Scaffold is a functional reconstruction with inferred search and advanced movement policies; original-client and live-server equivalence remain unverified.
+- Reworked Scaffold placement, hotbar selection, movement, towers, keep-Y, sneaking, and multi-place. The existing Hypixel rotations are retained.
+- Added STABLE rotations, OLDNCP keep-Y, vertical tower prediction, tower-on-press, and sneak controls.
+
+-bleach
 
 ## What's new in 5.2
 
-- Rewound.cc flight module: Fly ported from Ivory's active Fly3 module, with Rewound A (Vanilla and OldNCP Slow/Damage), Rewound B, bow damage, drop flight, optional vertical ascent, and timer controls. The existing `Fly` config section and horizontal/vertical speed keys are retained; new settings use Ivory's defaults.
+- Rewound.cc flight module, with Rewound A (Vanilla and OldNCP Slow/Damage), Rewound B, bow damage, drop flight, optional vertical ascent, and timer controls. The existing `Fly` config section and horizontal/vertical speed keys are retained.
 - 1st commit from bleach
 
 ## What's new in 5.1
@@ -43,7 +45,7 @@ The PowerShell build compiles the updated classes with JDK 8 and overlays them o
 .\build.ps1 -BaseJar 'C:/path/to/5.1.jar' -MinecraftSrg 'C:/path/to/mc-srg.jar' -Libraries 'C:/path/to/libraries' -Jdk 'C:/path/to/jdk8/bin'
 ```
 
-The build writes `build/5.2.jar`.
+The build writes `build/5.3.jar`.
 
 Run the headless Fly regression checks after building:
 
@@ -51,7 +53,7 @@ Run the headless Fly regression checks after building:
 .\tests\test-fly.ps1 -MinecraftSrg 'C:/path/to/mc-srg.jar' -Libraries 'C:/path/to/libraries' -Jdk 'C:/path/to/jdk8/bin'
 ```
 
-These checks cover the port's movement, packet flags, damage setup, bow timeout, and timer restoration. They do not establish live server compatibility.
+These checks cover movement, packet flags, damage setup, bow timeout, and timer restoration. They do not establish live server compatibility.
 
 Run the Scaffold core and integration checks, including the Fly checks for the shared event hooks:
 
