@@ -266,6 +266,10 @@ public final class ScaffoldIntegrationRegression {
             pitchSteps[preset] = turn.getPitch();
             float error = Math.abs(net.minecraft.util.MathHelper.func_76142_g(-180 - turn.getYaw()));
             float pitch = targetPitch.getFloat(module);
+            if (smoothing[preset] == 100) {
+                check(yawSteps[preset] > 130 && yawSteps[preset] < 180, "hardcoded Stable speed accelerates yaw while preserving smoothing");
+                check(pitchSteps[preset] > pitch * 0.6f && pitchSteps[preset] < pitch, "hardcoded Stable speed accelerates pitch without overshooting");
+            }
             for (int tick = 0; tick < 8; ++tick) {
                 RotationUpdateEvent next = new RotationUpdateEvent(turn.getYaw(), turn.getPitch(), 0, 0);
                 module.onRotationUpdate(next);
@@ -280,7 +284,7 @@ public final class ScaffoldIntegrationRegression {
             module.setEnabled(false);
         }
         check(yawSteps[0] > 179.99, "zero smoothing gives the fastest full turn in one tick");
-        check(yawSteps[2] < yawSteps[1] && yawSteps[1] < yawSteps[0], "higher smoothing makes yaw turns progressively gentler");
+        check(yawSteps[2] < yawSteps[1] && yawSteps[1] <= yawSteps[0], "higher smoothing makes yaw turns progressively gentler");
         check(pitchSteps[2] < pitchSteps[1] && pitchSteps[1] <= pitchSteps[0], "higher smoothing makes pitch turns progressively gentler");
         module.stableSmoothing.setValue(0);
         for (int mode = 1; mode <= 2; ++mode) {

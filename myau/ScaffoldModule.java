@@ -398,6 +398,11 @@ extends Module {
                 yaw = turn[0];
                 pitch = turn[1];
             }
+            float speed = 1.5f;
+            float yawStep = RotationUtils.clampAngleChange(MathHelper.func_76142_g(yaw - previousYaw) * speed, Math.abs(MathHelper.func_76142_g(stableYaw - previousYaw)));
+            float pitchStep = RotationUtils.clampAngleChange((pitch - previousPitch) * speed, Math.abs(placementPitch - previousPitch));
+            yaw = RotationUtils.snapToMouseSensitivity(previousYaw + yawStep, previousYaw);
+            pitch = RotationUtils.snapToMouseSensitivity(previousPitch + pitchStep, previousPitch);
             event.setRotation(yaw, pitch, 3);
             if (moveFix.getValue() == 1) event.setMovementYaw(yaw, 3);
             return;
