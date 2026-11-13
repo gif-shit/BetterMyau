@@ -77,6 +77,7 @@ extends Module {
 
     public final ModeSetting rotations = new ModeSetting("rotations", 2, new String[]{"NONE", "DEFAULT", "BACKWARDS", "SIDEWAYS", "HYPIXEL", "STABLE"});
     public final PercentSetting rotationSmoothing = new PercentSetting("rotation-smoothing", 65, () -> rotations.getValue() == 1 || isHypixelRotation());
+    public final PercentSetting stableSmoothing = new PercentSetting("stable-smoothing", 0, this::isStableRotation);
     public final ModeSetting moveFix = new ModeSetting("move-fix", 1, new String[]{"NONE", "SILENT"});
     public final ModeSetting sprint = new ModeSetting("sprint", 0, new String[]{"NONE", "VANILLA"});
     public final PercentSetting groundMotion = new PercentSetting("ground-motion", 100);
@@ -389,8 +390,16 @@ extends Module {
         int mode = rotations.getValue();
         if (mode == 0) return;
         if (isStableRotation()) {
-            event.setRotation(stableYaw, placementPitch, 3);
-            if (moveFix.getValue() == 1) event.setMovementYaw(stableYaw, 3);
+            float yaw = stableYaw;
+            float pitch = placementPitch;
+            if (stableSmoothing.getValue() > 0) {
+                placementYaw = stableYaw;
+                float[] turn = smoothPlacement(previousYaw, previousPitch, MathHelper.func_76142_g(stableYaw - previousYaw), stableSmoothing.getValue(), 180.0f);
+                yaw = turn[0];
+                pitch = turn[1];
+            }
+            event.setRotation(yaw, pitch, 3);
+            if (moveFix.getValue() == 1) event.setMovementYaw(yaw, 3);
             return;
         }
         if (hasPlacementRotation && MovementUtils.hasMovementInput()

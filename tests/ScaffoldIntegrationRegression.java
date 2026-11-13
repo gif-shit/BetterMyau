@@ -178,7 +178,10 @@ public final class ScaffoldIntegrationRegression {
         bind(module);
         check(module.rotations.getModes()[4].equals("HYPIXEL") && module.rotations.getModes()[5].equals("STABLE"), "Hypixel retained and Stable added");
         check(module.keepY.getModes().length == 4 && !module.towerOnPress.getValue(), "previous Scaffold settings and jump trigger restored");
+        check(!module.stableSmoothing.isVisible() && module.stableSmoothing.getValue() == 0, "Stable smoothing is hidden outside Stable and defaults to fastest");
         module.rotations.setValue(5);
+        check(module.stableSmoothing.isVisible(), "Stable smoothing slider is visible in Stable");
+        check(!module.stableSmoothing.setValue(-1) && !module.stableSmoothing.setValue(101), "Stable smoothing is limited to zero through one hundred percent");
         module.setEnabled(true);
         float previousYaw = 0, previousPitch = 0;
         float lockedYaw = Float.NaN;
@@ -245,6 +248,41 @@ public final class ScaffoldIntegrationRegression {
         player.field_70165_t = player.field_70169_q = 0.5;
         player.field_71071_by.field_70461_c = 2;
         player.field_71071_by.field_70462_a[2].field_77994_a = 64;
+        player.field_70177_z = 0;
+        Field randomField = RandomUtils.class.getDeclaredField("RANDOM");
+        randomField.setAccessible(true);
+        java.util.Random random = (java.util.Random)randomField.get(null);
+        Field targetPitch = ScaffoldModule.class.getDeclaredField("placementPitch");
+        targetPitch.setAccessible(true);
+        float[] yawSteps = new float[3], pitchSteps = new float[3];
+        int[] smoothing = {0, 35, 100};
+        for (int preset = 0; preset < smoothing.length; ++preset) {
+            module.stableSmoothing.setValue(smoothing[preset]);
+            module.setEnabled(true);
+            random.setSeed(42);
+            RotationUpdateEvent turn = new RotationUpdateEvent(0, 0, 0, 0);
+            module.onRotationUpdate(turn);
+            yawSteps[preset] = Math.abs(net.minecraft.util.MathHelper.func_76142_g(turn.getYaw()));
+            pitchSteps[preset] = turn.getPitch();
+            float error = Math.abs(net.minecraft.util.MathHelper.func_76142_g(-180 - turn.getYaw()));
+            float pitch = targetPitch.getFloat(module);
+            for (int tick = 0; tick < 8; ++tick) {
+                RotationUpdateEvent next = new RotationUpdateEvent(turn.getYaw(), turn.getPitch(), 0, 0);
+                module.onRotationUpdate(next);
+                float remaining = Math.abs(net.minecraft.util.MathHelper.func_76142_g(-180 - next.getYaw()));
+                check(remaining <= error + 0.01, "Stable smoothing approaches the requested direction without reversing");
+                near(next.getMovementYaw(), next.getYaw(), "movement correction follows the applied smoothed yaw");
+                error = remaining;
+                turn = next;
+            }
+            check(error < 0.01, "Stable smoothing reaches the requested yaw");
+            near(turn.getPitch(), pitch, "Stable smoothing reaches the placement pitch");
+            module.setEnabled(false);
+        }
+        check(yawSteps[0] > 179.99, "zero smoothing gives the fastest full turn in one tick");
+        check(yawSteps[2] < yawSteps[1] && yawSteps[1] < yawSteps[0], "higher smoothing makes yaw turns progressively gentler");
+        check(pitchSteps[2] < pitchSteps[1] && pitchSteps[1] <= pitchSteps[0], "higher smoothing makes pitch turns progressively gentler");
+        module.stableSmoothing.setValue(0);
         for (int mode = 1; mode <= 2; ++mode) {
             module.tower.setValue(mode);
             module.towerOnPress.setValue(true);

@@ -9,6 +9,7 @@ Download [`5.3.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.3) a
 ## What's new in 5.3
 
 - Added STABLE rotations to Scaffold: follows your camera and movement inputs without turning toward individual blocks. Pitch adjusts for placement. The existing Hypixel rotations are retained.
+- Added Stable Smoothing: 0% gives the fastest turn; higher values make yaw and pitch changes more gradual.
 - Added tower-on-press: hold right-click to activate the selected tower mode.
 
 -bleach
