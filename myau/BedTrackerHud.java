@@ -4,10 +4,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 
 final class BedTrackerHud {
-    static final int height = 68;
+    static int height(boolean tracked) {
+        return tracked ? 68 : 22;
+    }
+
+    static String searching(long now) {
+        return "searching" + "...".substring(0, (int) (Math.floorMod(now, 1600L) / 400));
+    }
 
     static String status(boolean tracked, boolean loaded, boolean intact, double threat, int range) {
-        if (!tracked) return "SEARCHING";
+        if (!tracked) return "searching";
         if (!loaded) return "OUT OF RANGE";
         if (!intact) return "BED LOST";
         return threat >= 0 && threat < range ? "THREAT NEARBY" : "SECURE";
@@ -27,15 +33,19 @@ final class BedTrackerHud {
         return mode == 2 ? available - size - offset - 1 : offset + 1;
     }
 
-    static int width(String threat) {
-        return Math.max(186, Minecraft.func_71410_x().field_71466_p.func_78256_a(threat) + 22);
+    static int width(String threat, boolean tracked) {
+        FontRenderer font = Minecraft.func_71410_x().field_71466_p;
+        return tracked ? Math.max(186, font.func_78256_a(threat) + 22) : font.func_78256_a("searching...") + 16;
     }
 
-    static void draw(int width, String status, String distance, String threat, float danger, int accent, boolean shadow) {
+    static void draw(int width, String status, String distance, String threat, float danger, int accent, boolean shadow, boolean tracked) {
         FontRenderer font = Minecraft.func_71410_x().field_71466_p;
-        RenderUtils.roundedRect(0, 0, width, height, 6, 0xe51a1d26);
-        RenderUtils.roundedRect(0, 0, 3, height, 1.5f, accent);
-        font.func_175065_a("BED GUARD", 11, 9, 0xfff0f2f8, shadow);
+        if (!tracked) {
+            RenderUtils.roundedRect(0, 0, width, height(false), 5, accent & 0xffffff | 0x22000000);
+            font.func_175065_a(status, 8, 7, accent, false);
+            return;
+        }
+        RenderUtils.roundedRect(0, 0, width, height(true), 6, 0xe51a1d26);
         int statuswidth = font.func_78256_a(status);
         RenderUtils.roundedRect(width - statuswidth - 19, 7, width - 8, 20, 4, accent & 0xffffff | 0x22000000);
         font.func_175065_a(status, width - statuswidth - 13, 10, accent, false);

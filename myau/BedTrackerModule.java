@@ -204,20 +204,21 @@ public class BedTrackerModule extends Module {
         boolean loaded = tracked && minecraft.field_71441_e.func_175667_e(this.trackedBed);
         boolean intact = loaded && this.isBed(this.trackedBed);
         String status = BedTrackerHud.status(tracked, loaded, intact, this.nearestThreat, this.alertsRange.getValue());
-        String distance = "Waiting for your bed";
+        if (!tracked) status = BedTrackerHud.searching(System.currentTimeMillis());
+        String distance = "";
         if (tracked) {
             int blocks = (int) Math.ceil(Math.sqrt(minecraft.field_71439_g.func_174831_c(this.trackedBed)));
             distance = blocks + "m from your bed";
         }
         String threat = this.nearestName == null ? "No enemy in sight" : this.nearestName + "  " + (int) Math.ceil(this.nearestThreat) + "m to bed";
-        if (!tracked) threat = "Tracks your bed when the game starts";
+        if (!tracked) threat = "";
         else if (!loaded) threat = "Return closer to check your bed";
         else if (!intact) threat = "Your bed has been destroyed";
-        int width = BedTrackerHud.width(threat);
+        int width = BedTrackerHud.width(threat, tracked);
         float scale = this.hudScale.getValue();
         ScaledResolution resolution = new ScaledResolution(minecraft);
         float x = BedTrackerHud.anchor(this.hudPositionX.getValue(), resolution.func_78326_a() / scale, width, this.hudOffsetX.getValue() / scale);
-        float y = BedTrackerHud.anchor(this.hudPositionY.getValue(), resolution.func_78328_b() / scale, BedTrackerHud.height, this.hudOffsetY.getValue() / scale);
+        float y = BedTrackerHud.anchor(this.hudPositionY.getValue(), resolution.func_78328_b() / scale, BedTrackerHud.height(tracked), this.hudOffsetY.getValue() / scale);
         GlStateManager.func_179094_E();
         try {
             GlStateManager.func_179152_a(scale, scale, 1);
@@ -227,7 +228,7 @@ public class BedTrackerModule extends Module {
             GlStateManager.func_179112_b(770, 771);
             BedTrackerHud.draw(width, status, distance, threat,
                     intact ? BedTrackerHud.meter(this.nearestThreat, this.alertsRange.getValue()) : 0,
-                    BedTrackerHud.accent(tracked, loaded, intact, this.nearestThreat, this.alertsRange.getValue()), this.hudShadow.getValue());
+                    BedTrackerHud.accent(tracked, loaded, intact, this.nearestThreat, this.alertsRange.getValue()), this.hudShadow.getValue(), tracked);
         } finally {
             GlStateManager.func_179117_G();
             GlStateManager.func_179084_k();

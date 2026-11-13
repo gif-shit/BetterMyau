@@ -54,6 +54,7 @@ public class ClickGuiScreen extends GuiScreen {
     private String bindingConfig;
     private StringSetting editingString;
     private String editingOriginal;
+    private boolean categoriesOpen;
 
     public ClickGuiScreen() {
         if (PANELS.isEmpty()) {
@@ -245,6 +246,50 @@ public class ClickGuiScreen extends GuiScreen {
         }
         drawChrome(font, accent);
         super.func_73863_a(mouseX, mouseY, partialTicks);
+        drawCategories(font, mouseX, mouseY, accent);
+    }
+
+    private void drawCategories(FontRenderer font, int mouseX, int mouseY, int accent) {
+        int buttonX = this.field_146294_l - 94;
+        RenderUtils.roundedRect(buttonX, 4, buttonX + 84, 20, 4, categoriesOpen ? BORDER : PANEL);
+        font.func_175063_a("Categories", buttonX + 7, 8, LABEL);
+        font.func_175063_a(categoriesOpen ? "^" : "v", buttonX + 71, 8, accent);
+        if (!categoriesOpen) return;
+        int left = this.field_146294_l - 152;
+        RenderUtils.roundedRect(left, 24, left + 142, 32 + PANELS.size() * 18, 5, PANEL);
+        for (int index = 0; index < PANELS.size(); index++) {
+            Panel panel = PANELS.get(index);
+            int top = 28 + index * 18;
+            if (mouseX >= left && mouseX < left + 142 && mouseY >= top && mouseY < top + 18)
+                Gui.func_73734_a(left + 3, top, left + 139, top + 18, PANEL_HEADER);
+            font.func_175063_a(panel.title, left + 9, top + 5, LABEL);
+            boolean visible = ClickGuiModule.categoryVisible(panel.title);
+            Gui.func_73734_a(left + 119, top + 6, left + 131, top + 12, visible ? accent : BORDER);
+            int knob = visible ? left + 126 : left + 120;
+            Gui.func_73734_a(knob, top + 7, knob + 4, top + 11, LABEL);
+        }
+    }
+
+    private boolean clickCategories(int mouseX, int mouseY, int button) {
+        if (mouseX >= this.field_146294_l - 94 && mouseX < this.field_146294_l - 10 && mouseY >= 4 && mouseY < 20) {
+            if (button == 0) categoriesOpen = !categoriesOpen;
+            draggingPanel = null;
+            draggingSlider = null;
+            draggingColor = null;
+            return true;
+        }
+        if (!categoriesOpen) return false;
+        int left = this.field_146294_l - 152;
+        int index = (mouseY - 28) / 18;
+        if (button == 0 && mouseX >= left && mouseX < left + 142 && mouseY >= 28 && index < PANELS.size()) {
+            ClickGuiModule gui = (ClickGuiModule) MyauClient.moduleManager.modules.get(ClickGuiModule.class);
+            BooleanSetting setting = gui == null ? null : gui.categorySetting(PANELS.get(index).title);
+            if (setting != null) setting.setValue(!setting.getValue());
+            layout();
+        } else {
+            categoriesOpen = false;
+        }
+        return true;
     }
 
     private void drawChrome(FontRenderer font, int accent) {
@@ -512,6 +557,7 @@ public class ClickGuiScreen extends GuiScreen {
             return;
         }
         this.editingString = null;
+        if (clickCategories(n, n2, n3)) return;
         if (n2 < TOP - 5 || n2 >= this.field_146295_m - FOOTER)
             return;
         for (int i = this.rows.size() - 1; i >= 0; --i) {
@@ -632,6 +678,10 @@ public class ClickGuiScreen extends GuiScreen {
     }
 
     protected void func_73869_a(char c, int n) throws IOException {
+        if (categoriesOpen && n == 1) {
+            categoriesOpen = false;
+            return;
+        }
         if (this.editingString != null) {
             StringSetting stringSetting = this.editingString;
             String string = (String) stringSetting.getValue();
@@ -741,7 +791,7 @@ public class ClickGuiScreen extends GuiScreen {
         }
 
         boolean isEmpty() {
-            if (this.title.equals(ModuleCategory.MISC.label) && !ModuleCategory.miscVisible()) return true;
+            if (!ClickGuiModule.categoryVisible(this.title)) return true;
             return this.modules.isEmpty() && this.configs.isEmpty();
         }
     }

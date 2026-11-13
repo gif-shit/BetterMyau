@@ -9,7 +9,7 @@ import zipfile
 
 
 ROOT = Path(__file__).resolve().parent
-ARTIFACT = ROOT / "build" / "bettermyau u5.5.jar"
+ARTIFACT = ROOT / "build" / "bettermyau u6.0.jar"
 DEPENDENCIES = (
     "com/google/code/gson/gson/2.2.4/gson-2.2.4.jar",
     "com/google/guava/guava/17.0/guava-17.0.jar",
@@ -108,4 +108,4 @@ def build(args):
 
 
 if __name__ == "__main__":
-    build(arguments("Build BetterMyau 5.5 with JDK 8"))
+    build(arguments("Build BetterMyau 6.0 with JDK 8"))

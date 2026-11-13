@@ -1,21 +1,22 @@
 # BetterMyau
 
-BetterMyau 5.5 is a client-side mod for Minecraft Forge 1.8.9. The client sources are in `myau/`, and the bundled profile and Forge metadata are in `resources/`.
+BetterMyau 6.0 is a client-side mod for Minecraft Forge 1.8.9. The client sources are in `myau/`, and the bundled profile and Forge metadata are in `resources/`.
 
 ## Install
 
-Download [`bettermyau u5.5.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.5) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
+Download [`bettermyau u6.0.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v6.0) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
 
-## What's new in 5.5
+## What's new in 6.0
 
+- Added visibility controls for every ClickGUI category, including Configs. All categories are shown by default except Misc. The Categories button stays available when panels are hidden.
 - Added Raven and Myau TargetHUD modes. Myau remains the default.
 - Added DamageTags, DebugAC, ViewPackets, and Test in Render, and AutoBlockin in Player.
-- Added BedWars, SkyWars, AutoLadder, and Weather in Misc. The modules are off by default; enable `show-misc` in ClickGui settings to show the category.
-- Moved BedTracker into BedWars, with a new bed status card, threat indicator, distance display, and bed marker.
+- Added BedWars, SkyWars, AutoLadder, and Weather in Misc. The modules are off by default; show Misc through the Categories button or `show-misc` in ClickGui settings.
+- Moved BedTracker into BedWars, with a bed status card, threat indicator, distance display, and bed marker. Removed the title, left accent strip, and waiting messages; searching uses a compact lowercase pill with animated dots.
 - Replaced RGB sliders with a colour wheel and brightness control.
 - Replaces stable rotations with smooth rotations.
 - Added portable build and test tools for Windows, Linux, and macOS.
-- Renamed the release JAR to `bettermyau u5.5.jar`.
+- Renamed the release JAR to `bettermyau u6.0.jar`.
 
 -bleach
 
@@ -58,6 +59,7 @@ Download [`bettermyau u5.5.jar`](https://github.com/gif-shit/BetterMyau/releases
 
 ## Controls
 
+- **Categories** in the top right shows or hides category panels. You can also change the `show-*` options under ClickGui. Hiding a category keeps its modules running.
 - **Insert** opens the ClickGUI by default. Left-click a module to toggle it, right-click to expand its settings, and use **B** to bind or **H** to hide it from the ArrayList.
 - **Up/Down** move through the TabGUI, **Right** opens a category, **Left** closes it, and **Enter** toggles the selected module. The watermark, TabGUI, and accent color are configurable under HUD.
 - In **Configs**, click a profile to load it or use **B** to assign a shortcut.
@@ -82,7 +84,7 @@ On Windows, Linux, and macOS, install Python 3 and JDK 8, then run:
 python build.py --base-jar '/path/to/5.1.jar' --minecraft-srg '/path/to/mc-srg.jar' --libraries '/path/to/libraries' --jdk '/path/to/jdk8'
 ```
 
-The build writes `build/bettermyau u5.5.jar`. The PowerShell command above calls the same builder. If `--libraries` is omitted, it uses the platform's standard Minecraft libraries folder; `--jdk` can be omitted when `JAVA_HOME` or `PATH` supplies the JDK.
+The build writes `build/bettermyau u6.0.jar`. The PowerShell command above calls the same builder. If `--libraries` is omitted, it uses the platform's standard Minecraft libraries folder; `--jdk` can be omitted when `JAVA_HOME` or `PATH` supplies the JDK.
 
 The same Forge JAR is used on all three systems. The launcher must supply Java 8 and the matching LWJGL natives. Linux/macOS game rendering has not been tested here.
 

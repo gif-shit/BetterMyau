@@ -29,7 +29,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.storage.WorldInfo;
 import sun.misc.Unsafe;
 
-public final class Update55Regression {
+public final class Update60Regression {
     private static int checks;
     private static Unsafe unsafe;
 
@@ -86,7 +86,7 @@ public final class Update55Regression {
         bedTracker();
         modules();
         weatherAndDamage();
-        System.out.println("Update 5.5 regression checks passed: " + checks);
+        System.out.println("Update 6.0 regression checks passed: " + checks);
     }
 
     private static void colors() {
@@ -130,11 +130,17 @@ public final class Update55Regression {
     }
 
     private static void bedTracker() {
-        check(BedTrackerHud.status(false, false, false, -1, 48).equals("SEARCHING"), "untracked bed shows searching");
+        check(BedTrackerHud.status(false, false, false, -1, 48).equals("searching"), "untracked bed shows searching");
         check(BedTrackerHud.status(true, false, false, -1, 48).equals("OUT OF RANGE"), "unloaded bed is not reported destroyed");
         check(BedTrackerHud.status(true, true, false, -1, 48).equals("BED LOST"), "destroyed bed has its own status");
         check(BedTrackerHud.status(true, true, true, 20, 48).equals("THREAT NEARBY"), "nearby threat changes bed status");
         check(BedTrackerHud.status(true, true, true, 80, 48).equals("SECURE"), "distant enemy does not trigger danger status");
+        check(BedTrackerHud.searching(0).equals("searching"), "searching starts lowercase without dots");
+        check(BedTrackerHud.searching(400).equals("searching."), "searching animation advances by elapsed time");
+        check(BedTrackerHud.searching(800).equals("searching.."), "searching animation has a second dot");
+        check(BedTrackerHud.searching(1200).equals("searching..."), "searching animation has a third dot");
+        check(BedTrackerHud.searching(1600).equals("searching"), "searching animation loops");
+        check(BedTrackerHud.height(false) == 22 && BedTrackerHud.height(true) == 68, "searching uses only the compact status pill");
         near(BedTrackerHud.meter(-1, 48), 0, "absent enemies leave danger meter empty");
         near(BedTrackerHud.meter(12, 48), 0.75, "danger meter reflects proximity to bed");
         near(BedTrackerHud.anchor(2, 600, 200, 4), 395, "right HUD anchoring includes the whole card");
