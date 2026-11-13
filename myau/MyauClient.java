@@ -199,6 +199,8 @@ public final class MyauClient {
         MyauClient.registerModule(new NoJumpDelayModule());
         MyauClient.registerModule(new NoRotateModule());
         MyauClient.registerModule(new NoSlowModule());
+        MyauClient.registerModule(new PantSwapModule());
+        MyauClient.registerModule(new PitModule());
         MyauClient.registerModule(new ReachModule());
         MyauClient.registerModule(new SafeWalkModule());
         MyauClient.registerModule(new ScaffoldModule());
@@ -206,6 +208,7 @@ public final class MyauClient {
         MyauClient.registerModule(new SpeedModule());
         MyauClient.registerModule(new SpeedMineModule());
         MyauClient.registerModule(new SprintModule());
+        MyauClient.registerModule(new SwordSwapModule());
         MyauClient.registerModule(new TargetHUDModule());
         MyauClient.registerModule(new TargetStrafeModule());
         MyauClient.registerModule(new TimerModule());
@@ -226,11 +229,11 @@ public final class MyauClient {
     private static void registerModule(Module module) {
         MyauClient.moduleManager.modules.put(module.getClass(), module);
         eventBus.register(module);
-        ArrayList<Setting> arrayList = new ArrayList<Setting>();
+        ArrayList<Setting<?>> arrayList = new ArrayList<Setting<?>>();
         for (Field field : module.getClass().getFields()) {
             if (!Setting.class.isAssignableFrom(field.getType())) continue;
             try {
-                Setting setting = (Setting)field.get(module);
+                Setting<?> setting = (Setting<?>)field.get(module);
                 if (setting == null) continue;
                 setting.setModule(module);
                 arrayList.add(setting);

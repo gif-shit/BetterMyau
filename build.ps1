@@ -26,6 +26,11 @@ $classpath = @($BaseJar, $MinecraftSrg) + @($dependencies | ForEach-Object {
 
 # Overlay the modified classes on the original archive.
 $sources = @(
+    'MyauClient', 'PacketReceiveEvent', 'mixin/MixinNetworkManager', 'mixin/MixinRenderManager', 'mixin/MixinWorld',
+    'PitModule', 'PantSwapModule', 'SwordSwapModule',
+    'modules/Pit', 'modules/pit/PitAutoMath', 'modules/pit/PitHud', 'modules/pit/PitMinecraft',
+    'modules/PantSwap', 'modules/pantswap/PantSwapMinecraft',
+    'modules/SwordSwap', 'modules/swordswap/SwordSwapMinecraft', 'modules/swordswap/SwordSwapMinecraftAccess',
     'ScaffoldModule', 'HypixelScaffoldPacing', 'DisplaceModule',
     'FlyModule', 'mixin/AccessorC03PacketPlayer', 'mixin/MixinFlyPlayer',
     'HUDModule', 'TabGui', 'ModuleCategory', 'ClickGuiScreen', 'MyauForgeMod',
@@ -53,6 +58,7 @@ try {
     foreach ($source in $sources) {
         $base = Split-Path $source -Leaf
         $directory = Split-Path (Join-Path $jarDir "myau/$source")
+        if (-not (Test-Path -LiteralPath $directory)) { continue }
         Get-ChildItem -LiteralPath $directory -Filter "$base*.class" |
             Where-Object { $_.BaseName -eq $base -or $_.BaseName.StartsWith("$base`$") } |
             Remove-Item -Force

@@ -23,10 +23,10 @@ public abstract class MixinNetworkManager {
     private void onChannelRead(ChannelHandlerContext channelHandlerContext, Packet<?> packet, CallbackInfo callbackInfo) {
         if (!packet.getClass().getName().startsWith("net.minecraft.network.play.client") && MyauClient.eventBus != null && MyauClient.incomingPacketBuffer != null) {
             MyauClient.eventBus.post(new RawPacketReceiveEvent(packet));
-            if (MyauClient.incomingPacketBuffer.buffer(packet)) {
+            if (MyauClient.incomingPacketBuffer.buffer((Packet)packet)) {
                 callbackInfo.cancel();
             } else {
-                PacketReceiveEvent event = new PacketReceiveEvent(packet);
+                PacketReceiveEvent event = new PacketReceiveEvent(packet, this);
                 MyauClient.eventBus.post(event);
                 if (event.isCancelled()) {
                     callbackInfo.cancel();

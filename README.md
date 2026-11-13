@@ -13,6 +13,10 @@ Download [`5.3.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.3) a
 - Faster Stable yaw and pitch with a hardcoded 1.8x turn-step speed multiplier. The smoothing slider is unchanged.
 - Stable checks placement again after movement to place newly reachable blocks in the same tick.
 - Added tower-on-press: hold right-click to activate the selected tower mode.
+- Fixed Stable + Extra diagonal tower missing reachable block faces at corners.
+- Added Pit, PantSwap, and SwordSwap. Pit includes player lists, chat filters, auto-math, inventory cleaning, and player hiding. PantSwap waits for server confirmations; SwordSwap includes animation and full item spoofing.
+- Pit uses loaded equipment, friends/enemies, and matching cached profile data. Spawn hiding learns the spawn level from the scoreboard's idle/spawn status; it waits until that level is known. Event scheduling reports unavailable because a schedule provider is not included.
+- Pit's inventory cleaner is disabled by default. When enabled, it drops whole iron armor stacks, including named or enchanted armor, and plain iron swords when a diamond sword is in the hotbar.
 
 -bleach
 

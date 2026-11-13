@@ -1,6 +1,7 @@
 package myau.mixin;
 
 import myau.RotationState;
+import myau.PitModule;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
@@ -28,8 +29,13 @@ public abstract class MixinRenderManager {
     @Unique
     private float originalPitch;
 
-    @Inject(method={"renderEntityStatic"}, at={@At(value="HEAD")})
+    @Inject(method={"renderEntityStatic"}, at={@At(value="HEAD")}, cancellable=true)
     private void beforeRenderEntityStatic(Entity entity, float partialTicks, boolean hideDebugBox, CallbackInfoReturnable<Boolean> callbackInfo) {
+        PitModule pit = PitModule.instance();
+        if (pit != null && pit.hideVisual(entity)) {
+            callbackInfo.setReturnValue(true);
+            return;
+        }
         if (entity instanceof EntityPlayerSP && RotationState.isActiveWithinTicks(1)) {
             EntityPlayerSP player = (EntityPlayerSP)entity;
             this.originalPrevRenderYawOffset = player.field_70760_ar;

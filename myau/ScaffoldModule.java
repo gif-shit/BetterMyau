@@ -116,12 +116,20 @@ extends Module {
 
     private EnumFacing findConnectingFace(BlockPos blockPos, BlockPos blockPos2) {
         EnumFacing enumFacing = null;
+        EnumFacing preferred = null;
+        if (isStableRotation() && !Float.isNaN(stableYaw)) {
+            Vec3 eye = minecraft.field_71439_g.func_174824_e(1.0f);
+            AxisAlignedBB bounds = new AxisAlignedBB(blockPos.func_177958_n(), eye.field_72448_b - 1, blockPos.func_177952_p(),
+                    blockPos.func_177958_n() + 1, eye.field_72448_b + 1, blockPos.func_177952_p() + 1);
+            MovingObjectPosition hit = RotationUtils.intersectBoundsFrom(bounds, eye, stableYaw, 0, minecraft.field_71442_b.func_78757_d());
+            if (hit != null) preferred = hit.field_178784_b;
+        }
         double d = 0.0;
         for (EnumFacing enumFacing2 : EnumFacing.field_82609_l) {
             BlockPos blockPos3;
             if (enumFacing2 == EnumFacing.DOWN || (blockPos3 = blockPos.func_177972_a(enumFacing2)).func_177956_o() > blockPos2.func_177956_o() || !BlockUtils.isReplaceableAt(blockPos3)) continue;
             double d2 = blockPos3.func_177957_d((double)blockPos2.func_177958_n() + 0.5, (double)blockPos2.func_177956_o() + 0.5, (double)blockPos2.func_177952_p() + 0.5);
-            if (!(enumFacing == null || d2 < d || d2 == d && enumFacing2 == EnumFacing.UP)) continue;
+            if (!(enumFacing == null || d2 < d || d2 == d && (enumFacing2 == EnumFacing.UP || enumFacing2 == preferred))) continue;
             d = d2;
             enumFacing = enumFacing2;
         }

@@ -354,6 +354,51 @@ public final class ScaffoldIntegrationRegression {
         module.onMovementInput(new MovementInputEvent());
         check(player.field_71158_b.field_78901_c, "right-click activates Telly jump input");
         module.setEnabled(false);
+        for (int direction = 0; direction < 4; ++direction) {
+            module.tower.setValue(2);
+            module.rotations.setValue(5);
+            module.towerOnPress.setValue(true);
+            KeyBinding.func_74510_a(30, true);
+            InputUtils.keys.add(-99);
+            player.field_71158_b.field_78900_b = 1;
+            player.field_71158_b.field_78902_a = 1;
+            player.field_70177_z = direction * 90;
+            player.field_70165_t = player.field_70161_v = 0.5;
+            player.field_70163_u = 64;
+            player.field_70181_x = 0;
+            player.field_70122_E = true;
+            MovementUtils.setHorizontalMotion(0.28, player.field_70177_z - 45);
+            world.blocks.clear();
+            world.blocks.put(new BlockPos(0, 63, 0), Blocks.field_150348_b.func_176223_P());
+            module.setEnabled(true);
+            RotationUpdateEvent diagonal = new RotationUpdateEvent(player.field_70177_z, 0, player.field_70177_z, 0);
+            double peak = 64;
+            for (int tick = 0; tick < 80; ++tick) {
+                player.field_71071_by.field_70462_a[2].field_77994_a = 64;
+                diagonal = new RotationUpdateEvent(diagonal.getYaw(), diagonal.getPitch(), player.field_70177_z, 0);
+                module.onRotationUpdate(diagonal);
+                module.onMoveFlying(new MoveFlyingEvent(1, 1, 0.02f));
+                double oldY = player.field_70163_u;
+                player.field_70165_t += player.field_70159_w;
+                player.field_70161_v += player.field_70179_y;
+                double nextY = oldY + player.field_70181_x;
+                boolean landed = false;
+                for (BlockPos pos : world.blocks.keySet()) {
+                    double top = pos.func_177956_o() + 1;
+                    if (player.field_70165_t + 0.3 <= pos.func_177958_n() || player.field_70165_t - 0.3 >= pos.func_177958_n() + 1
+                            || player.field_70161_v + 0.3 <= pos.func_177952_p() || player.field_70161_v - 0.3 >= pos.func_177952_p() + 1) continue;
+                    if (player.field_70181_x <= 0 && oldY >= top && nextY <= top) { nextY = top; landed = true; }
+                }
+                player.field_70163_u = nextY;
+                player.field_70122_E = landed;
+                module.onPreWalkingUpdate(new PreWalkingUpdateEvent());
+                player.field_70181_x = ((landed ? 0 : player.field_70181_x) - 0.08) * 0.98;
+                peak = Math.max(peak, nextY);
+                check(nextY >= peak - 1.5, "diagonal Extra tower maintains support at direction " + direction + " tick " + tick + " y " + nextY + " peak " + peak);
+            }
+            check(peak > 72, "diagonal Extra tower continues climbing at direction " + direction);
+            module.setEnabled(false);
+        }
         near(HypixelScaffoldPacing.ticksToLevel(64, 0.42, 64), 12, "Hypixel jump prediction unchanged");
         near(HypixelScaffoldPacing.maxStep(180, 5, 25), 36, "Hypixel turn pacing unchanged");
         System.out.println("Scaffold integration checks passed: " + checks);
