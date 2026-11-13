@@ -7,6 +7,7 @@ public class ClickGuiModule extends Module {
 
     private static final Minecraft minecraft = Minecraft.func_71410_x();
 
+    public final BooleanSetting tooltips = new BooleanSetting("tooltips", true);
     public final BooleanSetting showCombat = new BooleanSetting("show-combat", true);
     public final BooleanSetting showMovement = new BooleanSetting("show-movement", true);
     public final BooleanSetting showPlayer = new BooleanSetting("show-player", true);
@@ -32,6 +33,11 @@ public class ClickGuiModule extends Module {
         ClickGuiModule gui = (ClickGuiModule) MyauClient.moduleManager.modules.get(ClickGuiModule.class);
         BooleanSetting setting = gui == null ? null : gui.categorySetting(title);
         return setting == null ? !"Misc".equals(title) : setting.getValue();
+    }
+
+    static boolean tooltipsEnabled() {
+        ClickGuiModule gui = (ClickGuiModule) MyauClient.moduleManager.modules.get(ClickGuiModule.class);
+        return gui == null || gui.tooltips.getValue();
     }
 
     public ClickGuiModule() {

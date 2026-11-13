@@ -18,6 +18,7 @@ public class Minecraft implements AccessorMinecraft {
     public GameSettings field_71474_y;
     public PlayerControllerMP field_71442_b;
     public GuiScreen field_71462_r;
+    public net.minecraft.client.gui.FontRenderer field_71466_p;
     public NetHandlerPlayClient handler;
     public boolean field_71415_G = true;
     public boolean paused;

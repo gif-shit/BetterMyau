@@ -9,6 +9,8 @@ Download [`bettermyau u6.1.jar`](https://github.com/gif-shit/BetterMyau/releases
 ## What's new in 6.1
 
 - Added ItemEffects in Render: item size from 0.25 to 3 and swing animation speed from 0.1 to 5, both defaulting to 1. These settings are visual only and do not change attacks or packets.
+- Fixed item size being skipped by custom item animations, including OverflowAnimations.
+- Added a Tooltips option to ClickGui: expanded modules show brief descriptions, and hovering shortened setting names shows their full text.
 - Added visual sword blocking while holding right-click with Scaffold item spoof enabled.
 - Moved DebugAC, ViewPackets, and Test into Misc, and Displace into Combat.
 - Added Myau (default) and Raven health-bar styles to ESP. Existing health-bar preferences are retained.

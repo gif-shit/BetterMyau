@@ -12,12 +12,20 @@ import myau.mixin.MixinItemEffects;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import org.spongepowered.asm.lib.ClassReader;
 import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.lib.tree.*;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import sun.misc.Unsafe;
 
 public final class ItemEffectsRegression {
@@ -77,16 +85,39 @@ public final class ItemEffectsRegression {
         effects.setEnabled(true);
         near(effects.renderSwingProgress(player, 0.4f, 0.5f), 0.4f, "one is exactly the vanilla animation");
         Renderer renderer = new Renderer();
-        Method resize = MixinItemEffects.class.getDeclaredMethod("resizeHeldItem", Args.class);
+        Method resize = MixinItemEffects.class.getDeclaredMethod("resizeMap", Args.class);
         resize.setAccessible(true);
-        for (float base : new float[] {0.4f, 0.38f}) {
+        for (float base : new float[] {0.38f}) {
             for (float size : new float[] {0.25f, 1f, 3f}) {
                 effects.itemSize.setValue(size);
                 Scale scale = new Scale(base);
                 resize.invoke(renderer, scale);
-                for (int axis = 0; axis < 3; axis++) near((Float) scale.get(axis), base * size, "item and map scaling is uniform");
+                for (int axis = 0; axis < 3; axis++) near((Float) scale.get(axis), base * size, "map scaling is uniform");
             }
         }
+        Method itemResize = MixinItemEffects.class.getDeclaredMethod("resizeHeldItem", EntityLivingBase.class,
+                ItemStack.class, ItemCameraTransforms.TransformType.class, CallbackInfo.class);
+        itemResize.setAccessible(true);
+        for (boolean enabled : new boolean[] {false, true}) {
+            effects.setEnabled(enabled);
+            for (float size : new float[] {0.25f, 1f, 3f}) {
+                effects.itemSize.setValue(size);
+                for (ItemCameraTransforms.TransformType transform : ItemCameraTransforms.TransformType.values()) {
+                    GlStateManager.func_179094_E();
+                    GlStateManager.func_179152_a(0.4f, 0.4f, 0.4f);
+                    itemResize.invoke(renderer, player, null, transform, new CallbackInfo("renderItem", false));
+                    float expected = enabled && transform == ItemCameraTransforms.TransformType.FIRST_PERSON ? size : 1;
+                    for (float axis : GlStateManager.scale) near(axis, 0.4f * expected, "final model scaling respects enabled state and camera type");
+                    GlStateManager.func_179121_F();
+                    for (float axis : GlStateManager.scale) near(axis, 1, "model scaling does not leak into later renders");
+                }
+            }
+        }
+        check(resize.getAnnotation(ModifyArgs.class).method()[0].equals("func_178097_a"), "map scaling does not also resize ordinary items");
+        Inject injection = itemResize.getAnnotation(Inject.class);
+        check(injection.method()[0].equals("func_178099_a"), "item scaling runs in final draw after custom animations can cancel the vanilla transform");
+        check(injection.at()[0].target().equals("Lnet/minecraft/client/renderer/GlStateManager;func_179094_E()V")
+                && injection.at()[0].shift() == At.Shift.AFTER && injection.require() == 1, "item scaling is required inside the model matrix scope");
         effects.attackSpeed.setValue(5f);
         effects.onSwing();
         effects.onPostTick(new PostTickEvent());
@@ -123,14 +154,25 @@ public final class ItemEffectsRegression {
         try (JarFile game = new JarFile(gamePath); JarFile mod = new JarFile(modPath)) {
             ClassNode renderer = new ClassNode();
             new ClassReader(game.getInputStream(game.getJarEntry("net/minecraft/client/renderer/ItemRenderer.class"))).accept(renderer, 0);
-            for (String name : new String[] {"func_178096_b", "func_178097_a"}) {
+            for (String name : new String[] {"func_178099_a", "func_178097_a"}) {
                 int matches = 0;
                 for (Object entry : renderer.methods) {
                     MethodNode method = (MethodNode) entry;
                     if (!method.name.equals(name)) continue;
+                    int depth = 0;
                     for (AbstractInsnNode instruction = method.instructions.getFirst(); instruction != null; instruction = instruction.getNext()) {
-                        if (instruction instanceof MethodInsnNode && ((MethodInsnNode) instruction).name.equals("func_179152_a")) ++matches;
+                        if (!(instruction instanceof MethodInsnNode)) continue;
+                        MethodInsnNode call = (MethodInsnNode) instruction;
+                        if (call.owner.equals("net/minecraft/client/renderer/GlStateManager")) {
+                            if (call.name.equals("func_179094_E")) ++depth;
+                            if (call.name.equals("func_179121_F")) --depth;
+                            if (name.equals("func_178099_a") && call.name.equals("func_179094_E")
+                                    || name.equals("func_178097_a") && call.name.equals("func_179152_a")) ++matches;
+                        }
+                        if (name.equals("func_178099_a") && call.owner.equals("net/minecraft/client/renderer/entity/RenderItem"))
+                            check(depth == 1, "final item drawing and size scaling share a restored matrix scope");
                     }
+                    if (name.equals("func_178099_a")) check(depth == 0, "final item draw restores its matrix");
                 }
                 check(matches > 0, "size hook matches vanilla " + name);
             }

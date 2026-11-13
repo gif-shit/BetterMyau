@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
@@ -124,7 +125,7 @@ public class ClickGuiScreen extends GuiScreen {
         for (Panel panel : PANELS) {
             if (panel.isEmpty())
                 continue;
-            int height = panel.height();
+            int height = panel.height(width);
             if (!panel.manuallyPlaced) {
                 panel.x = left + column * (width + PANEL_GAP);
                 panel.y = y;
@@ -239,6 +240,13 @@ public class ClickGuiScreen extends GuiScreen {
                 case 3:
                     this.drawConfig(font, row, hovered, mouseX, accent);
                     break;
+                case 4:
+                    int y = row.y + 3;
+                    for (String line : descriptionLines(row.module, row.w)) {
+                        font.func_175063_a(line, row.x + 9, y, MUTED);
+                        y += 10;
+                    }
+                    break;
                 default:
                     this.drawSetting(font, row, hovered, accent);
                     break;
@@ -247,6 +255,35 @@ public class ClickGuiScreen extends GuiScreen {
         drawChrome(font, accent);
         super.func_73863_a(mouseX, mouseY, partialTicks);
         drawCategories(font, mouseX, mouseY, accent);
+        String tooltip = tooltipAt(mouseX, mouseY);
+        if (tooltip != null)
+            this.func_146283_a(font.func_78271_c(tooltip, Math.max(32, Math.min(240, this.field_146294_l - 24))), mouseX, mouseY);
+    }
+
+    private String tooltipAt(int mouseX, int mouseY) {
+        if (!ClickGuiModule.tooltipsEnabled() || categoriesOpen || draggingSlider != null || draggingColor != null
+                || draggingPanel != null || editingString != null || isBinding()
+                || mouseY < TOP - 5 || mouseY >= this.field_146295_m - FOOTER) return null;
+        for (int index = rows.size() - 1; index >= 0; --index) {
+            Row row = rows.get(index);
+            if (mouseX < row.x || mouseX >= row.x + row.w || mouseY < row.y || mouseY >= row.y + row.h) continue;
+            return mouseX >= row.x + 9 && mouseX < row.x + row.w - 20 && mouseY < row.y + 11 ? row.tooltip : null;
+        }
+        return null;
+    }
+
+    private static List<String> descriptionLines(Module module, int width) {
+        if (!ClickGuiModule.tooltipsEnabled() || module.getDescription().isEmpty()) return Collections.emptyList();
+        return Minecraft.func_71410_x().field_71466_p.func_78271_c(module.getDescription(), Math.max(1, width - 18));
+    }
+
+    private static int descriptionHeight(Module module, int width) {
+        List<String> lines = descriptionLines(module, width);
+        return lines.isEmpty() ? 0 : lines.size() * 10 + 6;
+    }
+
+    private static boolean hasDetails(Module module) {
+        return !settingsOf(module).isEmpty() || ClickGuiModule.tooltipsEnabled() && !module.getDescription().isEmpty();
     }
 
     private void drawCategories(FontRenderer font, int mouseX, int mouseY, int accent) {
@@ -345,7 +382,7 @@ public class ClickGuiScreen extends GuiScreen {
         int bindX = hideX - BUTTON_WIDTH;
         int end = bindX - 4;
         drawRowState(row, hovered, module.isEnabled(), accent);
-        if (!settingsOf(module).isEmpty()) {
+        if (hasDetails(module)) {
             String marker = EXPANDED.contains(module) ? "v" : ">";
             end -= font.func_78256_a(marker);
             font.func_175063_a(marker, end, row.y + 4, MUTED);
@@ -386,14 +423,13 @@ public class ClickGuiScreen extends GuiScreen {
         int y = row.y + 2;
         Gui.func_73734_a(row.x, row.y, row.x + row.w, row.y + row.h, hovered ? 0xFF27262D : 0xFF1D1C22);
         Gui.func_73734_a(row.x + 3, row.y, row.x + 4, row.y + row.h, BORDER);
-        String label = setting.getName().replace('-', ' ');
         if (setting instanceof ColorSetting) {
             drawColor(font, row);
             return;
         }
         if (setting instanceof BooleanSetting) {
             boolean enabled = (Boolean) setting.getValue();
-            font.func_175063_a(fit(font, label, right - labelX - 15), labelX, y, LABEL);
+            drawSettingLabel(font, row, right - labelX - 15);
             Gui.func_73734_a(right - 11, y + 1, right, y + 7, enabled ? accent : BORDER);
             int knob = enabled ? right - 4 : right - 10;
             Gui.func_73734_a(knob, y + 2, knob + 3, y + 6, LABEL);
@@ -425,8 +461,15 @@ public class ClickGuiScreen extends GuiScreen {
         int room = right - labelX;
         value = fit(font, value, room / 2);
         int valueWidth = font.func_78256_a(value);
-        font.func_175063_a(fit(font, label, room - valueWidth - 5), labelX, y, LABEL);
+        drawSettingLabel(font, row, room - valueWidth - 5);
         font.func_175063_a(value, right - valueWidth, y, valueColor);
+    }
+
+    private static void drawSettingLabel(FontRenderer font, Row row, int width) {
+        String label = row.setting.getName().replace('-', ' ');
+        String fitted = fit(font, label, width);
+        row.tooltip = fitted.equals(label) ? null : label;
+        font.func_175063_a(fitted, row.x + 9, row.y + 2, LABEL);
     }
 
     private ColorWheel wheel(ColorSetting setting) {
@@ -437,7 +480,7 @@ public class ClickGuiScreen extends GuiScreen {
 
     private void drawColor(FontRenderer font, Row row) {
         ColorSetting setting = (ColorSetting) row.setting;
-        font.func_175063_a(fit(font, setting.getName().replace('-', ' '), row.w - 18), row.x + 9, row.y + 2, LABEL);
+        drawSettingLabel(font, row, row.w - 18);
         ColorWheel wheel = wheel(setting);
         wheel.draw(row.x + 44, row.y + 49, 30, row.x + row.w - 23);
         String hex = String.format(Locale.ROOT, "#%06X", setting.getValue());
@@ -473,6 +516,11 @@ public class ClickGuiScreen extends GuiScreen {
                     n += MODULE_HEIGHT;
                     if (!EXPANDED.contains(module))
                         continue;
+                    int description = descriptionHeight(module, width);
+                    if (description > 0) {
+                        this.rows.add(new Row(4, panel, module, null, -1, null, panel.x, n, width, description));
+                        n += description;
+                    }
                     for (Setting<?> setting : settingsOf(module)) {
                         if (!setting.isVisible())
                             continue;
@@ -599,7 +647,7 @@ public class ClickGuiScreen extends GuiScreen {
                             if (!(module instanceof ClickGuiModule)) {
                                 MyauClient.moduleManager.toggle(module);
                             }
-                        } else if (n3 == 1 && !settingsOf(module).isEmpty()) {
+                        } else if (n3 == 1 && hasDetails(module)) {
                             if (!EXPANDED.remove(module)) {
                                 EXPANDED.add(module);
                             }
@@ -626,6 +674,8 @@ public class ClickGuiScreen extends GuiScreen {
                         }
                         return;
                     }
+                case 4:
+                    return;
             }
             Setting<?> setting = row.setting;
             if (setting instanceof ColorSetting) {
@@ -739,6 +789,8 @@ public class ClickGuiScreen extends GuiScreen {
 
         final int h;
 
+        String tooltip;
+
         Row(int n, Panel panel, Module module, Setting<?> setting, int n2, String string, int n3, int n4, int n5, int n6) {
             this.kind = n;
             this.panel = panel;
@@ -770,7 +822,7 @@ public class ClickGuiScreen extends GuiScreen {
 
         boolean manuallyPlaced;
 
-        int height() {
+        int height(int width) {
             int height = HEADER_HEIGHT;
             if (!open)
                 return height;
@@ -778,6 +830,7 @@ public class ClickGuiScreen extends GuiScreen {
             for (Module module : modules) {
                 if (!EXPANDED.contains(module))
                     continue;
+                height += descriptionHeight(module, width);
                 for (Setting<?> setting : settingsOf(module)) {
                     if (setting.isVisible())
                         height += setting instanceof ColorSetting ? 94 : SETTING_HEIGHT;

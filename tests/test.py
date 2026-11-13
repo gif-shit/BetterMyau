@@ -12,6 +12,7 @@ def main():
     args = build.arguments("Run the BetterMyau headless regression suite")
     paths = build.classpath(args, build.ARTIFACT)
     paths += [str(args.libraries / "commons-io/commons-io/2.4/commons-io-2.4.jar"),
+              str(args.libraries / "com/ibm/icu/icu4j-core-mojang/51.2/icu4j-core-mojang-51.2.jar"),
               str(args.libraries / "org/apache/logging/log4j/log4j-core/2.0-beta9/log4j-core-2.0-beta9.jar")]
     for path in paths:
         if not Path(path).is_file():

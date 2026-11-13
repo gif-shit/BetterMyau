@@ -5,6 +5,7 @@ param(
 )
 
 . (Join-Path $PSScriptRoot 'test-trajectories.ps1') @PSBoundParameters
+$classpath += Join-Path $Libraries 'com/ibm/icu/icu4j-core-mojang/51.2/icu4j-core-mojang-51.2.jar'
 $sandbox = Join-Path $root ('build/codebase-tests-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $sandbox | Out-Null
 Push-Location $sandbox
