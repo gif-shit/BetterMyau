@@ -4,24 +4,6 @@ import java.awt.Color;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
-import myau.BooleanSetting;
-import myau.ChatColor;
-import myau.ColorUtils;
-import myau.ElapsedTimer;
-import myau.EntityUtils;
-import myau.EventHandler;
-import myau.FloatSetting;
-import myau.HUDModule;
-import myau.IntegerSetting;
-import myau.KillAuraModule;
-import myau.MathUtils;
-import myau.ModeSetting;
-import myau.Module;
-import myau.MyauClient;
-import myau.PacketSendEvent;
-import myau.PercentSetting;
-import myau.RenderOverlayEvent;
-import myau.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiChat;
@@ -37,8 +19,8 @@ import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public class TargetHUDModule
-extends Module {
+public class TargetHUDModule extends Module {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
     private static final DecimalFormat heartFormat = new DecimalFormat("0.0", new DecimalFormatSymbols(Locale.US));
     private static final DecimalFormat differenceFormat = new DecimalFormat("+0.0;-0.0", new DecimalFormatSymbols(Locale.US));
@@ -50,10 +32,10 @@ extends Module {
     private float previousHearts;
     private float targetHearts;
     private float maximumHearts;
-    public final ModeSetting color = new ModeSetting("color", 0, new String[]{"DEFAULT", "HUD"});
-    public final ModeSetting positionX = new ModeSetting("position-x", 1, new String[]{"LEFT", "MIDDLE", "RIGHT"});
-    public final ModeSetting positionY = new ModeSetting("position-y", 1, new String[]{"TOP", "MIDDLE", "BOTTOM"});
-    public final FloatSetting scale = new FloatSetting("scale", Float.valueOf(1.0f), Float.valueOf(0.5f), Float.valueOf(1.5f));
+    public final ModeSetting color = new ModeSetting("color", 0, new String[] { "DEFAULT", "HUD" });
+    public final ModeSetting positionX = new ModeSetting("position-x", 1, new String[] { "LEFT", "MIDDLE", "RIGHT" });
+    public final ModeSetting positionY = new ModeSetting("position-y", 1, new String[] { "TOP", "MIDDLE", "BOTTOM" });
+    public final FloatSetting scale = new FloatSetting("scale", 1.0f, 0.5f, 1.5f);
     public final IntegerSetting offsetX = new IntegerSetting("offset-x", 0, -255, 255);
     public final IntegerSetting offsetY = new IntegerSetting("offset-y", 40, -255, 255);
     public final PercentSetting background = new PercentSetting("background", 25);
@@ -70,15 +52,15 @@ extends Module {
     }
 
     private EntityLivingBase selectTarget() {
-        KillAuraModule combatModule = (KillAuraModule)MyauClient.moduleManager.modules.get(KillAuraModule.class);
+        KillAuraModule combatModule = (KillAuraModule) MyauClient.moduleManager.modules.get(KillAuraModule.class);
         boolean combatEnabled = combatModule.isEnabled();
-        if (combatEnabled && combatModule.isCombatInputAllowed() && EntityUtils.isLoaded((Entity)combatModule.getTargetEntity())) {
+        if (combatEnabled && combatModule.isCombatInputAllowed() && EntityUtils.isLoaded((Entity) combatModule.getTargetEntity())) {
             return combatModule.getTargetEntity();
         }
-        if (!((Boolean)this.kaOnly.getValue()).booleanValue() && !this.targetTimer.hasElapsed(1500L) && EntityUtils.isLoaded((Entity)this.lastAttackedTarget)) {
+        if (!this.kaOnly.getValue() && !this.targetTimer.hasElapsed(1500L) && EntityUtils.isLoaded((Entity) this.lastAttackedTarget)) {
             return this.lastAttackedTarget;
         }
-        return (Boolean)this.chatPreview.getValue() != false && TargetHUDModule.minecraft.field_71462_r instanceof GuiChat ? TargetHUDModule.minecraft.field_71439_g : null;
+        return this.chatPreview.getValue() && minecraft.field_71462_r instanceof GuiChat ? minecraft.field_71439_g : null;
     }
 
     private ResourceLocation skinFor(EntityLivingBase target) {
@@ -92,21 +74,23 @@ extends Module {
     private Color colorFor(EntityLivingBase target) {
         boolean player = target instanceof EntityPlayer;
         if (player) {
-            if (EntityUtils.isFriend((EntityPlayer)target)) {
+            if (EntityUtils.isFriend((EntityPlayer) target)) {
                 return MyauClient.friendList.color();
             }
-            if (EntityUtils.isEnemy((EntityPlayer)target)) {
+            if (EntityUtils.isEnemy((EntityPlayer) target)) {
                 return MyauClient.enemyList.color();
             }
         }
-        switch ((Integer)this.color.getValue()) {
-            case 0: {
-                return player ? EntityUtils.teamColor((EntityPlayer)target, 1.0f) : new Color(-1);
-            }
-            case 1: {
-                int hudColor = ((HUDModule)MyauClient.moduleManager.modules.get(HUDModule.class)).getColor(System.currentTimeMillis()).getRGB();
-                return new Color(hudColor);
-            }
+        switch(this.color.getValue()) {
+            case 0:
+                {
+                    return player ? EntityUtils.teamColor((EntityPlayer) target, 1.0f) : new Color(-1);
+                }
+            case 1:
+                {
+                    int hudColor = ((HUDModule) MyauClient.moduleManager.modules.get(HUDModule.class)).getColor(System.currentTimeMillis()).getRGB();
+                    return new Color(hudColor);
+                }
         }
         return new Color(-1);
     }
@@ -118,7 +102,7 @@ extends Module {
         if (!this.isEnabled()) {
             return;
         }
-        if (TargetHUDModule.minecraft.field_71439_g == null) {
+        if (minecraft.field_71439_g == null) {
             return;
         }
         EntityLivingBase previousTarget = this.displayedTarget;
@@ -126,7 +110,7 @@ extends Module {
         if (this.displayedTarget == null) {
             return;
         }
-        float playerHearts = (TargetHUDModule.minecraft.field_71439_g.func_110143_aJ() + TargetHUDModule.minecraft.field_71439_g.func_110139_bj()) / 2.0f;
+        float playerHearts = (minecraft.field_71439_g.func_110143_aJ() + minecraft.field_71439_g.func_110139_bj()) / 2.0f;
         float absorptionHearts = this.displayedTarget.func_110139_bj() / 2.0f;
         float totalHearts = this.displayedTarget.func_110143_aJ() / 2.0f + absorptionHearts;
         if (this.displayedTarget != previousTarget) {
@@ -135,7 +119,7 @@ extends Module {
             this.previousHearts = totalHearts;
             this.targetHearts = totalHearts;
         }
-        if (!(animateHealth = ((Boolean)this.animations.getValue()).booleanValue()) || this.animationTimer.hasElapsed(150L)) {
+        if (!(animateHealth = this.animations.getValue().booleanValue()) || this.animationTimer.hasElapsed(150L)) {
             this.previousHearts = this.targetHearts;
             this.targetHearts = totalHearts;
             this.maximumHearts = this.displayedTarget.func_110138_aP() / 2.0f;
@@ -150,71 +134,75 @@ extends Module {
         float interpolatedHearts = MathUtils.lerpFloat(this.previousHearts, this.targetHearts, elapsed / 150.0f);
         float healthFraction = Math.min(Math.max(interpolatedHearts / this.maximumHearts, 0.0f), 1.0f);
         Color targetColor = this.colorFor(this.displayedTarget);
-        Color healthColor = (Integer)this.color.getValue() == 0 ? ColorUtils.healthGradient(healthFraction) : targetColor;
+        Color healthColor = this.color.getValue() == 0 ? ColorUtils.healthGradient(healthFraction) : targetColor;
         float advantage = Math.min(Math.max((playerHearts - totalHearts + 1.0f) / 2.0f, 0.0f), 1.0f);
         Color advantageColor = ColorUtils.healthGradient(advantage);
         ScaledResolution resolution = new ScaledResolution(minecraft);
-        String nameLabel = ChatColor.formatText(String.format("&r%s&r", EntityUtils.formattedName((Entity)this.displayedTarget)));
-        int nameWidth = TargetHUDModule.minecraft.field_71466_p.func_78256_a(nameLabel);
+        String nameLabel = ChatColor.formatText(String.format("&r%s&r", EntityUtils.formattedName((Entity) this.displayedTarget)));
+        int nameWidth = minecraft.field_71466_p.func_78256_a(nameLabel);
         String healthLabel = ChatColor.formatText(String.format("&r&f%s%s\u2764&r", heartFormat.format(totalHearts), absorptionHearts > 0.0f ? "&6" : "&c"));
-        int healthWidth = TargetHUDModule.minecraft.field_71466_p.func_78256_a(healthLabel);
+        int healthWidth = minecraft.field_71466_p.func_78256_a(healthLabel);
         String resultLabel = ChatColor.formatText(String.format("&r&l%s&r", totalHearts == playerHearts ? "D" : (totalHearts < playerHearts ? "W" : "L")));
-        int resultWidth = TargetHUDModule.minecraft.field_71466_p.func_78256_a(resultLabel);
+        int resultWidth = minecraft.field_71466_p.func_78256_a(resultLabel);
         String differenceLabel = ChatColor.formatText(String.format("&r%s&r", totalHearts == playerHearts ? "0.0" : differenceFormat.format(playerHearts - totalHearts)));
-        int differenceWidth = TargetHUDModule.minecraft.field_71466_p.func_78256_a(differenceLabel);
-        float firstRowWidth = (float)nameWidth + ((Boolean)this.indicator.getValue() != false ? 2.0f + (float)resultWidth + 2.0f : 0.0f);
-        float secondRowWidth = (float)healthWidth + ((Boolean)this.indicator.getValue() != false ? 2.0f + (float)differenceWidth + 2.0f : 0.0f);
+        int differenceWidth = minecraft.field_71466_p.func_78256_a(differenceLabel);
+        float firstRowWidth = (float) nameWidth + (this.indicator.getValue() ? 2.0f + (float) resultWidth + 2.0f : 0.0f);
+        float secondRowWidth = (float) healthWidth + (this.indicator.getValue() ? 2.0f + (float) differenceWidth + 2.0f : 0.0f);
         float contentWidth = Math.max(firstRowWidth, secondRowWidth);
-        float headWidth = (Boolean)this.head.getValue() != false && this.skin != null ? 25.0f : 0.0f;
+        float headWidth = this.head.getValue() && this.skin != null ? 25.0f : 0.0f;
         float width = Math.max(headWidth + 70.0f, headWidth + 2.0f + contentWidth + 2.0f);
         float height = 27.0f;
-        float x = ((Integer)this.offsetX.getValue()).floatValue() / ((Float)this.scale.getValue()).floatValue();
-        switch ((Integer)this.positionX.getValue()) {
-            case 1: {
-                x += (float)resolution.func_78326_a() / ((Float)this.scale.getValue()).floatValue() / 2.0f - width / 2.0f;
-                break;
-            }
-            case 2: {
-                x *= -1.0f;
-                x += (float)resolution.func_78326_a() / ((Float)this.scale.getValue()).floatValue() - width;
-            }
+        float x = this.offsetX.getValue().floatValue() / this.scale.getValue();
+        switch(this.positionX.getValue()) {
+            case 1:
+                {
+                    x += (float) resolution.func_78326_a() / this.scale.getValue() / 2.0f - width / 2.0f;
+                    break;
+                }
+            case 2:
+                {
+                    x *= -1.0f;
+                    x += (float) resolution.func_78326_a() / this.scale.getValue() - width;
+                }
         }
-        float y = ((Integer)this.offsetY.getValue()).floatValue() / ((Float)this.scale.getValue()).floatValue();
-        switch ((Integer)this.positionY.getValue()) {
-            case 1: {
-                y += (float)resolution.func_78328_b() / ((Float)this.scale.getValue()).floatValue() / 2.0f - height / 2.0f;
-                break;
-            }
-            case 2: {
-                y *= -1.0f;
-                y += (float)resolution.func_78328_b() / ((Float)this.scale.getValue()).floatValue() - height;
-            }
+        float y = this.offsetY.getValue().floatValue() / this.scale.getValue();
+        switch(this.positionY.getValue()) {
+            case 1:
+                {
+                    y += (float) resolution.func_78328_b() / this.scale.getValue() / 2.0f - height / 2.0f;
+                    break;
+                }
+            case 2:
+                {
+                    y *= -1.0f;
+                    y += (float) resolution.func_78328_b() / this.scale.getValue() - height;
+                }
         }
         GlStateManager.func_179094_E();
-        GlStateManager.func_179152_a((float)((Float)this.scale.getValue()).floatValue(), (float)((Float)this.scale.getValue()).floatValue(), (float)0.0f);
-        GlStateManager.func_179109_b((float)x, (float)y, (float)-450.0f);
+        GlStateManager.func_179152_a((float) this.scale.getValue(), (float) this.scale.getValue(), (float) 0.0f);
+        GlStateManager.func_179109_b((float) x, (float) y, (float) -450.0f);
         RenderUtils.beginOverlay();
-        int backgroundColor = new Color(0.0f, 0.0f, 0.0f, (float)((Integer)this.background.getValue()).intValue() / 100.0f).getRGB();
-        int outlineColor = (Boolean)this.outline.getValue() != false ? targetColor.getRGB() : new Color(0, 0, 0, 0).getRGB();
+        int backgroundColor = new Color(0.0f, 0.0f, 0.0f, (float) this.background.getValue() / 100.0f).getRGB();
+        int outlineColor = this.outline.getValue() ? targetColor.getRGB() : new Color(0, 0, 0, 0).getRGB();
         RenderUtils.drawBorderedRect(0.0f, 0.0f, width, height, 1.5f, backgroundColor, outlineColor);
         RenderUtils.fillRect(headWidth + 2.0f, 22.0f, width - 2.0f, 25.0f, ColorUtils.scaleBrightness(healthColor, 0.2f).getRGB());
         RenderUtils.fillRect(headWidth + 2.0f, 22.0f, headWidth + 2.0f + healthFraction * (width - 2.0f - headWidth - 2.0f), 25.0f, healthColor.getRGB());
         RenderUtils.endOverlay();
         GlStateManager.func_179097_i();
         GlStateManager.func_179147_l();
-        GlStateManager.func_179112_b((int)770, (int)771);
-        TargetHUDModule.minecraft.field_71466_p.func_175065_a(nameLabel, headWidth + 2.0f, 2.0f, -1, ((Boolean)this.shadow.getValue()).booleanValue());
-        TargetHUDModule.minecraft.field_71466_p.func_175065_a(healthLabel, headWidth + 2.0f, 12.0f, -1, ((Boolean)this.shadow.getValue()).booleanValue());
-        if (((Boolean)this.indicator.getValue()).booleanValue()) {
-            TargetHUDModule.minecraft.field_71466_p.func_175065_a(resultLabel, width - 2.0f - (float)resultWidth, 2.0f, advantageColor.getRGB(), ((Boolean)this.shadow.getValue()).booleanValue());
-            TargetHUDModule.minecraft.field_71466_p.func_175065_a(differenceLabel, width - 2.0f - (float)differenceWidth, 12.0f, ColorUtils.scaleBrightness(advantageColor, 0.8f).getRGB(), ((Boolean)this.shadow.getValue()).booleanValue());
+        GlStateManager.func_179112_b((int) 770, (int) 771);
+        minecraft.field_71466_p.func_175065_a(nameLabel, headWidth + 2.0f, 2.0f, -1, this.shadow.getValue().booleanValue());
+        minecraft.field_71466_p.func_175065_a(healthLabel, headWidth + 2.0f, 12.0f, -1, this.shadow.getValue().booleanValue());
+        if (this.indicator.getValue()) {
+            minecraft.field_71466_p.func_175065_a(resultLabel, width - 2.0f - (float) resultWidth, 2.0f, advantageColor.getRGB(), this.shadow.getValue().booleanValue());
+            minecraft.field_71466_p.func_175065_a(differenceLabel, width - 2.0f - (float) differenceWidth, 12.0f, ColorUtils.scaleBrightness(advantageColor, 0.8f).getRGB(), this.shadow.getValue().booleanValue());
         }
-        if (((Boolean)this.head.getValue()).booleanValue() && this.skin != null) {
-            GlStateManager.func_179124_c((float)1.0f, (float)1.0f, (float)1.0f);
+        if (this.head.getValue() && this.skin != null) {
+            GlStateManager.func_179124_c((float) 1.0f, (float) 1.0f, (float) 1.0f);
             minecraft.func_110434_K().func_110577_a(this.skin);
-            Gui.func_152125_a((int)2, (int)2, (float)8.0f, (float)8.0f, (int)8, (int)8, (int)23, (int)23, (float)64.0f, (float)64.0f);
-            Gui.func_152125_a((int)2, (int)2, (float)40.0f, (float)8.0f, (int)8, (int)8, (int)23, (int)23, (float)64.0f, (float)64.0f);
-            GlStateManager.func_179124_c((float)1.0f, (float)1.0f, (float)1.0f);
+            Gui.func_152125_a((int) 2, (int) 2, (float) 8.0f, (float) 8.0f, (int) 8, (int) 8, (int) 23, (int) 23, (float) 64.0f, (float) 64.0f);
+            Gui.func_152125_a((int) 2, (int) 2, (float) 40.0f, (float) 8.0f, (int) 8, (int) 8, (int) 23, (int) 23, (float) 64.0f, (float) 64.0f);
+            GlStateManager.func_179124_c((float) 1.0f, (float) 1.0f, (float) 1.0f);
         }
         GlStateManager.func_179084_k();
         GlStateManager.func_179126_j();
@@ -232,15 +220,15 @@ extends Module {
             return;
         }
         Packet<?> raw = event.getPacket();
-        C02PacketUseEntity packet = (C02PacketUseEntity)raw;
+        C02PacketUseEntity packet = (C02PacketUseEntity) raw;
         if (packet.func_149565_c() != C02PacketUseEntity.Action.ATTACK) {
             return;
         }
-        Entity entity = packet.func_149564_a((World)TargetHUDModule.minecraft.field_71441_e);
+        Entity entity = packet.func_149564_a((World) minecraft.field_71441_e);
         if (!(entity instanceof EntityLivingBase) || entity instanceof EntityArmorStand) {
             return;
         }
         this.targetTimer.reset();
-        this.lastAttackedTarget = (EntityLivingBase)entity;
+        this.lastAttackedTarget = (EntityLivingBase) entity;
     }
 }

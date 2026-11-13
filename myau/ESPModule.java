@@ -4,23 +4,6 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-import myau.BooleanSetting;
-import myau.ChatColor;
-import myau.ChatUtils;
-import myau.ColorMaskShader;
-import myau.ColorUtils;
-import myau.EntityUtils;
-import myau.EventHandler;
-import myau.FramebufferResizeEvent;
-import myau.HUDModule;
-import myau.MathUtils;
-import myau.ModeSetting;
-import myau.Module;
-import myau.MyauClient;
-import myau.OutlineShader;
-import myau.RenderOverlayEvent;
-import myau.RenderUtils;
-import myau.RenderWorldEvent;
 import myau.mixin.AccessorEntityRenderer;
 import myau.mixin.AccessorRenderManager;
 import net.minecraft.client.Minecraft;
@@ -31,17 +14,17 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.util.vector.Vector4f;
 
-public class ESPModule
-extends Module {
+public class ESPModule extends Module {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
     private final OutlineShader outlineShader = new OutlineShader();
     private final ColorMaskShader colorShader = new ColorMaskShader();
     private Framebuffer outlineFramebuffer;
     private boolean nameTagsAllowed = true;
     private boolean enchantmentGlintAllowed = true;
-    public final ModeSetting mode = new ModeSetting("mode", 2, new String[]{"NONE", "2D", "3D", "OUTLINE"});
-    public final ModeSetting color = new ModeSetting("color", 0, new String[]{"DEFAULT", "TEAMS", "HUD"});
-    public final ModeSetting healthBar = new ModeSetting("health-bar", 0, new String[]{"NONE", "2D", "RAVEN"});
+    public final ModeSetting mode = new ModeSetting("mode", 2, new String[] { "NONE", "2D", "3D", "OUTLINE" });
+    public final ModeSetting color = new ModeSetting("color", 0, new String[] { "DEFAULT", "TEAMS", "HUD" });
+    public final ModeSetting healthBar = new ModeSetting("health-bar", 0, new String[] { "NONE", "2D", "RAVEN" });
     public final BooleanSetting players = new BooleanSetting("players", true);
     public final BooleanSetting friends = new BooleanSetting("friends", true);
     public final BooleanSetting enemies = new BooleanSetting("enemies", true);
@@ -62,22 +45,22 @@ extends Module {
 
     private boolean isEligible(EntityPlayer player) {
         if (EntityUtils.isLocalOrViewPlayer(player)) {
-            return (Boolean)this.self.getValue() != false && ESPModule.minecraft.field_71474_y.field_74320_O != 0;
+            return this.self.getValue() && minecraft.field_71474_y.field_74320_O != 0;
         }
         if (EntityUtils.isFriend(player)) {
-            return (Boolean)this.friends.getValue();
+            return this.friends.getValue();
         }
         if (EntityUtils.isEnemy(player)) {
-            return (Boolean)this.enemies.getValue();
+            return this.enemies.getValue();
         }
         if (EntityUtils.isBot(player)) {
-            return (Boolean)this.bots.getValue();
+            return this.bots.getValue();
         }
-        return (Boolean)this.players.getValue();
+        return this.players.getValue();
     }
 
     private boolean shouldRender(EntityPlayer player) {
-        return this.isEligible(player) && RenderUtils.isEntityInFrustum((Entity)player, 0.1f);
+        return this.isEligible(player) && RenderUtils.isEntityInFrustum((Entity) player, 0.1f);
     }
 
     private Color colorFor(EntityPlayer player) {
@@ -87,18 +70,21 @@ extends Module {
         if (EntityUtils.isEnemy(player)) {
             return MyauClient.enemyList.color();
         }
-        switch ((Integer)this.color.getValue()) {
-            case 0: {
-                return EntityUtils.teamColor(player, 1.0f);
-            }
-            case 1: {
-                boolean teammate = EntityUtils.isTeammate(player);
-                byte teamColor = (byte)(teammate ? ChatColor.BLUE.getRgb() : ChatColor.RED.getRgb());
-                return new Color(teamColor);
-            }
-            case 2: {
-                return ((HUDModule)MyauClient.moduleManager.modules.get(HUDModule.class)).getColor(System.currentTimeMillis());
-            }
+        switch(this.color.getValue()) {
+            case 0:
+                {
+                    return EntityUtils.teamColor(player, 1.0f);
+                }
+            case 1:
+                {
+                    boolean teammate = EntityUtils.isTeammate(player);
+                    byte teamColor = (byte) (teammate ? ChatColor.BLUE.getRgb() : ChatColor.RED.getRgb());
+                    return new Color(teamColor);
+                }
+            case 2:
+                {
+                    return ((HUDModule) MyauClient.moduleManager.modules.get(HUDModule.class)).getColor(System.currentTimeMillis());
+                }
         }
         return new Color(-1);
     }
@@ -113,16 +99,16 @@ extends Module {
         if (this.outlineFramebuffer != null) {
             this.outlineFramebuffer.func_147608_a();
         }
-        this.outlineFramebuffer = new Framebuffer(ESPModule.minecraft.field_71443_c, ESPModule.minecraft.field_71440_d, false);
+        this.outlineFramebuffer = new Framebuffer(minecraft.field_71443_c, minecraft.field_71440_d, false);
     }
 
-    @EventHandler(priority=50)
+    @EventHandler(priority = 50)
     public void onRenderOverlay(RenderOverlayEvent event) {
         if (!this.isEnabled()) {
             return;
         }
-        int selectedMode = (Integer)this.mode.getValue();
-        if (selectedMode != 1 && selectedMode != 3 && (Integer)this.healthBar.getValue() != 1) {
+        int selectedMode = this.mode.getValue();
+        if (selectedMode != 1 && selectedMode != 3 && this.healthBar.getValue() != 1) {
             return;
         }
         if (selectedMode == 3 && !OpenGlHelper.func_148822_b()) {
@@ -136,22 +122,23 @@ extends Module {
         if (selectedMode == 3) {
             this.drawOutlines(event, targets);
         }
-        if (selectedMode != 1 && (Integer)this.healthBar.getValue() != 1) {
+        if (selectedMode != 1 && this.healthBar.getValue() != 1) {
             return;
         }
         HashMap<EntityPlayer, Vector4f> screenBounds = new HashMap<EntityPlayer, Vector4f>();
-        ((AccessorEntityRenderer)ESPModule.minecraft.field_71460_t).callSetupCameraTransform(event.getPartialTicks(), 0);
+        ((AccessorEntityRenderer) minecraft.field_71460_t).callSetupCameraTransform(event.getPartialTicks(), 0);
         for (EntityPlayer player : targets) {
-            screenBounds.put(player, RenderUtils.projectEntityBounds((Entity)player, 0.1f));
+            screenBounds.put(player, RenderUtils.projectEntityBounds((Entity) player, 0.1f));
         }
-        ESPModule.minecraft.field_71460_t.func_78478_c();
+        minecraft.field_71460_t.func_78478_c();
         GlStateManager.func_179147_l();
-        GlStateManager.func_179112_b((int)770, (int)771);
+        GlStateManager.func_179112_b((int) 770, (int) 771);
         GlStateManager.func_179090_x();
         GlStateManager.func_179118_c();
         for (EntityPlayer player : targets) {
-            Vector4f bounds = (Vector4f)screenBounds.get(player);
-            if (bounds == null) continue;
+            Vector4f bounds = (Vector4f) screenBounds.get(player);
+            if (bounds == null)
+                continue;
             float left = bounds.x;
             float top = bounds.y;
             float right = bounds.z;
@@ -161,7 +148,8 @@ extends Module {
                 RenderUtils.drawBorderedRect(left, top, right, bottom, 3.0f, 0, (rgb & 0xFCFCFC) >> 2 | rgb & 0xFF000000);
                 RenderUtils.drawBorderedRect(left, top, right, bottom, 1.5f, 0, rgb);
             }
-            if ((Integer)this.healthBar.getValue() != 1) continue;
+            if (this.healthBar.getValue() != 1)
+                continue;
             float health = player.func_110143_aJ() + player.func_110139_bj();
             float fraction = Math.min(Math.max(health / player.func_110138_aP(), 0.0f), 1.0f);
             float offset = (right - left) * 0.08f;
@@ -178,14 +166,14 @@ extends Module {
         GlStateManager.func_179094_E();
         GlStateManager.func_179123_a();
         if (this.outlineFramebuffer == null) {
-            this.outlineFramebuffer = new Framebuffer(ESPModule.minecraft.field_71443_c, ESPModule.minecraft.field_71440_d, false);
+            this.outlineFramebuffer = new Framebuffer(minecraft.field_71443_c, minecraft.field_71440_d, false);
         } else {
             this.outlineFramebuffer.func_147614_f();
         }
         this.outlineFramebuffer.func_147610_a(false);
-        ((AccessorEntityRenderer)ESPModule.minecraft.field_71460_t).callSetupCameraTransform(event.getPartialTicks(), 0);
-        boolean shadows = ESPModule.minecraft.field_71474_y.field_181151_V;
-        ESPModule.minecraft.field_71474_y.field_181151_V = false;
+        ((AccessorEntityRenderer) minecraft.field_71460_t).callSetupCameraTransform(event.getPartialTicks(), 0);
+        boolean shadows = minecraft.field_71474_y.field_181151_V;
+        minecraft.field_71474_y.field_181151_V = false;
         this.nameTagsAllowed = false;
         this.enchantmentGlintAllowed = false;
         this.colorShader.use();
@@ -194,14 +182,14 @@ extends Module {
             this.colorShader.setColor(tint);
             boolean invisible = player.func_82150_aj();
             player.func_82142_c(false);
-            minecraft.func_175598_ae().func_147936_a((Entity)player, event.getPartialTicks(), true);
+            minecraft.func_175598_ae().func_147936_a((Entity) player, event.getPartialTicks(), true);
             player.func_82142_c(invisible);
         }
         this.colorShader.stop();
         this.enchantmentGlintAllowed = true;
         this.nameTagsAllowed = true;
-        ESPModule.minecraft.field_71474_y.field_181151_V = shadows;
-        ESPModule.minecraft.field_71460_t.func_78478_c();
+        minecraft.field_71474_y.field_181151_V = shadows;
+        minecraft.field_71460_t.func_78478_c();
         minecraft.func_147110_a().func_147610_a(false);
         this.outlineShader.use();
         RenderUtils.drawFramebuffer(this.outlineFramebuffer);
@@ -215,26 +203,27 @@ extends Module {
         if (!this.isEnabled()) {
             return;
         }
-        if ((Integer)this.mode.getValue() != 2 && (Integer)this.healthBar.getValue() != 2) {
+        if (this.mode.getValue() != 2 && this.healthBar.getValue() != 2) {
             return;
         }
-        if ((Integer)this.mode.getValue() == 3 && !OpenGlHelper.func_148822_b()) {
+        if (this.mode.getValue() == 3 && !OpenGlHelper.func_148822_b()) {
             this.reportFramebufferUnavailable();
             return;
         }
         RenderUtils.beginOverlay();
         for (EntityPlayer player : EntityUtils.entitiesBackToFront().stream().filter(entity -> entity instanceof EntityPlayer).map(EntityPlayer.class::cast).filter(this::shouldRender).collect(Collectors.toList())) {
-            if ((Integer)this.mode.getValue() == 2) {
+            if (this.mode.getValue() == 2) {
                 Color tint = this.colorFor(player);
-                RenderUtils.outlineEntityBounds((Entity)player, tint.getRed(), tint.getGreen(), tint.getBlue(), tint.getAlpha(), 1.5f, 0.1f);
+                RenderUtils.outlineEntityBounds((Entity) player, tint.getRed(), tint.getGreen(), tint.getBlue(), tint.getAlpha(), 1.5f, 0.1f);
             }
-            if ((Integer)this.healthBar.getValue() != 2) continue;
-            double x = MathUtils.lerpDouble(player.field_70142_S, player.field_70165_t, event.getPartialTicks()) - ((AccessorRenderManager)minecraft.func_175598_ae()).getRenderPosX();
-            double y = MathUtils.lerpDouble(player.field_70137_T, player.field_70163_u, event.getPartialTicks()) - ((AccessorRenderManager)minecraft.func_175598_ae()).getRenderPosY() - (double)0.1f;
-            double z = MathUtils.lerpDouble(player.field_70136_U, player.field_70161_v, event.getPartialTicks()) - ((AccessorRenderManager)minecraft.func_175598_ae()).getRenderPosZ();
+            if (this.healthBar.getValue() != 2)
+                continue;
+            double x = MathUtils.lerpDouble(player.field_70142_S, player.field_70165_t, event.getPartialTicks()) - ((AccessorRenderManager) minecraft.func_175598_ae()).getRenderPosX();
+            double y = MathUtils.lerpDouble(player.field_70137_T, player.field_70163_u, event.getPartialTicks()) - ((AccessorRenderManager) minecraft.func_175598_ae()).getRenderPosY() - (double) 0.1f;
+            double z = MathUtils.lerpDouble(player.field_70136_U, player.field_70161_v, event.getPartialTicks()) - ((AccessorRenderManager) minecraft.func_175598_ae()).getRenderPosZ();
             GlStateManager.func_179094_E();
-            GlStateManager.func_179137_b((double)x, (double)y, (double)z);
-            GlStateManager.func_179114_b((float)(ESPModule.minecraft.func_175598_ae().field_78735_i * -1.0f), (float)0.0f, (float)1.0f, (float)0.0f);
+            GlStateManager.func_179137_b((double) x, (double) y, (double) z);
+            GlStateManager.func_179114_b((float) (minecraft.func_175598_ae().field_78735_i * -1.0f), (float) 0.0f, (float) 1.0f, (float) 0.0f);
             float currentHealth = player.func_110143_aJ() + player.func_110139_bj();
             float healthFraction = Math.min(Math.max(currentHealth / player.func_110138_aP(), 0.0f), 1.0f);
             Color tint = ColorUtils.healthGradient(healthFraction);
@@ -252,7 +241,7 @@ extends Module {
 
     @Override
     public void onEnable() {
-        if ((Integer)this.mode.getValue() == 3 && !OpenGlHelper.func_148822_b()) {
+        if (this.mode.getValue() == 3 && !OpenGlHelper.func_148822_b()) {
             this.reportFramebufferUnavailable();
         }
     }

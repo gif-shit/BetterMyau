@@ -3,6 +3,7 @@ package myau;
 import java.lang.reflect.Method;
 
 public final class EventListener {
+
     private final Object owner;
     private final Method method;
     private final int priority;

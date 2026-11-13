@@ -2,12 +2,11 @@ package myau;
 
 import com.google.gson.JsonObject;
 import java.util.function.BooleanSupplier;
-import myau.Setting;
 
-public class StringSetting
-extends Setting<String> {
+public class StringSetting extends Setting<String> {
+
     public StringSetting(String name, String defaultValue) {
-        this(name, defaultValue, (BooleanSupplier)null);
+        this(name, defaultValue, (BooleanSupplier) null);
     }
 
     public StringSetting(String name, String defaultValue, BooleanSupplier visibilityCondition) {
@@ -36,6 +35,6 @@ extends Setting<String> {
 
     @Override
     public void writeJson(JsonObject json) {
-        json.addProperty(this.getName(), (String)this.getValue());
+        json.addProperty(this.getName(), (String) this.getValue());
     }
 }

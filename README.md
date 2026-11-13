@@ -10,6 +10,7 @@ Download [`5.4.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.4) a
 
 - Added pit module, sword swap, and pantswap.
 - Fixed Trajectories to stop at the first block or entity impact and mark the landing point.
+- Cleaned up client code, simplified config loading, and enabled compilation of all client sources.
 
 -bleach
 
@@ -56,7 +57,7 @@ Download [`5.4.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.4) a
 
 ## Build
 
-The PowerShell build compiles the updated classes with JDK 8 and overlays them onto an existing BetterMyau JAR. The tree includes decompiled client sources. A rebuild also requires an SRG-mapped Minecraft 1.8.9 JAR and the Forge 1.8.9 client libraries.
+The PowerShell build compiles every Java source with JDK 8 and packages it with the bundled runtime from an existing BetterMyau JAR. A rebuild also requires an SRG-mapped Minecraft 1.8.9 JAR and the Forge 1.8.9 client libraries.
 
 ```powershell
 .\build.ps1 -BaseJar 'C:/path/to/5.1.jar' -MinecraftSrg 'C:/path/to/mc-srg.jar' -Libraries 'C:/path/to/libraries' -Jdk 'C:/path/to/jdk8/bin'
@@ -76,4 +77,10 @@ Run the Scaffold rotation and tower checks, including the Fly checks:
 
 ```powershell
 .\tests\test-scaffold.ps1 -MinecraftSrg 'C:/path/to/mc-srg.jar' -Libraries 'C:/path/to/libraries' -Jdk 'C:/path/to/jdk8/bin'
+```
+
+Run all regression checks, including settings, config files, and event dispatch:
+
+```powershell
+.\tests\test-codebase.ps1 -MinecraftSrg 'C:/path/to/mc-srg.jar' -Libraries 'C:/path/to/libraries' -Jdk 'C:/path/to/jdk8/bin'
 ```

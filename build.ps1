@@ -24,20 +24,11 @@ $classpath = @($BaseJar, $MinecraftSrg) + @($dependencies | ForEach-Object {
     (Resolve-Path -LiteralPath (Join-Path $Libraries $_)).Path
 })
 
-# Overlay the modified classes on the original archive.
-$sources = @(
-    'MyauClient', 'PacketReceiveEvent', 'mixin/MixinNetworkManager', 'mixin/MixinRenderManager', 'mixin/MixinWorld',
-    'PitModule', 'PantSwapModule', 'SwordSwapModule',
-    'modules/Pit', 'modules/pit/PitAutoMath', 'modules/pit/PitHud', 'modules/pit/PitMinecraft',
-    'modules/PantSwap', 'modules/pantswap/PantSwapMinecraft',
-    'modules/SwordSwap', 'modules/swordswap/SwordSwapMinecraft', 'modules/swordswap/SwordSwapMinecraftAccess',
-    'ScaffoldModule', 'HypixelScaffoldPacing', 'DisplaceModule', 'TrajectoriesModule',
-    'FlyModule', 'mixin/AccessorC03PacketPlayer', 'mixin/MixinFlyPlayer',
-    'HUDModule', 'TabGui', 'ModuleCategory', 'ClickGuiScreen', 'MyauForgeMod',
-    'KillAuraModule', 'ModuleModeIds', 'AutoClickerModule', 'OutgoingBufferOwner',
-    'NoSlowModule', 'NoSlowBlink', 'mixin/MixinNoSlowBlinkInput', 'mixin/MixinNoSlowBlinkController',
-    'mixin/MixinNoSlowBlinkItemRenderer', 'mixin/MixinNoSlowBlinkRenderPlayer'
-)
+$sourceRoot = Join-Path $PSScriptRoot 'myau'
+$javaFiles = @(Get-ChildItem -LiteralPath $sourceRoot -Recurse -Filter '*.java' | Sort-Object FullName | ForEach-Object FullName)
+$sources = @($javaFiles | ForEach-Object {
+    [IO.Path]::ChangeExtension($_.Substring($sourceRoot.Length + 1), $null)
+})
 
 $out = Join-Path $PSScriptRoot 'build'
 New-Item -ItemType Directory -Force -Path $out | Out-Null
@@ -47,9 +38,15 @@ $jarDir = Join-Path $stage 'jar'
 $empty = Join-Path $stage 'sourcepath'
 New-Item -ItemType Directory -Path $stage,$classes,$jarDir,$empty | Out-Null
 try {
-    $javaFiles = @($sources | ForEach-Object { Join-Path $PSScriptRoot "myau/$_.java" })
-    & "$Jdk/javac.exe" -nowarn -encoding UTF-8 -source 8 -target 8 -proc:none `
-        -cp ($classpath -join ';') -sourcepath $empty -d $classes @javaFiles
+    $argumentsFile = Join-Path $stage 'javac-arguments.txt'
+    $compilerArguments = @(
+        '-nowarn', '-encoding', 'UTF-8', '-source', '8', '-target', '8', '-proc:none',
+        '-cp', ('"' + ($classpath -join ';').Replace('\', '/') + '"'),
+        '-sourcepath', ('"' + $empty.Replace('\', '/') + '"'),
+        '-d', ('"' + $classes.Replace('\', '/') + '"')
+    ) + @($javaFiles | ForEach-Object { '"' + $_.Replace('\', '/') + '"' })
+    [IO.File]::WriteAllLines($argumentsFile, $compilerArguments, (New-Object Text.UTF8Encoding($false)))
+    & "$Jdk/javac.exe" "@$argumentsFile"
     if ($LASTEXITCODE -ne 0) { throw 'Java compilation failed' }
 
     Add-Type -AssemblyName System.IO.Compression.FileSystem

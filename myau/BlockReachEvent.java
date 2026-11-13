@@ -1,9 +1,7 @@
 package myau;
 
-import myau.Event;
+public class BlockReachEvent extends Event {
 
-public class BlockReachEvent
-extends Event {
     private double reachDistance;
 
     public BlockReachEvent(double reachDistance) {

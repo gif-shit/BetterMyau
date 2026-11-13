@@ -4,35 +4,21 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import myau.BooleanSetting;
-import myau.ClickGuiModule;
-import myau.ColorSetting;
-import myau.ConfigBinds;
-import myau.ConfigProfile;
-import myau.FloatSetting;
-import myau.HUDModule;
-import myau.InputUtils;
-import myau.ModeSetting;
-import myau.Module;
-import myau.MyauClient;
-import myau.PercentSetting;
-import myau.Setting;
-import myau.StringSetting;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-public class ClickGuiScreen
-extends GuiScreen {
+public class ClickGuiScreen extends GuiScreen {
+
     private static final int PANEL_WIDTH = 142;
     private static final int MIN_PANEL_WIDTH = 120;
     private static final int PANEL_GAP = 8;
@@ -42,7 +28,6 @@ extends GuiScreen {
     private static final int BUTTON_WIDTH = 13;
     private static final int TOP = 29;
     private static final int FOOTER = 18;
-
     private static final int BACKDROP = 0x9B09090D;
     private static final int PANEL = 0xF515151A;
     private static final int PANEL_HEADER = 0xFF212127;
@@ -50,7 +35,6 @@ extends GuiScreen {
     private static final int LABEL = 0xFFE7E5EA;
     private static final int MUTED = 0xFFABA7B1;
     private static final int BINDING = 0xFFFFD885;
-
     private static final String CONFIGS_TITLE = "Configs";
     private static final List<Panel> PANELS = new ArrayList<>();
     private static final Set<Module> EXPANDED = new HashSet<>();
@@ -83,11 +67,13 @@ extends GuiScreen {
         }
         for (Module module : MyauClient.moduleManager.modules.values()) {
             for (Panel panel : PANELS) {
-                if (panel.title.equals(ModuleCategory.of(module).label)) panel.modules.add(module);
+                if (panel.title.equals(ModuleCategory.of(module).label))
+                    panel.modules.add(module);
             }
         }
         for (Panel panel : PANELS) {
-            if (panel.title.equals(CONFIGS_TITLE)) panel.configs.addAll(listConfigs());
+            if (panel.title.equals(CONFIGS_TITLE))
+                panel.configs.addAll(listConfigs());
         }
     }
 
@@ -109,7 +95,8 @@ extends GuiScreen {
     private int columnCount() {
         int visible = 0;
         for (Panel panel : PANELS) {
-            if (!panel.isEmpty()) visible++;
+            if (!panel.isEmpty())
+                visible++;
         }
         int available = this.field_146294_l - 16 + PANEL_GAP;
         return Math.max(1, Math.min(visible, available / (MIN_PANEL_WIDTH + PANEL_GAP)));
@@ -130,7 +117,8 @@ extends GuiScreen {
         int tallest = 0;
         int bottom = TOP;
         for (Panel panel : PANELS) {
-            if (panel.isEmpty()) continue;
+            if (panel.isEmpty())
+                continue;
             int height = panel.height();
             if (!panel.manuallyPlaced) {
                 panel.x = left + column * (width + PANEL_GAP);
@@ -195,10 +183,13 @@ extends GuiScreen {
     public void func_73863_a(int mouseX, int mouseY, float partialTicks) {
         FontRenderer font = this.field_146297_k.field_71466_p;
         int toggle = this.toggleKey();
-        if (toggle == 0 || !Keyboard.isKeyDown(toggle)) this.closeArmed = true;
+        if (toggle == 0 || !Keyboard.isKeyDown(toggle))
+            this.closeArmed = true;
         if (this.draggingSlider != null) {
-            if (Mouse.isButtonDown(0)) this.applySlider(this.draggingSlider, mouseX);
-            else this.draggingSlider = null;
+            if (Mouse.isButtonDown(0))
+                this.applySlider(this.draggingSlider, mouseX);
+            else
+                this.draggingSlider = null;
         }
         if (this.draggingPanel != null) {
             if (Mouse.isButtonDown(0)) {
@@ -213,13 +204,13 @@ extends GuiScreen {
                 this.draggingPanel = null;
             }
         }
-
         this.layout();
         Gui.func_73734_a(0, 0, this.field_146294_l, this.field_146295_m, BACKDROP);
         HUDModule hud = (HUDModule) MyauClient.moduleManager.modules.get(HUDModule.class);
         long now = System.currentTimeMillis();
         int accent = 0xFF000000 | (hud == null ? TabGui.DEFAULT_ACCENT : hud.getColor(now).getRGB());
-        if (accent == 0xFFFFFFFF && hud != null) accent = 0xFF000000 | hud.tabColor.getValue();
+        if (accent == 0xFFFFFFFF && hud != null)
+            accent = 0xFF000000 | hud.tabColor.getValue();
         // Paint each panel and its rows together so a dragged panel covers the one behind it.
         Panel previous = null;
         for (Row row : this.rows) {
@@ -229,7 +220,7 @@ extends GuiScreen {
                 Gui.func_73734_a(row.x, row.y, row.x + row.w, row.panel.bottom, PANEL);
             }
             boolean hovered = mouseX >= row.x && mouseX < row.x + row.w && mouseY >= row.y && mouseY < row.y + row.h;
-            switch (row.kind) {
+            switch(row.kind) {
                 case 0:
                     drawHeader(font, row, accent);
                     break;
@@ -256,16 +247,15 @@ extends GuiScreen {
         int footerY = this.field_146295_m - FOOTER;
         Gui.func_73734_a(0, footerY, this.field_146294_l, this.field_146295_m, PANEL_HEADER);
         Gui.func_73734_a(0, footerY, this.field_146294_l, footerY + 1, BORDER);
-        String help = this.editingString != null ? "Enter to save  /  Esc to revert"
-                : this.isBinding() ? "Press a key or middle mouse  /  Del to clear  /  Esc to cancel"
-                : "Left click toggle  /  Right click settings  /  B bind  /  H hide";
-        font.func_175063_a(fit(font, help, this.field_146294_l - 20), 10, footerY + 6,
-                this.isBinding() ? BINDING : MUTED);
+        String help = this.editingString != null ? "Enter to save  /  Esc to revert" : this.isBinding() ? "Press a key or middle mouse  /  Del to clear  /  Esc to cancel" : "Left click toggle  /  Right click settings  /  B bind  /  H hide";
+        font.func_175063_a(fit(font, help, this.field_146294_l - 20), 10, footerY + 6, this.isBinding() ? BINDING : MUTED);
     }
 
     private static String fit(FontRenderer font, String label, int width) {
-        if (width <= 0) return "";
-        if (font.func_78256_a(label) <= width) return label;
+        if (width <= 0)
+            return "";
+        if (font.func_78256_a(label) <= width)
+            return label;
         int ellipsis = font.func_78256_a("...");
         return width > ellipsis ? font.func_78269_a(label, width - ellipsis) + "..." : "";
     }
@@ -279,14 +269,11 @@ extends GuiScreen {
         font.func_175063_a(mark, row.x + row.w - 7 - font.func_78256_a(mark), row.y + 6, MUTED);
     }
 
-    private static void drawButton(FontRenderer font, String label, int x, Row row,
-                                   boolean hovered, boolean active, int accent) {
+    private static void drawButton(FontRenderer font, String label, int x, Row row, boolean hovered, boolean active, int accent) {
         if (hovered || active) {
-            Gui.func_73734_a(x + 1, row.y + 2, x + BUTTON_WIDTH - 1, row.y + row.h - 2,
-                    active ? (accent & 0xFFFFFF) | 0x50000000 : 0x30FFFFFF);
+            Gui.func_73734_a(x + 1, row.y + 2, x + BUTTON_WIDTH - 1, row.y + row.h - 2, active ? (accent & 0xFFFFFF) | 0x50000000 : 0x30FFFFFF);
         }
-        font.func_175063_a(label, x + (BUTTON_WIDTH - font.func_78256_a(label)) / 2.0f,
-                row.y + 4, active ? accent : MUTED);
+        font.func_175063_a(label, x + (BUTTON_WIDTH - font.func_78256_a(label)) / 2.0f, row.y + 4, active ? accent : MUTED);
     }
 
     private static void drawRowState(Row row, boolean hovered, boolean active, int accent) {
@@ -317,8 +304,7 @@ extends GuiScreen {
             font.func_175063_a(key, end, row.y + 4, binding ? BINDING : MUTED);
             end -= 5;
         }
-        font.func_175063_a(fit(font, module.getName(), end - row.x - 7),
-                row.x + 7, row.y + 4, module.isEnabled() ? LABEL : MUTED);
+        font.func_175063_a(fit(font, module.getName(), end - row.x - 7), row.x + 7, row.y + 4, module.isEnabled() ? LABEL : MUTED);
         drawButton(font, "B", bindX, row, hovered && mouseX >= bindX && mouseX < hideX, binding, accent);
         drawButton(font, "H", hideX, row, hovered && mouseX >= hideX, module.isHidden(), accent);
     }
@@ -356,7 +342,6 @@ extends GuiScreen {
             Gui.func_73734_a(knob, y + 2, knob + 3, y + 6, LABEL);
             return;
         }
-
         String value;
         int valueColor = accent;
         if (setting instanceof ModeSetting) {
@@ -364,7 +349,8 @@ extends GuiScreen {
         } else if (setting instanceof StringSetting) {
             boolean editing = setting == this.editingString;
             value = (String) setting.getValue();
-            if (editing && System.currentTimeMillis() / 500L % 2L == 0L) value += "_";
+            if (editing && System.currentTimeMillis() / 500L % 2L == 0L)
+                value += "_";
             valueColor = editing ? BINDING : MUTED;
         } else {
             double number = numericValue(row);
@@ -395,7 +381,8 @@ extends GuiScreen {
         this.rows.clear();
         int width = this.panelWidth();
         for (Panel panel : PANELS) {
-            if (panel.isEmpty()) continue;
+            if (panel.isEmpty())
+                continue;
             int n = panel.y + scroll;
             this.rows.add(new Row(0, panel, null, null, -1, null, panel.x, n, width, HEADER_HEIGHT));
             n += HEADER_HEIGHT;
@@ -407,9 +394,11 @@ extends GuiScreen {
                 for (Module module : panel.modules) {
                     this.rows.add(new Row(1, panel, module, null, -1, null, panel.x, n, width, MODULE_HEIGHT));
                     n += MODULE_HEIGHT;
-                    if (!EXPANDED.contains(module)) continue;
-                    for (Setting<?> setting : ClickGuiScreen.settingsOf(module)) {
-                        if (!setting.isVisible()) continue;
+                    if (!EXPANDED.contains(module))
+                        continue;
+                    for (Setting<?> setting : settingsOf(module)) {
+                        if (!setting.isVisible())
+                            continue;
                         int n2 = setting instanceof ColorSetting ? 3 : 1;
                         for (int i = 0; i < n2; ++i) {
                             this.rows.add(new Row(2, panel, module, setting, setting instanceof ColorSetting ? i : -1, null, panel.x, n, width, SETTING_HEIGHT));
@@ -432,17 +421,15 @@ extends GuiScreen {
         if (dArray != null) {
             return dArray;
         }
-        double[] dArray2 = new double[]{0.0, 1.0};
+        double[] dArray2 = new double[] { 0.0, 1.0 };
         try {
             Field field = setting.getClass().getDeclaredField("min");
             Field field2 = setting.getClass().getDeclaredField("max");
             field.setAccessible(true);
             field2.setAccessible(true);
-            dArray2[0] = ((Number)field.get(setting)).doubleValue();
-            dArray2[1] = ((Number)field2.get(setting)).doubleValue();
-        }
-        catch (Exception exception) {
-            // empty catch block
+            dArray2[0] = ((Number) field.get(setting)).doubleValue();
+            dArray2[1] = ((Number) field2.get(setting)).doubleValue();
+        } catch (Exception exception) {
         }
         RANGES.put(setting, dArray2);
         return dArray2;
@@ -451,15 +438,15 @@ extends GuiScreen {
     private static double numericValue(Row row) {
         Setting<?> setting = row.setting;
         if (row.channel >= 0) {
-            int n = (Integer)((ColorSetting)setting).getValue();
+            int n = (Integer) ((ColorSetting) setting).getValue();
             return n >> 16 - 8 * row.channel & 0xFF;
         }
-        return ((Number)setting.getValue()).doubleValue();
+        return ((Number) setting.getValue()).doubleValue();
     }
 
     private static String formatValue(Row row, double d) {
         if (row.channel >= 0) {
-            return String.valueOf((int)d);
+            return String.valueOf((int) d);
         }
         if (row.setting instanceof FloatSetting) {
             String string = String.format("%.2f", d);
@@ -467,33 +454,35 @@ extends GuiScreen {
             return string;
         }
         if (row.setting instanceof PercentSetting) {
-            return (int)d + "%";
+            return (int) d + "%";
         }
-        return String.valueOf((int)d);
+        return String.valueOf((int) d);
     }
 
     private void applySlider(Row row, int n) {
         Setting<?> setting = row.setting;
-        double d = Math.max(0.0, Math.min(1.0, (double)(n - (row.x + 4)) / (double)(row.w - 8)));
+        double d = Math.max(0.0, Math.min(1.0, (double) (n - (row.x + 4)) / (double) (row.w - 8)));
         if (row.channel >= 0) {
-            int n2 = (int)Math.round(d * 255.0);
+            int n2 = (int) Math.round(d * 255.0);
             int n3 = 16 - 8 * row.channel;
-            int n4 = (Integer)((ColorSetting)setting).getValue();
+            int n4 = (Integer) ((ColorSetting) setting).getValue();
             n4 = n4 & ~(255 << n3) | n2 << n3;
             ((ColorSetting) setting).setValue(n4 & 0xFFFFFF);
             return;
         }
-        double[] dArray = ClickGuiScreen.rangeOf(setting);
+        double[] dArray = rangeOf(setting);
         double d2 = dArray[0] + d * (dArray[1] - dArray[0]);
         if (setting instanceof FloatSetting) {
-            float f = (float)Math.round(d2 * 100.0) / 100.0f;
-            f = Math.max((float)dArray[0], Math.min((float)dArray[1], f));
+            float f = (float) Math.round(d2 * 100.0) / 100.0f;
+            f = Math.max((float) dArray[0], Math.min((float) dArray[1], f));
             ((FloatSetting) setting).setValue(f);
         } else {
-            int n5 = (int)Math.round(d2);
-            n5 = Math.max((int)dArray[0], Math.min((int)dArray[1], n5));
-            if (setting instanceof PercentSetting) ((PercentSetting) setting).setValue(n5);
-            else ((IntegerSetting) setting).setValue(n5);
+            int n5 = (int) Math.round(d2);
+            n5 = Math.max((int) dArray[0], Math.min((int) dArray[1], n5));
+            if (setting instanceof PercentSetting)
+                ((PercentSetting) setting).setValue(n5);
+            else
+                ((IntegerSetting) setting).setValue(n5);
         }
     }
 
@@ -508,69 +497,74 @@ extends GuiScreen {
             return;
         }
         this.editingString = null;
-        if (n2 < TOP - 5 || n2 >= this.field_146295_m - FOOTER) return;
+        if (n2 < TOP - 5 || n2 >= this.field_146295_m - FOOTER)
+            return;
         for (int i = this.rows.size() - 1; i >= 0; --i) {
             Row row = this.rows.get(i);
-            if (n < row.x || n >= row.x + row.w || n2 < row.y || n2 >= row.y + row.h) continue;
-            switch (row.kind) {
-                case 0: {
-                    if (n3 == 0) {
-                        this.draggingPanel = row.panel;
-                        this.dragOffsetX = n - row.panel.x;
-                        this.dragOffsetY = n2 - (row.panel.y + scroll);
-                    } else if (n3 == 1) {
-                        row.panel.open = !row.panel.open;
-                    }
-                    return;
-                }
-                case 1: {
-                    Module module = row.module;
-                    int n4 = row.x + row.w - BUTTON_WIDTH;
-                    int n5 = n4 - BUTTON_WIDTH;
-                    if (n >= n4) {
+            if (n < row.x || n >= row.x + row.w || n2 < row.y || n2 >= row.y + row.h)
+                continue;
+            switch(row.kind) {
+                case 0:
+                    {
                         if (n3 == 0) {
-                            module.setHidden(!module.isHidden());
+                            this.draggingPanel = row.panel;
+                            this.dragOffsetX = n - row.panel.x;
+                            this.dragOffsetY = n2 - (row.panel.y + scroll);
+                        } else if (n3 == 1) {
+                            row.panel.open = !row.panel.open;
                         }
                         return;
                     }
-                    if (n >= n5) {
+                case 1:
+                    {
+                        Module module = row.module;
+                        int n4 = row.x + row.w - BUTTON_WIDTH;
+                        int n5 = n4 - BUTTON_WIDTH;
+                        if (n >= n4) {
+                            if (n3 == 0) {
+                                module.setHidden(!module.isHidden());
+                            }
+                            return;
+                        }
+                        if (n >= n5) {
+                            if (n3 == 0) {
+                                this.startBinding(module, null);
+                            } else if (n3 == 1) {
+                                module.setKeyCode(0);
+                            }
+                            return;
+                        }
                         if (n3 == 0) {
+                            if (!(module instanceof ClickGuiModule)) {
+                                MyauClient.moduleManager.toggle(module);
+                            }
+                        } else if (n3 == 1 && !settingsOf(module).isEmpty()) {
+                            if (!EXPANDED.remove(module)) {
+                                EXPANDED.add(module);
+                            }
+                        } else if (n3 == 2) {
                             this.startBinding(module, null);
-                        } else if (n3 == 1) {
-                            module.setKeyCode(0);
                         }
                         return;
                     }
-                    if (n3 == 0) {
-                        if (!(module instanceof ClickGuiModule)) {
-                            MyauClient.moduleManager.toggle(module);
+                case 3:
+                    {
+                        int n6 = row.x + row.w - BUTTON_WIDTH;
+                        if (n >= n6) {
+                            if (n3 == 0) {
+                                this.startBinding(null, row.config);
+                            } else if (n3 == 1) {
+                                ConfigBinds.set(row.config, 0);
+                            }
+                            return;
                         }
-                    } else if (n3 == 1 && !ClickGuiScreen.settingsOf(module).isEmpty()) {
-                        if (!EXPANDED.remove(module)) {
-                            EXPANDED.add(module);
-                        }
-                    } else if (n3 == 2) {
-                        this.startBinding(module, null);
-                    }
-                    return;
-                }
-                case 3: {
-                    int n6 = row.x + row.w - BUTTON_WIDTH;
-                    if (n >= n6) {
                         if (n3 == 0) {
+                            ConfigBinds.loadConfig(row.config);
+                        } else if (n3 == 2) {
                             this.startBinding(null, row.config);
-                        } else if (n3 == 1) {
-                            ConfigBinds.set(row.config, 0);
                         }
                         return;
                     }
-                    if (n3 == 0) {
-                        ConfigBinds.loadConfig(row.config);
-                    } else if (n3 == 2) {
-                        this.startBinding(null, row.config);
-                    }
-                    return;
-                }
             }
             Setting<?> setting = row.setting;
             if (setting instanceof BooleanSetting) {
@@ -578,16 +572,16 @@ extends GuiScreen {
                     ((BooleanSetting) setting).setValue(!(Boolean) setting.getValue());
                 }
             } else if (setting instanceof ModeSetting) {
-                int n7 = ((ModeSetting)setting).getModes().length;
-                int n8 = (Integer)setting.getValue();
+                int n7 = ((ModeSetting) setting).getModes().length;
+                int n8 = (Integer) setting.getValue();
                 if (n7 > 0 && (n3 == 0 || n3 == 1)) {
                     int n9 = n3 == 0 ? (n8 + 1) % n7 : (n8 - 1 + n7) % n7;
                     ((ModeSetting) setting).setValue(n9);
                 }
             } else if (setting instanceof StringSetting) {
                 if (n3 == 0) {
-                    this.editingString = (StringSetting)setting;
-                    this.editingOriginal = (String)setting.getValue();
+                    this.editingString = (StringSetting) setting;
+                    this.editingOriginal = (String) setting.getValue();
                 }
             } else if (n3 == 0) {
                 this.draggingSlider = row;
@@ -605,13 +599,14 @@ extends GuiScreen {
     public void func_146274_d() throws IOException {
         super.func_146274_d();
         int n = Mouse.getEventDWheel();
-        if (n != 0) scroll = Math.max(this.minScroll, Math.min(0, scroll + (n > 0 ? 22 : -22)));
+        if (n != 0)
+            scroll = Math.max(this.minScroll, Math.min(0, scroll + (n > 0 ? 22 : -22)));
     }
 
     protected void func_73869_a(char c, int n) throws IOException {
         if (this.editingString != null) {
             StringSetting stringSetting = this.editingString;
-            String string = (String)stringSetting.getValue();
+            String string = (String) stringSetting.getValue();
             if (n == 28 || n == 156) {
                 this.editingString = null;
             } else if (n == 1) {
@@ -647,15 +642,25 @@ extends GuiScreen {
     }
 
     private static class Row {
+
         final int kind;
+
         final Panel panel;
+
         final Module module;
+
         final Setting<?> setting;
+
         final int channel;
+
         final String config;
+
         final int x;
+
         final int y;
+
         final int w;
+
         final int h;
 
         Row(int n, Panel panel, Module module, Setting<?> setting, int n2, String string, int n3, int n4, int n5, int n6) {
@@ -673,23 +678,34 @@ extends GuiScreen {
     }
 
     private static class Panel {
+
         final String title;
+
         final List<Module> modules = new ArrayList<Module>();
+
         final List<String> configs = new ArrayList<String>();
+
         int x;
+
         int y;
+
         int bottom;
+
         boolean open = true;
+
         boolean manuallyPlaced;
 
         int height() {
             int height = HEADER_HEIGHT;
-            if (!open) return height;
+            if (!open)
+                return height;
             height += (configs.size() + modules.size()) * MODULE_HEIGHT;
             for (Module module : modules) {
-                if (!EXPANDED.contains(module)) continue;
+                if (!EXPANDED.contains(module))
+                    continue;
                 for (Setting<?> setting : settingsOf(module)) {
-                    if (setting.isVisible()) height += SETTING_HEIGHT * (setting instanceof ColorSetting ? 3 : 1);
+                    if (setting.isVisible())
+                        height += SETTING_HEIGHT * (setting instanceof ColorSetting ? 3 : 1);
                 }
             }
             return height;

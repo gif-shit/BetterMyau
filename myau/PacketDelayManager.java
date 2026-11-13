@@ -2,11 +2,6 @@ package myau;
 
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import myau.DelayedPacket;
-import myau.EventHandler;
-import myau.PacketSendEvent;
-import myau.PacketUtils;
-import myau.PostTickEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Packet;
 import net.minecraft.network.handshake.client.C00Handshake;
@@ -20,6 +15,7 @@ import net.minecraft.network.status.client.C01PacketPing;
 import net.minecraft.util.Vec3;
 
 public class PacketDelayManager {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
     public final Deque<DelayedPacket> queuedPackets = new ConcurrentLinkedDeque<DelayedPacket>();
     private int delayTicks;
@@ -42,8 +38,7 @@ public class PacketDelayManager {
                 this.updateLastReleasedPosition(delayedPacket.packet);
                 this.queuedPackets.poll();
             }
-        }
-        finally {
+        } finally {
             this.flushing = false;
         }
     }
@@ -52,7 +47,7 @@ public class PacketDelayManager {
         if (!(packet instanceof C03PacketPlayer)) {
             return;
         }
-        C03PacketPlayer movementPacket = (C03PacketPlayer)packet;
+        C03PacketPlayer movementPacket = (C03PacketPlayer) packet;
         if (movementPacket.func_149466_j()) {
             this.lastReleasedPosition = new Vec3(movementPacket.func_149464_c(), movementPacket.func_149467_d(), movementPacket.func_149472_e());
         }
@@ -91,7 +86,7 @@ public class PacketDelayManager {
 
     @EventHandler
     public void onPostTick(PostTickEvent event) {
-        if (PacketDelayManager.minecraft.field_71439_g.field_70128_L) {
+        if (minecraft.field_71439_g.field_70128_L) {
             this.setDelayTicks(0);
         }
         this.ageQueuedPackets();
@@ -101,7 +96,11 @@ public class PacketDelayManager {
     @EventHandler
     public void onPacketSend(PacketSendEvent event) {
         Packet<?> packet = event.getPacket();
-        if (packet instanceof C00Handshake || packet instanceof C00PacketLoginStart || packet instanceof C00PacketServerQuery || packet instanceof C01PacketPing || packet instanceof C01PacketEncryptionResponse) {
+        if (packet instanceof C00Handshake
+                || packet instanceof C00PacketLoginStart
+                || packet instanceof C00PacketServerQuery
+                || packet instanceof C01PacketPing
+                || packet instanceof C01PacketEncryptionResponse) {
             this.setDelayTicks(0);
         }
     }

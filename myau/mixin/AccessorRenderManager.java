@@ -6,9 +6,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={RenderManager.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { RenderManager.class })
 public interface AccessorRenderManager {
+
     @Accessor
     public double getRenderPosX();
 

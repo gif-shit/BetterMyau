@@ -7,9 +7,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={GuiChat.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { GuiChat.class })
 public interface AccessorGuiChat {
+
     @Accessor
     public GuiTextField getInputField();
 }

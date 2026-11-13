@@ -1,9 +1,7 @@
 package myau;
 
-import myau.Event;
+public abstract class CancellableEvent extends Event {
 
-public abstract class CancellableEvent
-extends Event {
     private boolean cancelled;
 
     public boolean isCancelled() {

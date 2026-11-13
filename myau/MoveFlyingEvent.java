@@ -1,9 +1,7 @@
 package myau;
 
-import myau.Event;
+public class MoveFlyingEvent extends Event {
 
-public class MoveFlyingEvent
-extends Event {
     private float strafe;
     private float forward;
     private float friction;

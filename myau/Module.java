@@ -1,9 +1,7 @@
 package myau;
 
-import myau.InputUtils;
-import myau.MutableValue;
-
 public abstract class Module {
+
     protected final String name;
     protected final boolean defaultEnabled;
     protected final int defaultKeyCode;

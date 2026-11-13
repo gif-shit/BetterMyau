@@ -1,7 +1,7 @@
 package myau.mixin;
 
-import myau.RotationState;
 import myau.PitModule;
+import myau.RotationState;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
@@ -13,23 +13,29 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={RenderManager.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { RenderManager.class })
 public abstract class MixinRenderManager {
+
     @Unique
     private float originalPrevRenderYawOffset;
+
     @Unique
     private float originalRenderYawOffset;
+
     @Unique
     private float originalPrevYawHead;
+
     @Unique
     private float originalYawHead;
+
     @Unique
     private float originalPrevPitch;
+
     @Unique
     private float originalPitch;
 
-    @Inject(method={"renderEntityStatic"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method = { "renderEntityStatic" }, at = { @At(value = "HEAD") }, cancellable = true)
     private void beforeRenderEntityStatic(Entity entity, float partialTicks, boolean hideDebugBox, CallbackInfoReturnable<Boolean> callbackInfo) {
         PitModule pit = PitModule.instance();
         if (pit != null && pit.hideVisual(entity)) {
@@ -37,7 +43,7 @@ public abstract class MixinRenderManager {
             return;
         }
         if (entity instanceof EntityPlayerSP && RotationState.isActiveWithinTicks(1)) {
-            EntityPlayerSP player = (EntityPlayerSP)entity;
+            EntityPlayerSP player = (EntityPlayerSP) entity;
             this.originalPrevRenderYawOffset = player.field_70760_ar;
             this.originalRenderYawOffset = player.field_70761_aq;
             this.originalPrevYawHead = player.field_70758_at;
@@ -53,10 +59,10 @@ public abstract class MixinRenderManager {
         }
     }
 
-    @Inject(method={"renderEntityStatic"}, at={@At(value="RETURN")})
+    @Inject(method = { "renderEntityStatic" }, at = { @At(value = "RETURN") })
     private void afterRenderEntityStatic(Entity entity, float partialTicks, boolean hideDebugBox, CallbackInfoReturnable<Boolean> callbackInfo) {
         if (entity instanceof EntityPlayerSP && RotationState.isActiveWithinTicks(1)) {
-            EntityPlayerSP player = (EntityPlayerSP)entity;
+            EntityPlayerSP player = (EntityPlayerSP) entity;
             player.field_70760_ar = this.originalPrevRenderYawOffset;
             player.field_70761_aq = this.originalRenderYawOffset;
             player.field_70758_at = this.originalPrevYawHead;

@@ -2,8 +2,8 @@ package myau;
 
 import java.util.ArrayList;
 
-final class BeneficialPotionIds
-extends ArrayList<Integer> {
+final class BeneficialPotionIds extends ArrayList<Integer> {
+
     BeneficialPotionIds() {
         this.add(1);
         this.add(3);

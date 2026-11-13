@@ -3,6 +3,7 @@ package myau;
 import net.minecraft.network.Packet;
 
 public class DelayedPacket {
+
     public final Packet<?> packet;
     public int ageTicks;
 

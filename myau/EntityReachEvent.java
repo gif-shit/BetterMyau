@@ -1,9 +1,7 @@
 package myau;
 
-import myau.Event;
+public class EntityReachEvent extends Event {
 
-public class EntityReachEvent
-extends Event {
     private double reachDistance;
 
     public EntityReachEvent(double reachDistance) {

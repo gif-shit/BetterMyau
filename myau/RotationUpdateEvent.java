@@ -1,10 +1,9 @@
 package myau;
 
-import myau.Event;
 import net.minecraft.util.MathHelper;
 
-public class RotationUpdateEvent
-extends Event {
+public class RotationUpdateEvent extends Event {
+
     private final float previousYaw;
     private final float previousPitch;
     private float yaw;
@@ -55,7 +54,7 @@ extends Event {
             return;
         }
         this.yaw = yaw;
-        this.pitch = MathHelper.func_76131_a((float)pitch, (float)-90.0f, (float)90.0f);
+        this.pitch = MathHelper.func_76131_a((float) pitch, (float) -90.0f, (float) 90.0f);
         this.rotationPriority = priority;
         this.modified = true;
     }

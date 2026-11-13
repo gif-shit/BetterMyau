@@ -17,15 +17,16 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={BlockModelRenderer.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { BlockModelRenderer.class })
 public abstract class MixinBlockModelRenderer {
+
     @Shadow
     public boolean func_178265_a(IBlockAccess blockAccess, IBakedModel model, Block block, BlockPos position, WorldRenderer renderer, boolean checkSides) {
         return false;
     }
 
-    @Inject(method={"renderModel(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/client/resources/model/IBakedModel;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/BlockPos;Lnet/minecraft/client/renderer/WorldRenderer;Z)Z"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method = { "renderModel(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/client/resources/model/IBakedModel;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/BlockPos;Lnet/minecraft/client/renderer/WorldRenderer;Z)Z" }, at = { @At(value = "HEAD") }, cancellable = true)
     private void beforeRenderModel(IBlockAccess blockAccess, IBakedModel model, IBlockState blockState, BlockPos position, WorldRenderer renderer, boolean checkSides, CallbackInfoReturnable<Boolean> callbackInfo) {
         if (MyauClient.moduleManager != null && MyauClient.moduleManager.modules.get(XrayModule.class).isEnabled()) {
             callbackInfo.setReturnValue(this.func_178265_a(blockAccess, model, blockState.func_177230_c(), position, renderer, checkSides));

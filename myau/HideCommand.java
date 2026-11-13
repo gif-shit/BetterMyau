@@ -4,13 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import myau.ChatUtils;
-import myau.Command;
-import myau.Module;
-import myau.MyauClient;
 
-public class HideCommand
-extends Command {
+public class HideCommand extends Command {
+
     public HideCommand() {
         super(new ArrayList<String>(Arrays.asList("hide", "h")));
     }

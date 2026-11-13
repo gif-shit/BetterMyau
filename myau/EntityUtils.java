@@ -3,8 +3,6 @@ package myau;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-import myau.MyauClient;
-import myau.ScoreboardUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.network.NetworkPlayerInfo;
@@ -16,6 +14,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.scoreboard.ScorePlayerTeam;
 
 public final class EntityUtils {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
     private static final int DEFAULT_TEAM_COLOR = 0xFFFFFF;
 
@@ -23,18 +22,18 @@ public final class EntityUtils {
     }
 
     public static boolean isLoaded(Entity entity) {
-        return entity != null && EntityUtils.minecraft.field_71441_e.field_72996_f.contains(entity);
+        return entity != null && minecraft.field_71441_e.field_72996_f.contains(entity);
     }
 
     public static List<Entity> entitiesBackToFront() {
         RenderManager renderManager = minecraft.func_175598_ae();
-        ArrayList<Entity> entities = new ArrayList<Entity>(EntityUtils.minecraft.field_71441_e.field_72996_f);
-        entities.sort((first, second) -> EntityUtils.compareRenderOrder(renderManager, first, second));
+        ArrayList<Entity> entities = new ArrayList<Entity>(minecraft.field_71441_e.field_72996_f);
+        entities.sort((first, second) -> compareRenderOrder(renderManager, first, second));
         return entities;
     }
 
     public static float armorAdjustedHealth(EntityLivingBase entity) {
-        return entity.func_110143_aJ() * (20.0f / (float)entity.func_70658_aO());
+        return entity.func_110143_aJ() * (20.0f / (float) entity.func_70658_aO());
     }
 
     public static String formattedName(Entity entity) {
@@ -43,28 +42,28 @@ public final class EntityUtils {
 
     public static Color teamColor(EntityPlayer player, float alpha) {
         int rgb = 0xFFFFFF;
-        ScorePlayerTeam team = (ScorePlayerTeam)player.func_96124_cp();
+        ScorePlayerTeam team = (ScorePlayerTeam) player.func_96124_cp();
         if (team == null) {
-            return EntityUtils.fromRgb(rgb, alpha);
+            return fromRgb(rgb, alpha);
         }
-        String formatting = FontRenderer.func_78282_e((String)team.func_96668_e());
+        String formatting = FontRenderer.func_78282_e((String) team.func_96668_e());
         if (formatting.length() < 2) {
-            return EntityUtils.fromRgb(rgb, alpha);
+            return fromRgb(rgb, alpha);
         }
-        rgb = EntityUtils.minecraft.field_71466_p.func_175064_b(formatting.charAt(1));
-        return EntityUtils.fromRgb(rgb, alpha);
+        rgb = minecraft.field_71466_p.func_175064_b(formatting.charAt(1));
+        return fromRgb(rgb, alpha);
     }
 
     private static Color fromRgb(int rgb, float alpha) {
-        return new Color((float)(rgb >> 16 & 0xFF) / 255.0f, (float)(rgb >> 8 & 0xFF) / 255.0f, (float)(rgb & 0xFF) / 255.0f, alpha);
+        return new Color((float) (rgb >> 16 & 0xFF) / 255.0f, (float) (rgb >> 8 & 0xFF) / 255.0f, (float) (rgb & 0xFF) / 255.0f, alpha);
     }
 
     public static boolean isLocalOrViewPlayer(EntityPlayer player) {
-        return player == EntityUtils.minecraft.field_71439_g || player == minecraft.func_175606_aa();
+        return player == minecraft.field_71439_g || player == minecraft.func_175606_aa();
     }
 
     public static boolean isBot(EntityPlayer player) {
-        if (player == EntityUtils.minecraft.field_71439_g) {
+        if (player == minecraft.field_71439_g) {
             return false;
         }
         NetworkPlayerInfo playerInfo = minecraft.func_147114_u().func_175104_a(player.func_70005_c_());
@@ -93,10 +92,10 @@ public final class EntityUtils {
     }
 
     public static boolean isTeammate(EntityPlayer player) {
-        if (player == EntityUtils.minecraft.field_71439_g) {
+        if (player == minecraft.field_71439_g) {
             return true;
         }
-        NetworkPlayerInfo localInfo = minecraft.func_147114_u().func_175102_a(EntityUtils.minecraft.field_71439_g.func_110124_au());
+        NetworkPlayerInfo localInfo = minecraft.func_147114_u().func_175102_a(minecraft.field_71439_g.func_110124_au());
         if (localInfo == null || localInfo.func_178850_i() == null) {
             return false;
         }
@@ -108,10 +107,10 @@ public final class EntityUtils {
     }
 
     public static boolean hasTeamArmorStand(EntityLivingBase entity) {
-        if (entity == EntityUtils.minecraft.field_71439_g) {
+        if (entity == minecraft.field_71439_g) {
             return true;
         }
-        NetworkPlayerInfo localInfo = minecraft.func_147114_u().func_175102_a(EntityUtils.minecraft.field_71439_g.func_110124_au());
+        NetworkPlayerInfo localInfo = minecraft.func_147114_u().func_175102_a(minecraft.field_71439_g.func_110124_au());
         if (localInfo == null) {
             return false;
         }
@@ -119,17 +118,21 @@ public final class EntityUtils {
         if (localTeam == null || localTeam.func_96668_e().length() < 2) {
             return false;
         }
-        EntityLivingBase armorStand = (EntityLivingBase)EntityUtils.minecraft.field_71441_e.func_72857_a(EntityArmorStand.class, entity.func_174813_aQ(), (Entity)entity);
+        EntityLivingBase armorStand = (EntityLivingBase) minecraft.field_71441_e.func_72857_a(EntityArmorStand.class, entity.func_174813_aQ(), (Entity) entity);
         return armorStand != null && armorStand.func_70005_c_().contains(localTeam.func_96668_e().substring(0, 2));
     }
 
     public static boolean isShopNPC(EntityLivingBase entity) {
-        EntityLivingBase armorStand = (EntityLivingBase)EntityUtils.minecraft.field_71441_e.func_72857_a(EntityArmorStand.class, entity.func_174813_aQ(), (Entity)entity);
+        EntityLivingBase armorStand = (EntityLivingBase) minecraft.field_71441_e.func_72857_a(EntityArmorStand.class, entity.func_174813_aQ(), (Entity) entity);
         if (armorStand == null) {
             return false;
         }
         String name = armorStand.func_70005_c_();
-        return name.contains("RIGHT CLICK") || name.contains("ITEM SHOP") || name.contains("UPGRADES") || name.contains("BANKER") || name.contains("STREAK POWERS");
+        return name.contains("RIGHT CLICK")
+                || name.contains("ITEM SHOP")
+                || name.contains("UPGRADES")
+                || name.contains("BANKER")
+                || name.contains("STREAK POWERS");
     }
 
     public static boolean isFriend(EntityPlayer player) {

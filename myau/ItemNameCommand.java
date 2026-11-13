@@ -2,14 +2,11 @@ package myau;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import myau.ChatColor;
-import myau.ChatUtils;
-import myau.Command;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 
-public class ItemNameCommand
-extends Command {
+public class ItemNameCommand extends Command {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
 
     public ItemNameCommand() {
@@ -18,7 +15,7 @@ extends Command {
 
     @Override
     public void execute(ArrayList<String> arguments) {
-        ItemStack stack = ItemNameCommand.minecraft.field_71439_g.field_71071_by.func_70448_g();
+        ItemStack stack = minecraft.field_71439_g.field_71071_by.func_70448_g();
         if (stack == null) {
             return;
         }

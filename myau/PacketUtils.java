@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.Packet;
 
 public final class PacketUtils {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
 
     private PacketUtils() {

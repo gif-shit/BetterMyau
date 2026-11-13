@@ -1,9 +1,7 @@
 package myau;
 
-import myau.CancellableEvent;
+public class WindowClickEvent extends CancellableEvent {
 
-public class WindowClickEvent
-extends CancellableEvent {
     private final int windowId;
     private final int slotId;
     private final int mouseButton;

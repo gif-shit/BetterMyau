@@ -1,10 +1,9 @@
 package myau;
 
-import myau.Module;
 import net.minecraft.client.Minecraft;
 
-public class ViewClipModule
-extends Module {
+public class ViewClipModule extends Module {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
 
     public ViewClipModule() {
@@ -22,9 +21,9 @@ extends Module {
     }
 
     private void reloadRenderers() {
-        if (ViewClipModule.minecraft.field_71441_e == null) {
+        if (minecraft.field_71441_e == null) {
             return;
         }
-        ViewClipModule.minecraft.field_71438_f.func_72712_a();
+        minecraft.field_71438_f.func_72712_a();
     }
 }

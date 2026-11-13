@@ -1,6 +1,7 @@
 package myau;
 
 public enum ChatColor {
+
     BLACK('0', -16777216),
     DARK_BLUE('1', -16777046),
     DARK_GREEN('2', -16733696),
@@ -31,7 +32,7 @@ public enum ChatColor {
 
     private ChatColor(char code, int colorValue) {
         this.colorValue = colorValue;
-        this.formattingCode = new String(new char[]{'\u00a7', code});
+        this.formattingCode = new String(new char[] { '\u00a7', code });
     }
 
     public String toString() {
@@ -45,7 +46,8 @@ public enum ChatColor {
     public static String formatText(String text) {
         char[] characters = text.toCharArray();
         for (int index = 0; index < characters.length - 1; ++index) {
-            if (characters[index] != '&' || VALID_CODES.indexOf(characters[index + 1]) < 0) continue;
+            if (characters[index] != '&' || VALID_CODES.indexOf(characters[index + 1]) < 0)
+                continue;
             characters[index] = 167;
             characters[index + 1] = Character.toLowerCase(characters[index + 1]);
         }

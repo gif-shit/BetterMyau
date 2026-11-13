@@ -4,8 +4,6 @@ import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import myau.BeneficialPotionIds;
-import myau.BlockUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
@@ -34,6 +32,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 
 public final class ItemUtils {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
     private static final List<Integer> BENEFICIAL_POTION_IDS = new BeneficialPotionIds();
     private static final int INVENTORY_SEARCH_SIZE = 36;
@@ -50,13 +49,17 @@ public final class ItemUtils {
         }
         Item item = stack.func_77973_b();
         if (item instanceof ItemBlock) {
-            return !ItemUtils.isSuitablePlacementBlock((ItemBlock)item);
+            return !isSuitablePlacementBlock((ItemBlock) item);
         }
         if (item instanceof ItemPotion) {
-            List effects = ((ItemPotion)item).func_77832_l(stack);
+            List<PotionEffect> effects = ((ItemPotion) item).func_77832_l(stack);
             return effects.stream().map(PotionEffect::func_76456_a).noneMatch(BENEFICIAL_POTION_IDS::contains);
         }
-        if (item instanceof ItemFishingRod || item instanceof ItemSnowball || item instanceof ItemEgg || item instanceof ItemBucket || item instanceof ItemEnderPearl) {
+        if (item instanceof ItemFishingRod
+                || item instanceof ItemSnowball
+                || item instanceof ItemEgg
+                || item instanceof ItemBucket
+                || item instanceof ItemEnderPearl) {
             return false;
         }
         if (item instanceof ItemFood && item != Items.field_151070_bp) {
@@ -66,7 +69,10 @@ public final class ItemUtils {
     }
 
     public static boolean isPlaceableBlockStack(ItemStack stack) {
-        return stack != null && stack.field_77994_a >= 1 && stack.func_77973_b() instanceof ItemBlock && ItemUtils.isSuitablePlacementBlock((ItemBlock)stack.func_77973_b());
+        return stack != null
+                && stack.field_77994_a >= 1
+                && stack.func_77973_b() instanceof ItemBlock
+                && isSuitablePlacementBlock((ItemBlock) stack.func_77973_b());
     }
 
     public static boolean isSuitablePlacementBlock(ItemBlock itemBlock) {
@@ -79,15 +85,16 @@ public final class ItemUtils {
             return 0.0;
         }
         double score = 0.0;
-        Multimap modifiers = stack.func_111283_C();
+        Multimap<String, AttributeModifier> modifiers = stack.func_111283_C();
         for (String attributeName : modifiers.keySet()) {
-            Collection attackModifiers;
-            if (!"generic.attackDamage".equals(attributeName) || (attackModifiers = modifiers.get(attributeName)).isEmpty()) continue;
-            score += ((AttributeModifier)attackModifiers.iterator().next()).func_111164_d();
+            Collection<AttributeModifier> attackModifiers;
+            if (!"generic.attackDamage".equals(attributeName) || (attackModifiers = modifiers.get(attributeName)).isEmpty())
+                continue;
+            score += ((AttributeModifier) attackModifiers.iterator().next()).func_111164_d();
         }
         if (stack.func_77948_v()) {
-            score += (double)EnchantmentHelper.func_77506_a((int)Enchantment.field_77334_n.field_77352_x, (ItemStack)stack);
-            score += (double)EnchantmentHelper.func_77506_a((int)Enchantment.field_180314_l.field_77352_x, (ItemStack)stack) * 1.25;
+            score += (double) EnchantmentHelper.func_77506_a((int) Enchantment.field_77334_n.field_77352_x, (ItemStack) stack);
+            score += (double) EnchantmentHelper.func_77506_a((int) Enchantment.field_180314_l.field_77352_x, (ItemStack) stack) * 1.25;
         }
         return score;
     }
@@ -97,9 +104,10 @@ public final class ItemUtils {
         if (stack == null || !(stack.func_77973_b() instanceof ItemTool)) {
             return 1.0f;
         }
-        float score = ((ItemTool)stack.func_77973_b()).func_150913_i().func_77998_b();
-        if (score > 1.0f && (efficiencyLevel = EnchantmentHelper.func_77506_a((int)Enchantment.field_77349_p.field_77352_x, (ItemStack)stack)) > 0) {
-            score += (float)(efficiencyLevel * efficiencyLevel + 1);
+        float score = ((ItemTool) stack.func_77973_b()).func_150913_i().func_77998_b();
+        if (score > 1.0f
+                && (efficiencyLevel = EnchantmentHelper.func_77506_a((int) Enchantment.field_77349_p.field_77352_x, (ItemStack) stack)) > 0) {
+            score += (float) (efficiencyLevel * efficiencyLevel + 1);
         }
         return score;
     }
@@ -108,9 +116,9 @@ public final class ItemUtils {
         if (stack == null || !(stack.func_77973_b() instanceof ItemArmor)) {
             return 0.0;
         }
-        double score = ((ItemArmor)stack.func_77973_b()).field_77879_b;
+        double score = ((ItemArmor) stack.func_77973_b()).field_77879_b;
         if (stack.func_77948_v()) {
-            score += (double)EnchantmentHelper.func_77506_a((int)Enchantment.field_180310_c.field_77352_x, (ItemStack)stack) * 0.25;
+            score += (double) EnchantmentHelper.func_77506_a((int) Enchantment.field_180310_c.field_77352_x, (ItemStack) stack) * 0.25;
         }
         return score;
     }
@@ -120,9 +128,14 @@ public final class ItemUtils {
         double bestScore = 0.0;
         for (int offset = 0; offset < 36; ++offset) {
             double score;
-            int slot = ItemUtils.wrapInventorySlot(startSlot + offset);
-            ItemStack stackCandidate = ItemUtils.minecraft.field_71439_g.field_71071_by.func_70301_a(slot);
-            if (stackCandidate == null || !(stackCandidate.func_77973_b() instanceof ItemSword) || avoidLowDurability && ItemUtils.hasLowDurability(stackCandidate) || !((score = ItemUtils.weaponScore(stackCandidate)) > bestScore)) continue;
+            int slot = wrapInventorySlot(startSlot + offset);
+            ItemStack stackCandidate = minecraft.field_71439_g.field_71071_by.func_70301_a(slot);
+            if (stackCandidate == null
+                    || !(stackCandidate.func_77973_b() instanceof ItemSword)
+                    || avoidLowDurability
+                    && hasLowDurability(stackCandidate)
+                    || !((score = weaponScore(stackCandidate)) > bestScore))
+                continue;
             bestSlot = slot;
             bestScore = score;
         }
@@ -134,9 +147,15 @@ public final class ItemUtils {
         float bestScore = 1.0f;
         for (int offset = 0; offset < 36; ++offset) {
             float score;
-            int slot = ItemUtils.wrapInventorySlot(startSlot + offset);
-            ItemStack stack = ItemUtils.minecraft.field_71439_g.field_71071_by.func_70301_a(slot);
-            if (stack == null || !(stack.func_77973_b() instanceof ItemTool) || !stack.func_77973_b().getToolClasses(stack).contains(toolClass) || avoidLowDurability && ItemUtils.hasLowDurability(stack) || !((score = ItemUtils.toolEfficiencyScore(stack)) > bestScore)) continue;
+            int slot = wrapInventorySlot(startSlot + offset);
+            ItemStack stack = minecraft.field_71439_g.field_71071_by.func_70301_a(slot);
+            if (stack == null
+                    || !(stack.func_77973_b() instanceof ItemTool)
+                    || !stack.func_77973_b().getToolClasses(stack).contains(toolClass)
+                    || avoidLowDurability
+                    && hasLowDurability(stack)
+                    || !((score = toolEfficiencyScore(stack)) > bestScore))
+                continue;
             bestSlot = slot;
             bestScore = score;
         }
@@ -145,12 +164,13 @@ public final class ItemUtils {
 
     public static int findBestToolForBlock(int preferredSlot, Block block) {
         int bestSlot = preferredSlot;
-        ItemStack preferredStack = ItemUtils.minecraft.field_71439_g.field_71071_by.func_70301_a(preferredSlot);
+        ItemStack preferredStack = minecraft.field_71439_g.field_71071_by.func_70301_a(preferredSlot);
         float bestStrength = preferredStack == null ? 1.0f : preferredStack.func_150997_a(block);
         for (int slot = 0; slot < 9; ++slot) {
             float strength;
-            ItemStack stackSecondary = ItemUtils.minecraft.field_71439_g.field_71071_by.func_70301_a(slot);
-            if (stackSecondary == null || !((strength = stackSecondary.func_150997_a(block)) > bestStrength)) continue;
+            ItemStack stackSecondary = minecraft.field_71439_g.field_71071_by.func_70301_a(slot);
+            if (stackSecondary == null || !((strength = stackSecondary.func_150997_a(block)) > bestStrength))
+                continue;
             bestSlot = slot;
             bestStrength = strength;
         }
@@ -162,10 +182,15 @@ public final class ItemUtils {
         double bestScore = 0.0;
         for (int slot = 0; slot < 40; ++slot) {
             double score;
-            ItemStack stackAlternate = ItemUtils.minecraft.field_71439_g.field_71071_by.func_70301_a(slot);
-            if (stackAlternate == null || !(stackAlternate.func_77973_b() instanceof ItemArmor)) continue;
-            ItemArmor armor = (ItemArmor)stackAlternate.func_77973_b();
-            if (armor.field_77881_a != armorType || avoidLowDurability && ItemUtils.hasLowDurability(stackAlternate) || !((score = ItemUtils.armorScore(stackAlternate)) >= bestScore)) continue;
+            ItemStack stackAlternate = minecraft.field_71439_g.field_71071_by.func_70301_a(slot);
+            if (stackAlternate == null || !(stackAlternate.func_77973_b() instanceof ItemArmor))
+                continue;
+            ItemArmor armor = (ItemArmor) stackAlternate.func_77973_b();
+            if (armor.field_77881_a != armorType
+                    || avoidLowDurability
+                    && hasLowDurability(stackAlternate)
+                    || !((score = armorScore(stackAlternate)) >= bestScore))
+                continue;
             bestSlot = slot;
             bestScore = score;
         }
@@ -176,9 +201,10 @@ public final class ItemUtils {
         int bestSlot = -1;
         int largestStackSize = 0;
         for (int offset = 0; offset < 36; ++offset) {
-            int slot = ItemUtils.wrapInventorySlot(startSlot + offset);
-            ItemStack stackResult = ItemUtils.minecraft.field_71439_g.field_71071_by.func_70301_a(slot);
-            if (!ItemUtils.isPlaceableBlockStack(stackResult) || stackResult.field_77994_a <= largestStackSize) continue;
+            int slot = wrapInventorySlot(startSlot + offset);
+            ItemStack stackResult = minecraft.field_71439_g.field_71071_by.func_70301_a(slot);
+            if (!isPlaceableBlockStack(stackResult) || stackResult.field_77994_a <= largestStackSize)
+                continue;
             bestSlot = slot;
             largestStackSize = stackResult.field_77994_a;
         }
@@ -186,7 +212,7 @@ public final class ItemUtils {
     }
 
     public static boolean isHoldingWeapon() {
-        ItemStack heldItem = ItemUtils.minecraft.field_71439_g.func_70694_bm();
+        ItemStack heldItem = minecraft.field_71439_g.func_70694_bm();
         if (heldItem == null) {
             return false;
         }
@@ -195,10 +221,15 @@ public final class ItemUtils {
             long itemId;
             NBTTagCompound extraAttributes;
             NBTTagCompound tags = heldItem.func_77978_p();
-            if (tags.func_74764_b("ExtraAttributes") && (extraAttributes = tags.func_74775_l("ExtraAttributes")).func_74764_b("UHCid") && ((itemId = extraAttributes.func_74763_f("UHCid")) == 50006L || itemId == 50009L)) {
+            if (tags.func_74764_b("ExtraAttributes")
+                    && (extraAttributes = tags.func_74775_l("ExtraAttributes")).func_74764_b("UHCid")
+                    && ((itemId = extraAttributes.func_74763_f("UHCid")) == 50006L
+                    || itemId == 50009L)) {
                 return true;
             }
-            if (tags.func_74764_b("HideFlags") && heldItem.func_77973_b() instanceof ItemSpade && (material = ((ItemSpade)heldItem.func_77973_b()).func_150913_i()) == Item.ToolMaterial.EMERALD) {
+            if (tags.func_74764_b("HideFlags")
+                    && heldItem.func_77973_b() instanceof ItemSpade
+                    && (material = ((ItemSpade) heldItem.func_77973_b()).func_150913_i()) == Item.ToolMaterial.EMERALD) {
                 return true;
             }
             if (tags.func_74764_b("ItemModel") && "minecraft:mace".equals(tags.func_74779_i("ItemModel"))) {
@@ -208,26 +239,26 @@ public final class ItemUtils {
         if (heldItem.func_77973_b() instanceof ItemEnchantedBook) {
             return false;
         }
-        Map enchantments = EnchantmentHelper.func_82781_a((ItemStack)heldItem);
+        Map enchantments = EnchantmentHelper.func_82781_a((ItemStack) heldItem);
         return enchantments.containsKey(19) || heldItem.func_77973_b() instanceof ItemSword;
     }
 
     public static boolean isHoldingSword() {
-        ItemStack heldItem = ItemUtils.minecraft.field_71439_g.func_70694_bm();
+        ItemStack heldItem = minecraft.field_71439_g.func_70694_bm();
         return heldItem != null && heldItem.func_77973_b() instanceof ItemSword;
     }
 
     public static boolean isHoldingTool() {
-        ItemStack heldItem = ItemUtils.minecraft.field_71439_g.func_70694_bm();
+        ItemStack heldItem = minecraft.field_71439_g.func_70694_bm();
         return heldItem != null && heldItem.func_77973_b() instanceof ItemTool;
     }
 
     public static boolean isHoldingConsumable() {
-        ItemStack heldItem = ItemUtils.minecraft.field_71439_g.func_70694_bm();
+        ItemStack heldItem = minecraft.field_71439_g.func_70694_bm();
         if (heldItem == null) {
             return false;
         }
-        if (ItemPotion.func_77831_g((int)heldItem.func_77973_b().getMetadata(heldItem))) {
+        if (ItemPotion.func_77831_g((int) heldItem.func_77973_b().getMetadata(heldItem))) {
             return false;
         }
         EnumAction action = heldItem.func_77975_n();
@@ -235,21 +266,21 @@ public final class ItemUtils {
     }
 
     public static boolean isHoldingBow() {
-        ItemStack heldItem = ItemUtils.minecraft.field_71439_g.func_70694_bm();
+        ItemStack heldItem = minecraft.field_71439_g.func_70694_bm();
         return heldItem != null && heldItem.func_77973_b() instanceof ItemBow;
     }
 
     public static boolean isHoldingBlocks() {
-        ItemStack heldItem = ItemUtils.minecraft.field_71439_g.func_70694_bm();
+        ItemStack heldItem = minecraft.field_71439_g.func_70694_bm();
         return heldItem != null && heldItem.field_77994_a >= 1 && heldItem.func_77973_b() instanceof ItemBlock;
     }
 
     public static boolean isHoldingPlaceableBlock() {
-        return ItemUtils.isPlaceableBlockStack(ItemUtils.minecraft.field_71439_g.func_70694_bm());
+        return isPlaceableBlockStack(minecraft.field_71439_g.func_70694_bm());
     }
 
     public static boolean isHoldingFireball() {
-        ItemStack heldItem = ItemUtils.minecraft.field_71439_g.func_70694_bm();
+        ItemStack heldItem = minecraft.field_71439_g.func_70694_bm();
         return heldItem != null && heldItem.field_77994_a >= 1 && heldItem.func_77973_b() instanceof ItemFireball;
     }
 

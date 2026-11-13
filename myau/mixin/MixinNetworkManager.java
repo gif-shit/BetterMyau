@@ -16,14 +16,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={NetworkManager.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { NetworkManager.class })
 public abstract class MixinNetworkManager {
-    @Inject(method={"channelRead0*"}, at={@At(value="HEAD")}, cancellable=true)
+
+    @Inject(method = { "channelRead0*" }, at = { @At(value = "HEAD") }, cancellable = true)
     private void onChannelRead(ChannelHandlerContext channelHandlerContext, Packet<?> packet, CallbackInfo callbackInfo) {
-        if (!packet.getClass().getName().startsWith("net.minecraft.network.play.client") && MyauClient.eventBus != null && MyauClient.incomingPacketBuffer != null) {
+        if (!packet.getClass().getName().startsWith("net.minecraft.network.play.client")
+                && MyauClient.eventBus != null
+                && MyauClient.incomingPacketBuffer != null) {
             MyauClient.eventBus.post(new RawPacketReceiveEvent(packet));
-            if (MyauClient.incomingPacketBuffer.buffer((Packet)packet)) {
+            if (MyauClient.incomingPacketBuffer.buffer((Packet) packet)) {
                 callbackInfo.cancel();
             } else {
                 PacketReceiveEvent event = new PacketReceiveEvent(packet, this);
@@ -35,9 +38,13 @@ public abstract class MixinNetworkManager {
         }
     }
 
-    @Inject(method={"sendPacket(Lnet/minecraft/network/Packet;)V"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method = { "sendPacket(Lnet/minecraft/network/Packet;)V" }, at = { @At(value = "HEAD") }, cancellable = true)
     private void onSendPacket(Packet<?> packet, CallbackInfo callbackInfo) {
-        if (!packet.getClass().getName().startsWith("net.minecraft.network.play.server") && MyauClient.eventBus != null && MyauClient.packetActionTracker != null && MyauClient.outgoingPacketBuffer != null && MyauClient.packetDelayManager != null) {
+        if (!packet.getClass().getName().startsWith("net.minecraft.network.play.server")
+                && MyauClient.eventBus != null
+                && MyauClient.packetActionTracker != null
+                && MyauClient.outgoingPacketBuffer != null
+                && MyauClient.packetDelayManager != null) {
             PacketSendEvent packetSendEvent = new PacketSendEvent(packet);
             MyauClient.eventBus.post(packetSendEvent);
             if (packetSendEvent.isCancelled()) {
@@ -57,9 +64,13 @@ public abstract class MixinNetworkManager {
         }
     }
 
-    @Inject(method={"sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;[Lio/netty/util/concurrent/GenericFutureListener;)V"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method = { "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;[Lio/netty/util/concurrent/GenericFutureListener;)V" }, at = { @At(value = "HEAD") }, cancellable = true)
     private void onSendPacketWithListeners(Packet<?> packet, GenericFutureListener<? extends Future<? super Void>> listener, GenericFutureListener<? extends Future<? super Void>>[] additionalListeners, CallbackInfo callbackInfo) {
-        if (!packet.getClass().getName().startsWith("net.minecraft.network.play.server") && MyauClient.packetActionTracker != null && MyauClient.outgoingPacketBuffer != null && MyauClient.packetDelayManager != null && !MyauClient.packetDelayManager.isFlushing()) {
+        if (!packet.getClass().getName().startsWith("net.minecraft.network.play.server")
+                && MyauClient.packetActionTracker != null
+                && MyauClient.outgoingPacketBuffer != null
+                && MyauClient.packetDelayManager != null
+                && !MyauClient.packetDelayManager.isFlushing()) {
             if (!MyauClient.outgoingPacketBuffer.isFlushing()) {
                 MyauClient.packetActionTracker.record(packet);
                 if (MyauClient.outgoingPacketBuffer.buffer(packet)) {

@@ -1,17 +1,6 @@
 package myau;
 
 import com.google.common.base.CaseFormat;
-import myau.EventHandler;
-import myau.FloatSetting;
-import myau.KeyPressEvent;
-import myau.LongJumpModule;
-import myau.ModeSetting;
-import myau.Module;
-import myau.MyauClient;
-import myau.OutgoingBufferOwner;
-import myau.PlayerUtils;
-import myau.PreWalkingUpdateEvent;
-import myau.RandomUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemEnderPearl;
 import net.minecraft.item.ItemStack;
@@ -19,14 +8,14 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.util.AxisAlignedBB;
 
-public class AntiVoidModule
-extends Module {
+public class AntiVoidModule extends Module {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
     private boolean overVoid = false;
     private boolean previouslyOverVoid = false;
     private double[] lastSafePosition = null;
-    public final ModeSetting mode = new ModeSetting("mode", 0, new String[]{"BLINK"});
-    public final FloatSetting distance = new FloatSetting("distance", Float.valueOf(5.0f), Float.valueOf(0.0f), Float.valueOf(16.0f));
+    public final ModeSetting mode = new ModeSetting("mode", 0, new String[] { "BLINK" });
+    public final FloatSetting distance = new FloatSetting("distance", 5.0f, 0.0f, 16.0f);
 
     public AntiVoidModule() {
         super("AntiVoid", false, 0);
@@ -38,7 +27,7 @@ extends Module {
     }
 
     private boolean canStartBuffering() {
-        LongJumpModule longJump = (LongJumpModule)MyauClient.moduleManager.modules.get(LongJumpModule.class);
+        LongJumpModule longJump = (LongJumpModule) MyauClient.moduleManager.modules.get(LongJumpModule.class);
         return !longJump.hasJumpStarted();
     }
 
@@ -47,25 +36,28 @@ extends Module {
         if (!this.isEnabled()) {
             return;
         }
-        boolean bl = this.overVoid = !AntiVoidModule.minecraft.field_71439_g.field_71075_bZ.field_75101_c && PlayerUtils.isOverVoid();
-        if ((Integer)this.mode.getValue() == 0) {
+        boolean bl = this.overVoid = !minecraft.field_71439_g.field_71075_bZ.field_75101_c && PlayerUtils.isOverVoid();
+        if (this.mode.getValue() == 0) {
             float playerHeight;
             float halfWidth;
             AxisAlignedBB savedBounds;
             if (!this.overVoid) {
                 this.releaseBufferAndClearSafePosition();
             }
-            if (this.lastSafePosition != null && PlayerUtils.isBoundsOverVoid(savedBounds = new AxisAlignedBB(this.lastSafePosition[0] - (double)(halfWidth = AntiVoidModule.minecraft.field_71439_g.field_70130_N / 2.0f), this.lastSafePosition[1], this.lastSafePosition[2] - (double)halfWidth, this.lastSafePosition[0] + (double)halfWidth, this.lastSafePosition[1] + (double)(playerHeight = AntiVoidModule.minecraft.field_71439_g.field_70131_O), this.lastSafePosition[2] + (double)halfWidth))) {
+            if (this.lastSafePosition != null
+                    && PlayerUtils.isBoundsOverVoid(savedBounds = new AxisAlignedBB(this.lastSafePosition[0] - (double) (halfWidth = minecraft.field_71439_g.field_70130_N / 2.0f), this.lastSafePosition[1], this.lastSafePosition[2] - (double) halfWidth, this.lastSafePosition[0] + (double) halfWidth, this.lastSafePosition[1] + (double) (playerHeight = minecraft.field_71439_g.field_70131_O), this.lastSafePosition[2] + (double) halfWidth))) {
                 this.releaseBufferAndClearSafePosition();
             }
             if (!this.previouslyOverVoid && this.overVoid && this.canStartBuffering()) {
                 MyauClient.outgoingPacketBuffer.setEnabled(false, OutgoingBufferOwner.AUTO_BLOCK);
                 if (MyauClient.outgoingPacketBuffer.setEnabled(true, OutgoingBufferOwner.ANTI_VOID)) {
-                    this.lastSafePosition = new double[]{AntiVoidModule.minecraft.field_71439_g.field_70169_q, AntiVoidModule.minecraft.field_71439_g.field_70167_r, AntiVoidModule.minecraft.field_71439_g.field_70166_s};
+                    this.lastSafePosition = new double[] { minecraft.field_71439_g.field_70169_q, minecraft.field_71439_g.field_70167_r, minecraft.field_71439_g.field_70166_s };
                 }
             }
-            if (MyauClient.outgoingPacketBuffer.owner() == OutgoingBufferOwner.ANTI_VOID && this.lastSafePosition != null && this.lastSafePosition[1] - (double)((Float)this.distance.getValue()).floatValue() > AntiVoidModule.minecraft.field_71439_g.field_70163_u) {
-                MyauClient.outgoingPacketBuffer.queuedPackets.offerFirst((Packet<?>)new C03PacketPlayer.C04PacketPlayerPosition(this.lastSafePosition[0], this.lastSafePosition[1] - RandomUtils.randomDouble(10.0, 20.0), this.lastSafePosition[2], false));
+            if (MyauClient.outgoingPacketBuffer.owner() == OutgoingBufferOwner.ANTI_VOID
+                    && this.lastSafePosition != null
+                    && this.lastSafePosition[1] - (double) this.distance.getValue() > minecraft.field_71439_g.field_70163_u) {
+                MyauClient.outgoingPacketBuffer.queuedPackets.offerFirst((Packet<?>) new C03PacketPlayer.C04PacketPlayerPosition(this.lastSafePosition[0], this.lastSafePosition[1] - RandomUtils.randomDouble(10.0, 20.0), this.lastSafePosition[2], false));
                 this.releaseBufferAndClearSafePosition();
             }
         }
@@ -74,10 +66,10 @@ extends Module {
 
     @EventHandler
     public void onKeyPress(KeyPressEvent event) {
-        if (event.getKeyCode() != AntiVoidModule.minecraft.field_71474_y.field_74313_G.func_151463_i()) {
+        if (event.getKeyCode() != minecraft.field_71474_y.field_74313_G.func_151463_i()) {
             return;
         }
-        ItemStack selectedStack = AntiVoidModule.minecraft.field_71439_g.field_71071_by.func_70448_g();
+        ItemStack selectedStack = minecraft.field_71439_g.field_71071_by.func_70448_g();
         if (selectedStack != null && selectedStack.func_77973_b() instanceof ItemEnderPearl) {
             this.releaseBufferAndClearSafePosition();
         }
@@ -104,6 +96,6 @@ extends Module {
 
     @Override
     public String[] getHudInfo() {
-        return new String[]{CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.mode.getModeName())};
+        return new String[] { CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.mode.getModeName()) };
     }
 }

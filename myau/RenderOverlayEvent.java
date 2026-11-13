@@ -1,9 +1,7 @@
 package myau;
 
-import myau.Event;
+public class RenderOverlayEvent extends Event {
 
-public class RenderOverlayEvent
-extends Event {
     private final float partialTicks;
 
     public RenderOverlayEvent(float partialTicks) {

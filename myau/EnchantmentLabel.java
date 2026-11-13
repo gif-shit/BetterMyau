@@ -1,6 +1,7 @@
 package myau;
 
 final class EnchantmentLabel {
+
     public final String abbreviation;
     public final int maxLevel;
 

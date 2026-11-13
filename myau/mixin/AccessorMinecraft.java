@@ -8,18 +8,19 @@ import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={Minecraft.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { Minecraft.class })
 public interface AccessorMinecraft {
+
     @Accessor
     public Logger getLogger();
 
-    @Accessor(value="timer")
+    @Accessor(value = "timer")
     public Timer getTimer();
 
-    @Accessor(value="rightClickDelayTimer")
+    @Accessor(value = "rightClickDelayTimer")
     public int getRightClickDelayTimer();
 
-    @Accessor(value="rightClickDelayTimer")
+    @Accessor(value = "rightClickDelayTimer")
     public void setRightClickDelayTimer(int var1);
 }

@@ -5,10 +5,10 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.Mixins;
 
-@IFMLLoadingPlugin.Name(value="Myau")
-@IFMLLoadingPlugin.MCVersion(value="1.8.9")
-public final class MyauCorePlugin
-implements IFMLLoadingPlugin {
+@IFMLLoadingPlugin.Name(value = "Myau")
+@IFMLLoadingPlugin.MCVersion(value = "1.8.9")
+public final class MyauCorePlugin implements IFMLLoadingPlugin {
+
     public MyauCorePlugin() {
         MixinBootstrap.init();
         Mixins.addConfiguration("mixins.myau.json");

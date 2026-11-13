@@ -3,13 +3,9 @@ package myau;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
-import myau.ChatColor;
-import myau.ChatUtils;
-import myau.Command;
-import myau.MyauClient;
 
-public class EnemyCommand
-extends Command {
+public class EnemyCommand extends Command {
+
     public EnemyCommand() {
         super(new ArrayList<String>(Arrays.asList("enemy", "e", "target")));
     }
@@ -20,50 +16,54 @@ extends Command {
             this.showUsage(arguments.get(0));
             return;
         }
-        switch (arguments.get(1).toLowerCase(Locale.ROOT)) {
-            case "add": {
-                if (arguments.size() < 3) {
-                    this.showNameUsage(arguments.get(0), "add");
+        switch(arguments.get(1).toLowerCase(Locale.ROOT)) {
+            case "add":
+                {
+                    if (arguments.size() < 3) {
+                        this.showNameUsage(arguments.get(0), "add");
+                        return;
+                    }
+                    String addedName = MyauClient.enemyList.add(arguments.get(2));
+                    if (addedName == null) {
+                        ChatUtils.addFormattedMessage(String.format("%s&o%s&r is already in your enemy list&r", "&7[&bMyau&7] &r", arguments.get(2)));
+                    } else {
+                        ChatUtils.addFormattedMessage(String.format("%sAdded &o%s&r to your enemy list&r", "&7[&bMyau&7] &r", addedName));
+                    }
                     return;
                 }
-                String addedName = MyauClient.enemyList.add(arguments.get(2));
-                if (addedName == null) {
-                    ChatUtils.addFormattedMessage(String.format("%s&o%s&r is already in your enemy list&r", "&7[&bMyau&7] &r", arguments.get(2)));
-                } else {
-                    ChatUtils.addFormattedMessage(String.format("%sAdded &o%s&r to your enemy list&r", "&7[&bMyau&7] &r", addedName));
-                }
-                return;
-            }
-            case "remove": {
-                if (arguments.size() < 3) {
-                    this.showNameUsage(arguments.get(0), "remove");
+            case "remove":
+                {
+                    if (arguments.size() < 3) {
+                        this.showNameUsage(arguments.get(0), "remove");
+                        return;
+                    }
+                    String removedName = MyauClient.enemyList.remove(arguments.get(2));
+                    if (removedName == null) {
+                        ChatUtils.addFormattedMessage(String.format("%s&o%s&r is not in your enemy list&r", "&7[&bMyau&7] &r", arguments.get(2)));
+                    } else {
+                        ChatUtils.addFormattedMessage(String.format("%sRemoved &o%s&r from your enemy list&r", "&7[&bMyau&7] &r", removedName));
+                    }
                     return;
                 }
-                String removedName = MyauClient.enemyList.remove(arguments.get(2));
-                if (removedName == null) {
-                    ChatUtils.addFormattedMessage(String.format("%s&o%s&r is not in your enemy list&r", "&7[&bMyau&7] &r", arguments.get(2)));
-                } else {
-                    ChatUtils.addFormattedMessage(String.format("%sRemoved &o%s&r from your enemy list&r", "&7[&bMyau&7] &r", removedName));
-                }
-                return;
-            }
-            case "list": {
-                ArrayList<String> entries = MyauClient.enemyList.entries();
-                if (entries.isEmpty()) {
-                    ChatUtils.addFormattedMessage(String.format("%sNo enemies&r", "&7[&bMyau&7] &r"));
+            case "list":
+                {
+                    ArrayList<String> entries = MyauClient.enemyList.entries();
+                    if (entries.isEmpty()) {
+                        ChatUtils.addFormattedMessage(String.format("%sNo enemies&r", "&7[&bMyau&7] &r"));
+                        return;
+                    }
+                    ChatUtils.addFormattedMessage(String.format("%sEnemys:&r", "&7[&bMyau&7] &r"));
+                    for (String entry : entries) {
+                        ChatUtils.addRawMessage(String.format(ChatColor.formatText("   &o%s&r"), entry));
+                    }
                     return;
                 }
-                ChatUtils.addFormattedMessage(String.format("%sEnemys:&r", "&7[&bMyau&7] &r"));
-                for (String entry : entries) {
-                    ChatUtils.addRawMessage(String.format(ChatColor.formatText("   &o%s&r"), entry));
+            case "clear":
+                {
+                    MyauClient.enemyList.clear();
+                    ChatUtils.addFormattedMessage(String.format("%sCleared your enemy list&r", "&7[&bMyau&7] &r"));
+                    return;
                 }
-                return;
-            }
-            case "clear": {
-                MyauClient.enemyList.clear();
-                ChatUtils.addFormattedMessage(String.format("%sCleared your enemy list&r", "&7[&bMyau&7] &r"));
-                return;
-            }
         }
         this.showUsage(arguments.get(0));
     }

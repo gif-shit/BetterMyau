@@ -2,7 +2,6 @@ package myau.mixin;
 
 import myau.KeepSprintModule;
 import myau.MyauClient;
-import myau.mixin.MixinEntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -12,23 +11,25 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={EntityPlayer.class})
-public abstract class MixinEntityPlayer
-extends MixinEntityLivingBase {
-    @ModifyConstant(method={"attackTargetEntityWithCurrentItem"}, constant={@Constant(doubleValue=0.6)})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { EntityPlayer.class })
+public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
+
+    @ModifyConstant(method = { "attackTargetEntityWithCurrentItem" }, constant = { @Constant(doubleValue = 0.6) })
     private double modifyAttackSlowdown(double slowdownMultiplier) {
         if (MyauClient.moduleManager == null) {
             return slowdownMultiplier;
         }
-        KeepSprintModule keepSprint = (KeepSprintModule)MyauClient.moduleManager.modules.get(KeepSprintModule.class);
-        return keepSprint.isEnabled() && keepSprint.shouldPreserveSprint() ? slowdownMultiplier + (1.0 - slowdownMultiplier) * (1.0 - ((Integer)keepSprint.slowdown.getValue()).doubleValue() / 100.0) : slowdownMultiplier;
+        KeepSprintModule keepSprint = (KeepSprintModule) MyauClient.moduleManager.modules.get(KeepSprintModule.class);
+        return keepSprint.isEnabled() && keepSprint.shouldPreserveSprint() ? slowdownMultiplier + (1.0 - slowdownMultiplier) * (1.0 - keepSprint.slowdown.getValue().doubleValue() / 100.0) : slowdownMultiplier;
     }
 
-    @Redirect(method={"attackTargetEntityWithCurrentItem"}, at=@At(value="INVOKE", target="Lnet/minecraft/entity/player/EntityPlayer;setSprinting(Z)V"))
+    @Redirect(method = { "attackTargetEntityWithCurrentItem" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/EntityPlayer;setSprinting(Z)V"))
     private void redirectAttackSprintReset(EntityPlayer player, boolean sprinting) {
         KeepSprintModule keepSprint;
-        if (!(MyauClient.moduleManager == null || (keepSprint = (KeepSprintModule)MyauClient.moduleManager.modules.get(KeepSprintModule.class)).isEnabled() && keepSprint.shouldPreserveSprint())) {
+        if (!(MyauClient.moduleManager == null
+                || (keepSprint = (KeepSprintModule) MyauClient.moduleManager.modules.get(KeepSprintModule.class)).isEnabled()
+                && keepSprint.shouldPreserveSprint())) {
             player.func_70031_b(sprinting);
         }
     }

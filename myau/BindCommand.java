@@ -5,16 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import myau.ChatUtils;
-import myau.Command;
-import myau.InputUtils;
-import myau.Module;
-import myau.MyauClient;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-public class BindCommand
-extends Command {
+public class BindCommand extends Command {
+
     public BindCommand() {
         super(new ArrayList<String>(Arrays.asList("bind", "b")));
     }
@@ -25,7 +20,7 @@ extends Command {
         int mouseButton;
         if (arguments.size() < 3) {
             if (arguments.size() == 2 && (arguments.get(1).equalsIgnoreCase("list") || arguments.get(1).equalsIgnoreCase("l"))) {
-                List boundModules = MyauClient.moduleManager.modules.values().stream().filter(module -> module.getKeyCode() != 0).collect(Collectors.toList());
+                List<Module> boundModules = MyauClient.moduleManager.modules.values().stream().filter(module -> module.getKeyCode() != 0).collect(Collectors.toList());
                 if (boundModules.isEmpty()) {
                     ChatUtils.addFormattedMessage(String.format("%sNo binds&r", "&7[&bMyau&7] &r"));
                     return;
@@ -40,8 +35,8 @@ extends Command {
             ChatUtils.addFormattedMessage(String.format("%sUsage: .%s <&omodule&r> <&okey&r>&r | .%s &olist&r", "&7[&bMyau&7] &r", command, command));
             return;
         }
-        int keyCode = Keyboard.getKeyIndex((String)arguments.get(2).toUpperCase());
-        if (keyCode == 0 && (mouseButton = Mouse.getButtonIndex((String)arguments.get(2).toUpperCase())) != -1) {
+        int keyCode = Keyboard.getKeyIndex((String) arguments.get(2).toUpperCase());
+        if (keyCode == 0 && (mouseButton = Mouse.getButtonIndex((String) arguments.get(2).toUpperCase())) != -1) {
             keyCode = mouseButton - 100;
         }
         if ((moduleName = arguments.get(1)).equals("*")) {
@@ -77,13 +72,15 @@ extends Command {
         }
         ArrayList<String> completions = new ArrayList<String>();
         for (int keyCode = 0; keyCode < 256; ++keyCode) {
-            String keyName = Keyboard.getKeyName((int)keyCode);
-            if (keyName == null) continue;
+            String keyName = Keyboard.getKeyName((int) keyCode);
+            if (keyName == null)
+                continue;
             completions.add(keyName.toLowerCase(Locale.ROOT));
         }
         for (int button = 0; button < Mouse.getButtonCount(); ++button) {
-            String buttonName = Mouse.getButtonName((int)button);
-            if (buttonName == null) continue;
+            String buttonName = Mouse.getButtonName((int) button);
+            if (buttonName == null)
+                continue;
             completions.add(buttonName.toLowerCase(Locale.ROOT));
         }
         return completions;

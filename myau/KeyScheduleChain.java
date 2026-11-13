@@ -1,11 +1,9 @@
 package myau;
 
 import java.util.concurrent.ConcurrentHashMap;
-import myau.KeySchedule;
-import myau.KeyTransform;
 
-public class KeyScheduleChain
-implements KeyTransform {
+public class KeyScheduleChain implements KeyTransform {
+
     private static boolean e;
     private static KeyScheduleChain a;
     private ConcurrentHashMap b = new ConcurrentHashMap();
@@ -92,7 +90,7 @@ implements KeyTransform {
     }
 
     private KeyTransform b(KeyTransform var1, KeyTransform var2) {
-        KeyTransform var3 = (KeyTransform)this.b.get(var1);
+        KeyTransform var3 = (KeyTransform) this.b.get(var1);
         if (var3 == null) {
             var3 = this;
         }

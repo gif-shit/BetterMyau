@@ -3,9 +3,9 @@ package myau;
 import com.google.gson.JsonObject;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
-import myau.Module;
 
 public abstract class Setting<T> {
+
     private final String name;
     private final T defaultValue;
     private final Predicate<T> validator;
@@ -61,8 +61,6 @@ public abstract class Setting<T> {
     }
 
     public abstract boolean parseValue(String var1);
-
     public abstract boolean readJson(JsonObject var1);
-
     public abstract void writeJson(JsonObject var1);
 }

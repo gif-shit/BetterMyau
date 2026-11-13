@@ -1,10 +1,9 @@
 package myau;
 
-import myau.Event;
 import net.minecraft.network.Packet;
 
-public class RawPacketReceiveEvent
-extends Event {
+public class RawPacketReceiveEvent extends Event {
+
     private final Packet<?> packet;
 
     public RawPacketReceiveEvent(Packet<?> packet) {

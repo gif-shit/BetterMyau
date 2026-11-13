@@ -4,7 +4,6 @@ import myau.JesusModule;
 import myau.MoveFlyingEvent;
 import myau.MyauClient;
 import myau.RotationState;
-import myau.mixin.MixinEntity;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -16,18 +15,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={EntityLivingBase.class})
-public abstract class MixinEntityLivingBase
-extends MixinEntity {
-    @ModifyVariable(method={"jump"}, at=@At(value="STORE"), ordinal=0)
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { EntityLivingBase.class })
+public abstract class MixinEntityLivingBase extends MixinEntity {
+
+    @ModifyVariable(method = { "jump" }, at = @At(value = "STORE"), ordinal = 0)
     private float modifyJumpYawRadians(float yawRadians) {
-        return (Entity)this instanceof EntityPlayerSP && RotationState.isActive() ? RotationState.movementYaw() * ((float)Math.PI / 180) : yawRadians;
+        return (Object) this instanceof EntityPlayerSP && RotationState.isActive() ? RotationState.movementYaw() * ((float) Math.PI / 180) : yawRadians;
     }
 
-    @Redirect(method={"moveEntityWithHeading"}, at=@At(value="INVOKE", target="Lnet/minecraft/entity/EntityLivingBase;moveFlying(FFF)V"))
+    @Redirect(method = { "moveEntityWithHeading" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/EntityLivingBase;moveFlying(FFF)V"))
     private void redirectMoveFlying(EntityLivingBase target, float strafe, float forward, float friction) {
-        if ((Entity)this instanceof EntityPlayerSP && MyauClient.eventBus != null) {
+        if ((Object) this instanceof EntityPlayerSP && MyauClient.eventBus != null) {
             MoveFlyingEvent event = new MoveFlyingEvent(strafe, forward, friction);
             MyauClient.eventBus.post(event);
             strafe = event.getStrafe();
@@ -47,15 +46,16 @@ extends MixinEntity {
         }
     }
 
-    @ModifyVariable(method={"moveEntityWithHeading"}, name={"f3"}, at=@At(value="STORE"))
+    @ModifyVariable(method = { "moveEntityWithHeading" }, name = { "f3" }, at = @At(value = "STORE"))
     private float modifyDepthStriderLevel(float depthStriderLevel) {
-        if ((EntityLivingBase)this instanceof EntityPlayerSP && depthStriderLevel == (float)EnchantmentHelper.func_180318_b((Entity)((EntityLivingBase)this))) {
+        if ((Object) this instanceof EntityPlayerSP
+                && depthStriderLevel == (float) EnchantmentHelper.func_180318_b((Entity) (Object) this)) {
             if (MyauClient.moduleManager == null) {
                 return depthStriderLevel;
             }
-            JesusModule jesus = (JesusModule)MyauClient.moduleManager.modules.get(JesusModule.class);
-            if (jesus.isEnabled() && (!((Boolean)jesus.groundOnly.getValue()).booleanValue() || this.field_70122_E)) {
-                return Math.max(depthStriderLevel, ((Float)jesus.speed.getValue()).floatValue());
+            JesusModule jesus = (JesusModule) MyauClient.moduleManager.modules.get(JesusModule.class);
+            if (jesus.isEnabled() && (!jesus.groundOnly.getValue() || this.field_70122_E)) {
+                return Math.max(depthStriderLevel, ((Float) jesus.speed.getValue()).floatValue());
             }
         }
         return depthStriderLevel;

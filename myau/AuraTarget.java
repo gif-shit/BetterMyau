@@ -4,6 +4,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.AxisAlignedBB;
 
 class AuraTarget {
+
     public final EntityLivingBase entity;
     public final AxisAlignedBB bounds;
     public final double x;

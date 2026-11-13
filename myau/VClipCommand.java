@@ -5,12 +5,10 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
-import myau.ChatUtils;
-import myau.Command;
 import net.minecraft.client.Minecraft;
 
-public class VClipCommand
-extends Command {
+public class VClipCommand extends Command {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
     private static final DecimalFormat decimalFormat = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.US));
 
@@ -27,11 +25,9 @@ extends Command {
         double distance = 0.0;
         try {
             distance = Double.parseDouble(arguments.get(1));
+        } catch (NumberFormatException numberFormatException) {
         }
-        catch (NumberFormatException numberFormatException) {
-            // empty catch block
-        }
-        VClipCommand.minecraft.field_71439_g.func_70634_a(VClipCommand.minecraft.field_71439_g.field_70165_t, VClipCommand.minecraft.field_71439_g.field_70163_u + distance, VClipCommand.minecraft.field_71439_g.field_70161_v);
+        minecraft.field_71439_g.func_70634_a(minecraft.field_71439_g.field_70165_t, minecraft.field_71439_g.field_70163_u + distance, minecraft.field_71439_g.field_70161_v);
         ChatUtils.addFormattedMessage(String.format("%sClipped (%s blocks)", "&7[&bMyau&7] &r", decimalFormat.format(distance)));
     }
 }

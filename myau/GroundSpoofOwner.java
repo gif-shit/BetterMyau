@@ -1,6 +1,6 @@
 package myau;
 
 public enum GroundSpoofOwner {
-    NO_SLOW;
 
+    NO_SLOW
 }

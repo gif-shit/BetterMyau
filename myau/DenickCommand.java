@@ -10,14 +10,11 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Locale;
-import myau.ChatColor;
-import myau.ChatUtils;
-import myau.Command;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
 
-public class DenickCommand
-extends Command {
+public class DenickCommand extends Command {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
 
     public DenickCommand() {
@@ -37,14 +34,14 @@ extends Command {
             return;
         }
         GameProfile profile = playerInfo.func_178845_a();
-        Property textures = Iterables.getFirst(profile.getProperties().get((Object)"textures"), null);
+        Property textures = Iterables.getFirst(profile.getProperties().get("textures"), null);
         if (textures == null) {
             ChatUtils.addRawMessage(String.format(ChatColor.formatText("%sNo textures for entity with name &o%s&r"), ChatColor.formatText("&7[&bMyau&7] &r"), requestedName));
             return;
         }
         String payload = new String(Base64.getDecoder().decode(textures.getValue().getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
-        String profileName = DenickCommand.extractJsonLikeField(payload, "profileName");
-        String profileId = DenickCommand.extractJsonLikeField(payload, "profileId");
+        String profileName = extractJsonLikeField(payload, "profileName");
+        String profileId = extractJsonLikeField(payload, "profileId");
         ChatUtils.addRawMessage(String.format(ChatColor.formatText("%s%s&r -> %s (&o%s&r)&r"), ChatColor.formatText("&7[&bMyau&7] &r"), profile.getName().replace("\u00a7", "&"), profileName, profileId));
         if (!profileId.isEmpty() && !profileId.equals("?")) {
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(profileId), null);

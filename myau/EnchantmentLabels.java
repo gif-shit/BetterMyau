@@ -1,10 +1,9 @@
 package myau;
 
 import java.util.HashMap;
-import myau.EnchantmentLabel;
 
-final class EnchantmentLabels
-extends HashMap<Integer, EnchantmentLabel> {
+final class EnchantmentLabels extends HashMap<Integer, EnchantmentLabel> {
+
     EnchantmentLabels() {
         this.put(0, new EnchantmentLabel("Pr", 4));
         this.put(1, new EnchantmentLabel("Fp", 4));

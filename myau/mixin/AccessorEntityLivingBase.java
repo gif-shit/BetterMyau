@@ -9,9 +9,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={EntityLivingBase.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { EntityLivingBase.class })
 public interface AccessorEntityLivingBase {
+
     @Accessor
     public Map<Integer, PotionEffect> getActivePotionsMap();
 

@@ -6,9 +6,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={EntityPlayerSP.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { EntityPlayerSP.class })
 public interface AccessorEntityPlayerSP {
+
     @Accessor
     public int getPositionUpdateTicks();
 }

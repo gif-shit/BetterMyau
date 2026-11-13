@@ -27,56 +27,61 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={Minecraft.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { Minecraft.class })
 public abstract class MixinMinecraft {
+
     @Shadow
     private int field_71429_W;
+
     @Shadow
     public PlayerControllerMP field_71442_b;
+
     @Shadow
     public WorldClient field_71441_e;
+
     @Shadow
     public EntityPlayerSP field_71439_g;
+
     @Shadow
     public GuiScreen field_71462_r;
 
-    @Inject(method={"runGameLoop"}, at={@At(value="RETURN")})
+    @Inject(method = { "runGameLoop" }, at = { @At(value = "RETURN") })
     private void afterRunGameLoop(CallbackInfo callbackInfo) {
         if (MyauClient.moduleManager != null) {
             MyauClient.moduleManager.update();
         }
     }
 
-    @Inject(method={"runTick"}, at={@At(value="HEAD")})
+    @Inject(method = { "runTick" }, at = { @At(value = "HEAD") })
     private void beforeRunTick(CallbackInfo callbackInfo) {
         if (this.field_71441_e != null && this.field_71439_g != null && MyauClient.eventBus != null) {
             MyauClient.eventBus.post(new PreTickEvent());
         }
     }
 
-    @Inject(method={"runTick"}, at={@At(value="RETURN")})
+    @Inject(method = { "runTick" }, at = { @At(value = "RETURN") })
     private void afterRunTick(CallbackInfo callbackInfo) {
         if (this.field_71441_e != null && this.field_71439_g != null && MyauClient.eventBus != null) {
             MyauClient.eventBus.post(new PostTickEvent());
         }
     }
 
-    @Inject(method={"loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V"}, at={@At(value="HEAD")})
+    @Inject(method = { "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V" }, at = { @At(value = "HEAD") })
     private void beforeLoadWorld(WorldClient world, String loadingMessage, CallbackInfo callbackInfo) {
         if (MyauClient.eventBus != null) {
             MyauClient.eventBus.post(new WorldLoadEvent());
         }
     }
 
-    @Inject(method={"updateFramebufferSize"}, at={@At(value="RETURN")})
+    @Inject(method = { "updateFramebufferSize" }, at = { @At(value = "RETURN") })
     private void afterFramebufferResize(CallbackInfo callbackInfo) {
         if (MyauClient.eventBus != null) {
             MyauClient.eventBus.post(new FramebufferResizeEvent());
         }
     }
 
-    @Inject(method={"clickMouse"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method = { "clickMouse" }, at = { @At(value = "HEAD") }, cancellable = true)
     private void beforeLeftClick(CallbackInfo callbackInfo) {
         if (MyauClient.moduleManager != null && MyauClient.moduleManager.modules.get(NoHitDelayModule.class).isEnabled()) {
             this.field_71429_W = 0;
@@ -90,7 +95,7 @@ public abstract class MixinMinecraft {
         }
     }
 
-    @Inject(method={"rightClickMouse"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method = { "rightClickMouse" }, at = { @At(value = "HEAD") }, cancellable = true)
     private void beforeRightClick(CallbackInfo callbackInfo) {
         if (MyauClient.eventBus != null) {
             RightClickEvent rightClickEvent = new RightClickEvent();
@@ -101,7 +106,7 @@ public abstract class MixinMinecraft {
         }
     }
 
-    @Inject(method={"sendClickBlockToController"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method = { "sendClickBlockToController" }, at = { @At(value = "HEAD") }, cancellable = true)
     private void beforeBlockClick(CallbackInfo callbackInfo) {
         if (MyauClient.eventBus != null) {
             BlockClickEvent blockClickEvent = new BlockClickEvent();
@@ -113,15 +118,15 @@ public abstract class MixinMinecraft {
         }
     }
 
-    @Redirect(method={"runTick"}, at=@At(value="INVOKE", target="Lnet/minecraft/client/settings/KeyBinding;setKeyBindState(IZ)V"))
+    @Redirect(method = { "runTick" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/settings/KeyBinding;setKeyBindState(IZ)V"))
     private void redirectKeyStateChange(int keyCode, boolean pressed) {
-        KeyBinding.func_74510_a((int)keyCode, (boolean)pressed);
+        KeyBinding.func_74510_a((int) keyCode, (boolean) pressed);
         if (pressed && this.field_71462_r == null && MyauClient.eventBus != null) {
             MyauClient.eventBus.post(new KeyPressEvent(keyCode));
         }
     }
 
-    @Redirect(method={"runTick"}, at=@At(value="INVOKE", target="Lnet/minecraft/entity/player/InventoryPlayer;changeCurrentItem(I)V"))
+    @Redirect(method = { "runTick" }, at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/InventoryPlayer;changeCurrentItem(I)V"))
     private void redirectHotbarScroll(InventoryPlayer inventoryPlayer, int scrollDirection) {
         if (MyauClient.eventBus != null) {
             HotbarChangeEvent hotbarChangeEvent = new HotbarChangeEvent(-1, scrollDirection);

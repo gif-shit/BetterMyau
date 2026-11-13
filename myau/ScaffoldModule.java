@@ -2,34 +2,6 @@ package myau;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import myau.BedNukerModule;
-import myau.BlockClickEvent;
-import myau.BlockPlacementTarget;
-import myau.BlockUtils;
-import myau.BooleanSetting;
-import myau.EventHandler;
-import myau.HUDModule;
-import myau.HotbarChangeEvent;
-import myau.ItemUtils;
-import myau.LeftClickEvent;
-import myau.LivingUpdateEvent;
-import myau.LongJumpModule;
-import myau.ModeSetting;
-import myau.Module;
-import myau.MoveFlyingEvent;
-import myau.MovementInputEvent;
-import myau.MovementUtils;
-import myau.MyauClient;
-import myau.PacketUtils;
-import myau.PercentSetting;
-import myau.PlayerUtils;
-import myau.RandomUtils;
-import myau.RenderOverlayEvent;
-import myau.RightClickEvent;
-import myau.RotationState;
-import myau.RotationUpdateEvent;
-import myau.RotationUtils;
-import myau.SafeWalkEvent;
 import myau.mixin.AccessorEntityLivingBase;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -50,10 +22,10 @@ import net.minecraft.util.Vec3;
 import net.minecraft.util.Vec3i;
 import net.minecraft.world.WorldSettings;
 
-public class ScaffoldModule
-extends Module {
+public class ScaffoldModule extends Module {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
-    private static final double[] FACE_SAMPLE_OFFSETS = new double[]{0.03125, 0.09375, 0.15625, 0.21875, 0.28125, 0.34375, 0.40625, 0.46875, 0.53125, 0.59375, 0.65625, 0.71875, 0.78125, 0.84375, 0.90625, 0.96875};
+    private static final double[] FACE_SAMPLE_OFFSETS = new double[] { 0.03125, 0.09375, 0.15625, 0.21875, 0.28125, 0.34375, 0.40625, 0.46875, 0.53125, 0.59375, 0.65625, 0.71875, 0.78125, 0.84375, 0.90625, 0.96875 };
     private int placementDelayTicks = 0;
     private int previousHotbarSlot = -1;
     private int remainingStackBlocks = -1;
@@ -74,18 +46,17 @@ extends Module {
     private int jumpBaseY;
     private int hypixelJumpDelay;
     private float stableYaw = Float.NaN;
-
-    public final ModeSetting rotations = new ModeSetting("rotations", 2, new String[]{"NONE", "DEFAULT", "BACKWARDS", "SIDEWAYS", "HYPIXEL", "STABLE"});
+    public final ModeSetting rotations = new ModeSetting("rotations", 2, new String[] { "NONE", "DEFAULT", "BACKWARDS", "SIDEWAYS", "HYPIXEL", "STABLE" });
     public final PercentSetting rotationSmoothing = new PercentSetting("rotation-smoothing", 65, () -> rotations.getValue() == 1 || isHypixelRotation());
     public final PercentSetting stableSmoothing = new PercentSetting("stable-smoothing", 0, this::isStableRotation);
-    public final ModeSetting moveFix = new ModeSetting("move-fix", 1, new String[]{"NONE", "SILENT"});
-    public final ModeSetting sprint = new ModeSetting("sprint", 0, new String[]{"NONE", "VANILLA"});
+    public final ModeSetting moveFix = new ModeSetting("move-fix", 1, new String[] { "NONE", "SILENT" });
+    public final ModeSetting sprint = new ModeSetting("sprint", 0, new String[] { "NONE", "VANILLA" });
     public final PercentSetting groundMotion = new PercentSetting("ground-motion", 100);
     public final PercentSetting airMotion = new PercentSetting("air-motion", 100);
     public final PercentSetting speedMotion = new PercentSetting("speed-motion", 100);
-    public final ModeSetting tower = new ModeSetting("tower", 0, new String[]{"NONE", "VANILLA", "EXTRA", "TELLY"});
+    public final ModeSetting tower = new ModeSetting("tower", 0, new String[] { "NONE", "VANILLA", "EXTRA", "TELLY" });
     public final BooleanSetting towerOnPress = new BooleanSetting("tower-on-press", false, () -> tower.getValue() != 0);
-    public final ModeSetting keepY = new ModeSetting("keep-y", 0, new String[]{"NONE", "VANILLA", "EXTRA", "TELLY"});
+    public final ModeSetting keepY = new ModeSetting("keep-y", 0, new String[] { "NONE", "VANILLA", "EXTRA", "TELLY" });
     public final BooleanSetting keepYOnPress = new BooleanSetting("keep-y-on-press", false, this::isKeepYOnPressVisible);
     public final BooleanSetting multiPlace = new BooleanSetting("multi-place", true);
     public final BooleanSetting safeWalk = new BooleanSetting("safe-walk", true);
@@ -97,20 +68,20 @@ extends Module {
         if (this.isTellyTakeoff()) {
             return false;
         }
-        boolean bl = (Integer)this.keepY.getValue() == 1 || (Integer)this.keepY.getValue() == 2;
+        boolean bl = this.keepY.getValue() == 1 || this.keepY.getValue() == 2;
         boolean bl2 = bl;
         if (bl && this.keepYState > 0) {
             return false;
         }
-        return (Integer)this.sprint.getValue() == 0;
+        return this.sprint.getValue() == 0;
     }
 
     private boolean canPlaceWithActiveModules() {
-        BedNukerModule bedNukerModule = (BedNukerModule)MyauClient.moduleManager.modules.get(BedNukerModule.class);
+        BedNukerModule bedNukerModule = (BedNukerModule) MyauClient.moduleManager.modules.get(BedNukerModule.class);
         if (bedNukerModule.isEnabled() && bedNukerModule.isControllingInteractions()) {
             return false;
         }
-        LongJumpModule longJumpModule = (LongJumpModule)MyauClient.moduleManager.modules.get(LongJumpModule.class);
+        LongJumpModule longJumpModule = (LongJumpModule) MyauClient.moduleManager.modules.get(LongJumpModule.class);
         return !longJumpModule.isEnabled() || !longJumpModule.isAutomaticFireballMode() || longJumpModule.hasJumpStarted();
     }
 
@@ -119,17 +90,21 @@ extends Module {
         EnumFacing preferred = null;
         if (isStableRotation() && !Float.isNaN(stableYaw)) {
             Vec3 eye = minecraft.field_71439_g.func_174824_e(1.0f);
-            AxisAlignedBB bounds = new AxisAlignedBB(blockPos.func_177958_n(), eye.field_72448_b - 1, blockPos.func_177952_p(),
-                    blockPos.func_177958_n() + 1, eye.field_72448_b + 1, blockPos.func_177952_p() + 1);
+            AxisAlignedBB bounds = new AxisAlignedBB(blockPos.func_177958_n(), eye.field_72448_b - 1, blockPos.func_177952_p(), blockPos.func_177958_n() + 1, eye.field_72448_b + 1, blockPos.func_177952_p() + 1);
             MovingObjectPosition hit = RotationUtils.intersectBoundsFrom(bounds, eye, stableYaw, 0, minecraft.field_71442_b.func_78757_d());
-            if (hit != null) preferred = hit.field_178784_b;
+            if (hit != null)
+                preferred = hit.field_178784_b;
         }
         double d = 0.0;
         for (EnumFacing enumFacing2 : EnumFacing.field_82609_l) {
             BlockPos blockPos3;
-            if (enumFacing2 == EnumFacing.DOWN || (blockPos3 = blockPos.func_177972_a(enumFacing2)).func_177956_o() > blockPos2.func_177956_o() || !BlockUtils.isReplaceableAt(blockPos3)) continue;
-            double d2 = blockPos3.func_177957_d((double)blockPos2.func_177958_n() + 0.5, (double)blockPos2.func_177956_o() + 0.5, (double)blockPos2.func_177952_p() + 0.5);
-            if (!(enumFacing == null || d2 < d || d2 == d && (enumFacing2 == EnumFacing.UP || enumFacing2 == preferred))) continue;
+            if (enumFacing2 == EnumFacing.DOWN
+                    || (blockPos3 = blockPos.func_177972_a(enumFacing2)).func_177956_o() > blockPos2.func_177956_o()
+                    || !BlockUtils.isReplaceableAt(blockPos3))
+                continue;
+            double d2 = blockPos3.func_177957_d((double) blockPos2.func_177958_n() + 0.5, (double) blockPos2.func_177956_o() + 0.5, (double) blockPos2.func_177952_p() + 0.5);
+            if (!(enumFacing == null || d2 < d || d2 == d && (enumFacing2 == EnumFacing.UP || enumFacing2 == preferred)))
+                continue;
             d = d2;
             enumFacing = enumFacing2;
         }
@@ -137,22 +112,29 @@ extends Module {
     }
 
     private BlockPlacementTarget findPlacementTarget() {
-        int n = MathHelper.func_76128_c((double)ScaffoldModule.minecraft.field_71439_g.field_70163_u);
+        int n = MathHelper.func_76128_c((double) minecraft.field_71439_g.field_70163_u);
         int n2 = this.keepYState != 0 && !this.keepYRecoveryPlacement ? Math.min(n, this.keepYLevel) : n;
-        BlockPos blockPos = new BlockPos(MathHelper.func_76128_c((double)ScaffoldModule.minecraft.field_71439_g.field_70165_t), n2 - 1, MathHelper.func_76128_c((double)ScaffoldModule.minecraft.field_71439_g.field_70161_v));
+        BlockPos blockPos = new BlockPos(MathHelper.func_76128_c((double) minecraft.field_71439_g.field_70165_t), n2 - 1, MathHelper.func_76128_c((double) minecraft.field_71439_g.field_70161_v));
         if (!BlockUtils.isReplaceableAt(blockPos)) {
             return null;
         }
         ArrayList<BlockPos> arrayList = new ArrayList<BlockPos>();
-        double d = ScaffoldModule.minecraft.field_71442_b.func_78757_d();
+        double d = minecraft.field_71442_b.func_78757_d();
         for (int i = -4; i <= 4; ++i) {
             for (int j = -4; j <= 0; ++j) {
                 for (int k = -4; k <= 4; ++k) {
                     double d2;
                     BlockPos blockPos3 = blockPos.func_177982_a(i, j, k);
-                    if (BlockUtils.isReplaceableAt(blockPos3) || BlockUtils.isInteractableAt(blockPos3) || (d2 = ScaffoldModule.minecraft.field_71439_g.func_70011_f((double)blockPos3.func_177958_n() + 0.5, (double)blockPos3.func_177956_o() + 0.5, (double)blockPos3.func_177952_p() + 0.5)) > d || this.keepYState != 0 && !this.keepYRecoveryPlacement && blockPos3.func_177956_o() >= this.keepYLevel) continue;
+                    if (BlockUtils.isReplaceableAt(blockPos3)
+                            || BlockUtils.isInteractableAt(blockPos3)
+                            || (d2 = minecraft.field_71439_g.func_70011_f((double) blockPos3.func_177958_n() + 0.5, (double) blockPos3.func_177956_o() + 0.5, (double) blockPos3.func_177952_p() + 0.5)) > d
+                            || this.keepYState != 0
+                            && !this.keepYRecoveryPlacement
+                            && blockPos3.func_177956_o() >= this.keepYLevel)
+                        continue;
                     for (EnumFacing enumFacing : EnumFacing.field_82609_l) {
-                        if (enumFacing == EnumFacing.DOWN || !BlockUtils.isReplaceableAt(blockPos3.func_177972_a(enumFacing))) continue;
+                        if (enumFacing == EnumFacing.DOWN || !BlockUtils.isReplaceableAt(blockPos3.func_177972_a(enumFacing)))
+                            continue;
                         arrayList.add(blockPos3);
                     }
                 }
@@ -161,15 +143,18 @@ extends Module {
         if (arrayList.isEmpty()) {
             return null;
         }
-        arrayList.sort(Comparator.comparingDouble(blockPos2 -> ScaffoldModule.targetDistanceSquared(blockPos, blockPos2)));
-        BlockPos blockPos4 = (BlockPos)arrayList.get(0);
+        arrayList.sort(Comparator.comparingDouble(blockPos2 -> targetDistanceSquared(blockPos, blockPos2)));
+        BlockPos blockPos4 = (BlockPos) arrayList.get(0);
         EnumFacing enumFacing = this.findConnectingFace(blockPos4, blockPos);
         return enumFacing == null ? null : new BlockPlacementTarget(blockPos4, enumFacing);
     }
 
     private MovingObjectPosition tracePlacement(BlockPos blockPos, EnumFacing enumFacing, float f, float f2) {
-        MovingObjectPosition movingObjectPosition = RotationUtils.traceBlocks(f, f2, ScaffoldModule.minecraft.field_71442_b.func_78757_d(), 1.0f);
-        if (movingObjectPosition == null || movingObjectPosition.field_72313_a != MovingObjectPosition.MovingObjectType.BLOCK || !movingObjectPosition.func_178782_a().equals((Object)blockPos) || movingObjectPosition.field_178784_b != enumFacing) {
+        MovingObjectPosition movingObjectPosition = RotationUtils.traceBlocks(f, f2, minecraft.field_71442_b.func_78757_d(), 1.0f);
+        if (movingObjectPosition == null
+                || movingObjectPosition.field_72313_a != MovingObjectPosition.MovingObjectType.BLOCK
+                || !movingObjectPosition.func_178782_a().equals((Object) blockPos)
+                || movingObjectPosition.field_178784_b != enumFacing) {
             return null;
         }
         return movingObjectPosition;
@@ -183,15 +168,15 @@ extends Module {
         if (movingObjectPosition == null) {
             return;
         }
-        boolean bl = ScaffoldModule.minecraft.field_71442_b.func_178890_a(ScaffoldModule.minecraft.field_71439_g, ScaffoldModule.minecraft.field_71441_e, ScaffoldModule.minecraft.field_71439_g.field_71071_by.func_70448_g(), blockPos, enumFacing, movingObjectPosition.field_72307_f);
+        boolean bl = minecraft.field_71442_b.func_178890_a(minecraft.field_71439_g, minecraft.field_71441_e, minecraft.field_71439_g.field_71071_by.func_70448_g(), blockPos, enumFacing, movingObjectPosition.field_72307_f);
         if (!bl) {
             return;
         }
-        if (ScaffoldModule.minecraft.field_71442_b.func_178889_l() != WorldSettings.GameType.CREATIVE) {
+        if (minecraft.field_71442_b.func_178889_l() != WorldSettings.GameType.CREATIVE) {
             --this.remainingStackBlocks;
         }
-        if (((Boolean)this.swing.getValue()).booleanValue()) {
-            ScaffoldModule.minecraft.field_71439_g.func_71038_i();
+        if (this.swing.getValue()) {
+            minecraft.field_71439_g.func_71038_i();
         } else {
             PacketUtils.send(new C0APacketAnimation());
         }
@@ -211,23 +196,26 @@ extends Module {
     }
 
     private double distanceToBlockEdge(EnumFacing enumFacing) {
-        switch (enumFacing) {
-            case NORTH: {
-                return ScaffoldModule.minecraft.field_71439_g.field_70161_v - Math.floor(ScaffoldModule.minecraft.field_71439_g.field_70161_v);
-            }
-            case EAST: {
-                return Math.ceil(ScaffoldModule.minecraft.field_71439_g.field_70165_t) - ScaffoldModule.minecraft.field_71439_g.field_70165_t;
-            }
-            case SOUTH: {
-                return Math.ceil(ScaffoldModule.minecraft.field_71439_g.field_70161_v) - ScaffoldModule.minecraft.field_71439_g.field_70161_v;
-            }
+        switch(enumFacing) {
+            case NORTH:
+                {
+                    return minecraft.field_71439_g.field_70161_v - Math.floor(minecraft.field_71439_g.field_70161_v);
+                }
+            case EAST:
+                {
+                    return Math.ceil(minecraft.field_71439_g.field_70165_t) - minecraft.field_71439_g.field_70165_t;
+                }
+            case SOUTH:
+                {
+                    return Math.ceil(minecraft.field_71439_g.field_70161_v) - minecraft.field_71439_g.field_70161_v;
+                }
         }
-        return ScaffoldModule.minecraft.field_71439_g.field_70165_t - Math.floor(ScaffoldModule.minecraft.field_71439_g.field_70165_t);
+        return minecraft.field_71439_g.field_70165_t - Math.floor(minecraft.field_71439_g.field_70165_t);
     }
 
     private float getMotionMultiplier() {
-        int n = !ScaffoldModule.minecraft.field_71439_g.field_70122_E ? (Integer)this.airMotion.getValue() : (MovementUtils.speedPotionLevel() > 0 ? ((Integer)this.speedMotion.getValue()).intValue() : ((Integer)this.groundMotion.getValue()).intValue());
-        return (float)n / 100.0f;
+        int n = !minecraft.field_71439_g.field_70122_E ? this.airMotion.getValue() : (MovementUtils.speedPotionLevel() > 0 ? this.speedMotion.getValue().intValue() : this.groundMotion.getValue().intValue());
+        return (float) n / 100.0f;
     }
 
     private double randomEdgeApproachDistance() {
@@ -235,7 +223,7 @@ extends Module {
     }
 
     private float getMovementYaw() {
-        return MovementUtils.movementYawForInput(ScaffoldModule.minecraft.field_71439_g.field_70177_z, MovementUtils.forwardInput(), MovementUtils.strafeInput());
+        return MovementUtils.movementYawForInput(minecraft.field_71439_g.field_70177_z, MovementUtils.forwardInput(), MovementUtils.strafeInput());
     }
 
     private boolean isDiagonalYaw(float f) {
@@ -256,8 +244,11 @@ extends Module {
     }
 
     private boolean isJumpCycleActive() {
-        return keepY.getValue() != 0 && (!keepYOnPress.getValue() || PlayerUtils.isUseItemKeyDown())
-                || tower.getValue() == 3 && isTowerKeyDown();
+        return keepY.getValue() != 0
+                && (!keepYOnPress.getValue()
+                || PlayerUtils.isUseItemKeyDown())
+                || tower.getValue() == 3
+                && isTowerKeyDown();
     }
 
     private boolean isTowering() {
@@ -271,21 +262,20 @@ extends Module {
     }
 
     private boolean isTellyTakeoff() {
-        if (!ScaffoldModule.minecraft.field_71439_g.field_70122_E || !MovementUtils.hasMovementInput()) {
+        if (!minecraft.field_71439_g.field_70122_E || !MovementUtils.hasMovementInput()) {
             return false;
         }
         if (hypixelJumpDelay > 0 || PlayerUtils.hasCollisionAbove()) {
             return false;
         }
-        if (((AccessorEntityLivingBase)ScaffoldModule.minecraft.field_71439_g).getJumpTicks() > 1) {
+        if (((AccessorEntityLivingBase) minecraft.field_71439_g).getJumpTicks() > 1) {
             return false;
         }
-        if ((Integer)this.keepY.getValue() == 3 && this.keepYState > 0) {
+        if (this.keepY.getValue() == 3 && this.keepYState > 0) {
             return true;
         }
-        return (Integer)this.tower.getValue() == 3 && isTowerKeyDown();
+        return this.tower.getValue() == 3 && isTowerKeyDown();
     }
-
 
     public ScaffoldModule() {
         super("Scaffold", false, 0);
@@ -296,21 +286,22 @@ extends Module {
     }
 
     private void selectPlacementHotbarSlot() {
-        ItemStack itemStack = ScaffoldModule.minecraft.field_71439_g.func_70694_bm();
+        ItemStack itemStack = minecraft.field_71439_g.func_70694_bm();
         int n = ItemUtils.isPlaceableBlockStack(itemStack) ? itemStack.field_77994_a : 0;
         this.remainingStackBlocks = Math.min(this.remainingStackBlocks, n);
         if (this.remainingStackBlocks > 0) {
             return;
         }
-        int n2 = ScaffoldModule.minecraft.field_71439_g.field_71071_by.field_70461_c;
+        int n2 = minecraft.field_71439_g.field_71071_by.field_70461_c;
         if (this.remainingStackBlocks == 0) {
             --n2;
         }
         for (int i = n2; i > n2 - 9; --i) {
             int n3 = (i % 9 + 9) % 9;
-            ItemStack itemStack2 = ScaffoldModule.minecraft.field_71439_g.field_71071_by.func_70301_a(n3);
-            if (!ItemUtils.isPlaceableBlockStack(itemStack2)) continue;
-            ScaffoldModule.minecraft.field_71439_g.field_71071_by.field_70461_c = n3;
+            ItemStack itemStack2 = minecraft.field_71439_g.field_71071_by.func_70301_a(n3);
+            if (!ItemUtils.isPlaceableBlockStack(itemStack2))
+                continue;
+            minecraft.field_71439_g.field_71071_by.field_70461_c = n3;
             this.remainingStackBlocks = itemStack2.field_77994_a;
             return;
         }
@@ -324,8 +315,8 @@ extends Module {
             float yaw = isStableRotation() ? stableYaw : RotationUtils.snapToMouseSensitivity(this.placementYaw, f);
             float pitch = MathHelper.func_76131_a(RotationUtils.snapToMouseSensitivity(this.placementPitch, f2), -90.0f, 90.0f);
             MovingObjectPosition hit = tracePlacement(blockPlacementTarget.position(), blockPlacementTarget.face(), yaw, pitch);
-            if (hit != null && minecraft.field_71439_g.func_174824_e(1.0f).func_72438_d(hit.field_72307_f)
-                    <= minecraft.field_71442_b.func_78757_d()) {
+            if (hit != null
+                    && minecraft.field_71439_g.func_174824_e(1.0f).func_72438_d(hit.field_72307_f) <= minecraft.field_71442_b.func_78757_d()) {
                 this.placementYaw = yaw;
                 this.placementPitch = pitch;
                 this.hasPlacementRotation = true;
@@ -335,30 +326,36 @@ extends Module {
         double[] dArray = FACE_SAMPLE_OFFSETS;
         double[] dArray2 = FACE_SAMPLE_OFFSETS;
         double[] dArray3 = FACE_SAMPLE_OFFSETS;
-        switch (blockPlacementTarget.face()) {
-            case NORTH: {
-                dArray3 = new double[]{0.0};
-                break;
-            }
-            case EAST: {
-                dArray = new double[]{1.0};
-                break;
-            }
-            case SOUTH: {
-                dArray3 = new double[]{1.0};
-                break;
-            }
-            case WEST: {
-                dArray = new double[]{0.0};
-                break;
-            }
-            case DOWN: {
-                dArray2 = new double[]{0.0};
-                break;
-            }
-            case UP: {
-                dArray2 = new double[]{1.0};
-            }
+        switch(blockPlacementTarget.face()) {
+            case NORTH:
+                {
+                    dArray3 = new double[] { 0.0 };
+                    break;
+                }
+            case EAST:
+                {
+                    dArray = new double[] { 1.0 };
+                    break;
+                }
+            case SOUTH:
+                {
+                    dArray3 = new double[] { 1.0 };
+                    break;
+                }
+            case WEST:
+                {
+                    dArray = new double[] { 0.0 };
+                    break;
+                }
+            case DOWN:
+                {
+                    dArray2 = new double[] { 0.0 };
+                    break;
+                }
+            case UP:
+                {
+                    dArray2 = new double[] { 1.0 };
+                }
         }
         float f3 = -180.0f;
         float f4 = 0.0f;
@@ -367,17 +364,22 @@ extends Module {
         for (double d : dArray) {
             for (double d2 : dArray2) {
                 for (double d3 : dArray3) {
-                    double d4 = (double)blockPlacementTarget.position().func_177958_n() + d - ScaffoldModule.minecraft.field_71439_g.field_70165_t;
-                    double d5 = (double)blockPlacementTarget.position().func_177956_o() + d2 - ScaffoldModule.minecraft.field_71439_g.field_70163_u - (double)ScaffoldModule.minecraft.field_71439_g.func_70047_e();
-                    double d6 = (double)blockPlacementTarget.position().func_177952_p() + d3 - ScaffoldModule.minecraft.field_71439_g.field_70161_v;
+                    double d4 = (double) blockPlacementTarget.position().func_177958_n() + d - minecraft.field_71439_g.field_70165_t;
+                    double d5 = (double) blockPlacementTarget.position().func_177956_o() + d2 - minecraft.field_71439_g.field_70163_u - (double) minecraft.field_71439_g.func_70047_e();
+                    double d6 = (double) blockPlacementTarget.position().func_177952_p() + d3 - minecraft.field_71439_g.field_70161_v;
                     float[] fArray = RotationUtils.rotationsFromDelta(d4, d5, d6);
                     fArray[0] = isStableRotation() ? stableYaw : RotationUtils.snapToMouseSensitivity(fArray[0], f);
                     fArray[1] = RotationUtils.snapToMouseSensitivity(fArray[1], f2);
-                    fArray[1] = MathHelper.func_76131_a((float)fArray[1], (float)-90.0f, (float)90.0f);
-                    MovingObjectPosition movingObjectPosition = RotationUtils.traceBlocks(fArray[0], fArray[1], ScaffoldModule.minecraft.field_71442_b.func_78757_d(), 1.0f);
-                    if (movingObjectPosition == null || movingObjectPosition.field_72313_a != MovingObjectPosition.MovingObjectType.BLOCK || !movingObjectPosition.func_178782_a().equals((Object)blockPlacementTarget.position()) || movingObjectPosition.field_178784_b != blockPlacementTarget.face()) continue;
-                    float f6 = Math.abs(MathHelper.func_76142_g((float)(fArray[0] - this.placementYaw))) + Math.abs(fArray[1] - this.placementPitch);
-                    if (!(f3 == -180.0f && f4 == 0.0f || f6 < f5)) continue;
+                    fArray[1] = MathHelper.func_76131_a((float) fArray[1], (float) -90.0f, (float) 90.0f);
+                    MovingObjectPosition movingObjectPosition = RotationUtils.traceBlocks(fArray[0], fArray[1], minecraft.field_71442_b.func_78757_d(), 1.0f);
+                    if (movingObjectPosition == null
+                            || movingObjectPosition.field_72313_a != MovingObjectPosition.MovingObjectType.BLOCK
+                            || !movingObjectPosition.func_178782_a().equals((Object) blockPlacementTarget.position())
+                            || movingObjectPosition.field_178784_b != blockPlacementTarget.face())
+                        continue;
+                    float f6 = Math.abs(MathHelper.func_76142_g((float) (fArray[0] - this.placementYaw))) + Math.abs(fArray[1] - this.placementPitch);
+                    if (!(f3 == -180.0f && f4 == 0.0f || f6 < f5))
+                        continue;
                     f3 = fArray[0];
                     f4 = fArray[1];
                     f5 = f6;
@@ -393,10 +395,10 @@ extends Module {
         return vec3;
     }
 
-    private void applyPlacementRotation(RotationUpdateEvent event, BlockPlacementTarget target,
-                                        float previousYaw, float previousPitch, float backwardYaw, float sidewaysYaw) {
+    private void applyPlacementRotation(RotationUpdateEvent event, BlockPlacementTarget target, float previousYaw, float previousPitch, float backwardYaw, float sidewaysYaw) {
         int mode = rotations.getValue();
-        if (mode == 0) return;
+        if (mode == 0)
+            return;
         if (isStableRotation()) {
             float yaw = stableYaw;
             float pitch = placementPitch;
@@ -412,16 +414,20 @@ extends Module {
             yaw = RotationUtils.snapToMouseSensitivity(previousYaw + yawStep, previousYaw);
             pitch = RotationUtils.snapToMouseSensitivity(previousPitch + pitchStep, previousPitch);
             event.setRotation(yaw, pitch, 3);
-            if (moveFix.getValue() == 1) event.setMovementYaw(yaw, 3);
+            if (moveFix.getValue() == 1)
+                event.setMovementYaw(yaw, 3);
             return;
         }
-        if (hasPlacementRotation && MovementUtils.hasMovementInput()
+        if (hasPlacementRotation
+                && MovementUtils.hasMovementInput()
                 && Math.abs(MathHelper.func_76142_g(backwardYaw - placementYaw)) < 90.0f
-                && (mode == 2 || mode == 3) && target != null) {
+                && (mode == 2
+                || mode == 3)
+                && target != null) {
             float yaw = RotationUtils.snapToMouseSensitivity(mode == 2 ? backwardYaw : sidewaysYaw, previousYaw);
-            if (tracePlacement(target.position(), target.face(), yaw, placementPitch) != null) placementYaw = yaw;
+            if (tracePlacement(target.position(), target.face(), yaw, placementPitch) != null)
+                placementYaw = yaw;
         }
-
         float yaw = placementYaw;
         float pitch = placementPitch;
         if (isTellyTakeoff()) {
@@ -439,15 +445,13 @@ extends Module {
             }
             if (isHypixelRotation() && !minecraft.field_71439_g.field_70122_E) {
                 int ticks = hypixelTicksToLevel();
-                int turnTicks = isTowering() ? HypixelScaffoldPacing.towerTurnTicks(ticks, diagonal)
-                        : HypixelScaffoldPacing.turnTicks(ticks, diagonal);
+                int turnTicks = isTowering() ? HypixelScaffoldPacing.towerTurnTicks(ticks, diagonal) : HypixelScaffoldPacing.turnTicks(ticks, diagonal);
                 float comfortable = diagonal ? RandomUtils.randomFloat(34.0f, 40.0f) : RandomUtils.randomFloat(22.0f, 28.0f);
                 float step = HypixelScaffoldPacing.maxStep(difference, turnTicks, comfortable);
                 if (turnTicks <= 1) {
                     yaw = RotationUtils.snapToMouseSensitivity(previousYaw + RotationUtils.clampAngleChange(difference, step), previousYaw);
                 } else {
-                    float[] turn = smoothPlacement(previousYaw, previousPitch, difference,
-                            HypixelScaffoldPacing.smoothing(rotationSmoothing.getValue(), diagonal), step);
+                    float[] turn = smoothPlacement(previousYaw, previousPitch, difference, HypixelScaffoldPacing.smoothing(rotationSmoothing.getValue(), diagonal), step);
                     yaw = turn[0];
                     pitch = turn[1];
                 }
@@ -461,7 +465,8 @@ extends Module {
             }
         }
         event.setRotation(yaw, pitch, 3);
-        if (moveFix.getValue() == 1) event.setMovementYaw(yaw, 3);
+        if (moveFix.getValue() == 1)
+            event.setMovementYaw(yaw, 3);
     }
 
     private float[] smoothPlacement(float previousYaw, float previousPitch, float yawDifference, int percent, float maxChange) {
@@ -478,7 +483,7 @@ extends Module {
             float step = Math.min(Math.abs(pitchDifference), Math.abs(pitchDifference) * fraction + 5.0f + (1.0f - smoothing) * 5.0f);
             pitch = RotationUtils.snapToMouseSensitivity(previousPitch + Math.signum(pitchDifference) * step, previousPitch);
         }
-        return new float[]{yaw, pitch};
+        return new float[] { yaw, pitch };
     }
 
     private void placeCurrentAndAdditionalBlocks(BlockPlacementTarget blockPlacementTarget, Vec3 vec3) {
@@ -486,21 +491,30 @@ extends Module {
             return;
         }
         this.placeBlock(blockPlacementTarget.position(), blockPlacementTarget.face());
-        if (!((Boolean)this.multiPlace.getValue()).booleanValue()) {
+        if (!this.multiPlace.getValue()) {
             return;
         }
         for (int i = 0; i < 3 && (blockPlacementTarget = this.findPlacementTarget()) != null; ++i) {
             double d;
-            MovingObjectPosition movingObjectPosition = RotationUtils.traceBlocks(this.placementYaw, this.placementPitch, ScaffoldModule.minecraft.field_71442_b.func_78757_d(), 1.0f);
-            if (movingObjectPosition != null && movingObjectPosition.field_72313_a == MovingObjectPosition.MovingObjectType.BLOCK && movingObjectPosition.func_178782_a().equals((Object)blockPlacementTarget.position()) && movingObjectPosition.field_178784_b == blockPlacementTarget.face()) {
+            MovingObjectPosition movingObjectPosition = RotationUtils.traceBlocks(this.placementYaw, this.placementPitch, minecraft.field_71442_b.func_78757_d(), 1.0f);
+            if (movingObjectPosition != null
+                    && movingObjectPosition.field_72313_a == MovingObjectPosition.MovingObjectType.BLOCK
+                    && movingObjectPosition.func_178782_a().equals((Object) blockPlacementTarget.position())
+                    && movingObjectPosition.field_178784_b == blockPlacementTarget.face()) {
                 this.placeBlock(blockPlacementTarget.position(), blockPlacementTarget.face());
                 continue;
             }
             Vec3 vec32 = BlockUtils.randomFacePoint(blockPlacementTarget.position(), blockPlacementTarget.face());
-            double d2 = vec32.field_72450_a - ScaffoldModule.minecraft.field_71439_g.field_70165_t;
-            double d3 = vec32.field_72448_b - ScaffoldModule.minecraft.field_71439_g.field_70163_u - (double)ScaffoldModule.minecraft.field_71439_g.func_70047_e();
-            float[] fArray = RotationUtils.rotationsFromDelta(d2, d3, d = vec32.field_72449_c - ScaffoldModule.minecraft.field_71439_g.field_70161_v);
-            if (Math.abs(MathHelper.func_76142_g((float)(fArray[0] - this.placementYaw))) >= 120.0f || Math.abs(fArray[1] - this.placementPitch) >= 60.0f || (movingObjectPosition = RotationUtils.traceBlocks(fArray[0], fArray[1], ScaffoldModule.minecraft.field_71442_b.func_78757_d(), 1.0f)) == null || movingObjectPosition.field_72313_a != MovingObjectPosition.MovingObjectType.BLOCK || !movingObjectPosition.func_178782_a().equals((Object)blockPlacementTarget.position()) || movingObjectPosition.field_178784_b != blockPlacementTarget.face()) break;
+            double d2 = vec32.field_72450_a - minecraft.field_71439_g.field_70165_t;
+            double d3 = vec32.field_72448_b - minecraft.field_71439_g.field_70163_u - (double) minecraft.field_71439_g.func_70047_e();
+            float[] fArray = RotationUtils.rotationsFromDelta(d2, d3, d = vec32.field_72449_c - minecraft.field_71439_g.field_70161_v);
+            if (Math.abs(MathHelper.func_76142_g((float) (fArray[0] - this.placementYaw))) >= 120.0f
+                    || Math.abs(fArray[1] - this.placementPitch) >= 60.0f
+                    || (movingObjectPosition = RotationUtils.traceBlocks(fArray[0], fArray[1], minecraft.field_71442_b.func_78757_d(), 1.0f)) == null
+                    || movingObjectPosition.field_72313_a != MovingObjectPosition.MovingObjectType.BLOCK
+                    || !movingObjectPosition.func_178782_a().equals((Object) blockPlacementTarget.position())
+                    || movingObjectPosition.field_178784_b != blockPlacementTarget.face())
+                break;
             this.placeBlock(blockPlacementTarget.position(), blockPlacementTarget.face());
         }
     }
@@ -510,7 +524,7 @@ extends Module {
             return false;
         }
         if (this.placementDelayTicks <= 0) {
-            BlockPos blockPos = new BlockPos(MathHelper.func_76128_c((double)ScaffoldModule.minecraft.field_71439_g.field_70165_t), MathHelper.func_76128_c((double)ScaffoldModule.minecraft.field_71439_g.field_70163_u) - 1, MathHelper.func_76128_c((double)ScaffoldModule.minecraft.field_71439_g.field_70161_v));
+            BlockPos blockPos = new BlockPos(MathHelper.func_76128_c((double) minecraft.field_71439_g.field_70165_t), MathHelper.func_76128_c((double) minecraft.field_71439_g.field_70163_u) - 1, MathHelper.func_76128_c((double) minecraft.field_71439_g.field_70161_v));
             this.placeBlock(blockPos, this.pendingPlacementFace);
         }
         this.pendingPlacementFace = null;
@@ -518,11 +532,11 @@ extends Module {
     }
 
     private void handleExtraKeepYRecovery() {
-        if ((Integer)this.keepY.getValue() != 2 || this.keepYState <= 0 || ScaffoldModule.minecraft.field_71439_g.field_70122_E) {
+        if (this.keepY.getValue() != 2 || this.keepYState <= 0 || minecraft.field_71439_g.field_70122_E) {
             return;
         }
-        int n = MathHelper.func_76128_c((double)(ScaffoldModule.minecraft.field_71439_g.field_70163_u + ScaffoldModule.minecraft.field_71439_g.field_70181_x));
-        if (n > this.keepYLevel || ScaffoldModule.minecraft.field_71439_g.field_70163_u <= (double)(this.keepYLevel + 1)) {
+        int n = MathHelper.func_76128_c((double) (minecraft.field_71439_g.field_70163_u + minecraft.field_71439_g.field_70181_x));
+        if (n > this.keepYLevel || minecraft.field_71439_g.field_70163_u <= (double) (this.keepYLevel + 1)) {
             return;
         }
         this.keepYRecoveryPlacement = true;
@@ -533,7 +547,7 @@ extends Module {
         this.placeBlock(blockPlacementTarget.position(), blockPlacementTarget.face());
     }
 
-    @EventHandler(priority=50)
+    @EventHandler(priority = 50)
     public void onRotationUpdate(RotationUpdateEvent rotationUpdateEvent) {
         float f;
         if (!this.isEnabled()) {
@@ -543,24 +557,32 @@ extends Module {
             --this.placementDelayTicks;
         }
         boolean onGround = minecraft.field_71439_g.field_70122_E;
-        if (hypixelJumpDelay > 0) --hypixelJumpDelay;
+        if (hypixelJumpDelay > 0)
+            --hypixelJumpDelay;
         if (onGround && !wasOnGround && isHypixelRotation() && isJumpCycleActive()) {
             hypixelJumpDelay = HypixelScaffoldPacing.JUMP_DELAY_TICKS;
         }
         wasOnGround = onGround;
-        if (onGround) jumpBaseY = MathHelper.func_76128_c(minecraft.field_71439_g.field_70163_u);
-        if (ScaffoldModule.minecraft.field_71439_g.field_70122_E) {
+        if (onGround)
+            jumpBaseY = MathHelper.func_76128_c(minecraft.field_71439_g.field_70163_u);
+        if (minecraft.field_71439_g.field_70122_E) {
             if (this.keepYState > 0) {
                 --this.keepYState;
             }
             if (this.keepYState < 0) {
                 ++this.keepYState;
             }
-            if (!(this.keepYState != 0 || (Integer)this.keepY.getValue() == 0 || ((Boolean)this.keepYOnPress.getValue()).booleanValue() && !PlayerUtils.isUseItemKeyDown() || ScaffoldModule.minecraft.field_71474_y.field_74314_A.func_151470_d() || this.isTowering() || ScaffoldModule.minecraft.field_71439_g.func_70644_a(Potion.field_76430_j))) {
+            if (!(this.keepYState != 0
+                    || this.keepY.getValue() == 0
+                    || this.keepYOnPress.getValue()
+                    && !PlayerUtils.isUseItemKeyDown()
+                    || minecraft.field_71474_y.field_74314_A.func_151470_d()
+                    || this.isTowering()
+                    || minecraft.field_71439_g.func_70644_a(Potion.field_76430_j))) {
                 this.keepYState = 1;
             }
             if (!this.keepYRecoveryPlacement) {
-                this.keepYLevel = MathHelper.func_76128_c((double)ScaffoldModule.minecraft.field_71439_g.field_70163_u);
+                this.keepYLevel = MathHelper.func_76128_c((double) minecraft.field_71439_g.field_70163_u);
             }
             this.keepYRecoveryPlacement = false;
             this.tellyRotationActive = false;
@@ -586,18 +608,21 @@ extends Module {
             if (this.placementYaw == -180.0f && this.placementPitch == 0.0f) {
                 this.placementPitch = RotationUtils.snapToMouseSensitivity(RandomUtils.randomFloat(65.0f, 85.0f), f3);
             }
-            switch ((Integer)this.rotations.getValue()) {
-                case 5: {
-                    this.placementYaw = stableYaw;
-                    break;
-                }
-                case 2: {
-                    this.placementYaw = RotationUtils.snapToMouseSensitivity(f5, f2);
-                    break;
-                }
-                default: {
-                    this.placementYaw = RotationUtils.snapToMouseSensitivity(f, f2);
-                }
+            switch(this.rotations.getValue()) {
+                case 5:
+                    {
+                        this.placementYaw = stableYaw;
+                        break;
+                    }
+                case 2:
+                    {
+                        this.placementYaw = RotationUtils.snapToMouseSensitivity(f5, f2);
+                        break;
+                    }
+                default:
+                    {
+                        this.placementYaw = RotationUtils.snapToMouseSensitivity(f, f2);
+                    }
             }
         }
         BlockPlacementTarget blockPlacementTarget = this.findPlacementTarget();
@@ -614,35 +639,43 @@ extends Module {
 
     @EventHandler
     public void onPreWalkingUpdate(PreWalkingUpdateEvent event) {
-        if (!this.isEnabled() || !isStableRotation() || Float.isNaN(stableYaw)
-                || !this.canPlaceWithActiveModules()) {
+        if (!this.isEnabled() || !isStableRotation() || Float.isNaN(stableYaw) || !this.canPlaceWithActiveModules()) {
             return;
         }
         BlockPlacementTarget target = this.findPlacementTarget();
-        if (target == null) return;
+        if (target == null)
+            return;
         MovingObjectPosition hit = this.tracePlacement(target.position(), target.face(), tickPlacementYaw, tickPlacementPitch);
-        if (hit == null) return;
+        if (hit == null)
+            return;
         this.selectPlacementHotbarSlot();
         this.placeCurrentAndAdditionalBlocks(target, hit.field_72307_f);
     }
 
     @EventHandler
     public void onMoveFlying(MoveFlyingEvent moveFlyingEvent) {
-        if (!this.isEnabled() || ScaffoldModule.minecraft.field_71439_g.field_70123_F || ScaffoldModule.minecraft.field_71439_g.field_70737_aN > 5 || ScaffoldModule.minecraft.field_71439_g.func_70644_a(Potion.field_76430_j) || !isTowerKeyDown() || !ItemUtils.isHoldingPlaceableBlock()) {
+        if (!this.isEnabled()
+                || minecraft.field_71439_g.field_70123_F
+                || minecraft.field_71439_g.field_70737_aN > 5
+                || minecraft.field_71439_g.func_70644_a(Potion.field_76430_j)
+                || !isTowerKeyDown()
+                || !ItemUtils.isHoldingPlaceableBlock()) {
             this.towerPhase = 0;
             this.towerCycleCount = 0;
             return;
         }
-        int n = (int)(ScaffoldModule.minecraft.field_71439_g.field_70163_u % 1.0 * 100.0);
-        switch ((Integer)this.tower.getValue()) {
-            case 1: {
-                this.applyVanillaTowerMotion(n, moveFlyingEvent);
-                return;
-            }
-            case 2: {
-                this.applyExtraTowerMotion(n, moveFlyingEvent);
-                return;
-            }
+        int n = (int) (minecraft.field_71439_g.field_70163_u % 1.0 * 100.0);
+        switch(this.tower.getValue()) {
+            case 1:
+                {
+                    this.applyVanillaTowerMotion(n, moveFlyingEvent);
+                    return;
+                }
+            case 2:
+                {
+                    this.applyExtraTowerMotion(n, moveFlyingEvent);
+                    return;
+                }
         }
         this.towerPhase = 0;
         this.towerCycleCount = 0;
@@ -653,7 +686,10 @@ extends Module {
         if (!this.isEnabled()) {
             return;
         }
-        if ((Integer)this.moveFix.getValue() == 1 && RotationState.isActive() && RotationState.movementPriority() == 3.0f && MovementUtils.hasMovementInput()) {
+        if (this.moveFix.getValue() == 1
+                && RotationState.isActive()
+                && RotationState.movementPriority() == 3.0f
+                && MovementUtils.hasMovementInput()) {
             MovementUtils.correctMovementForYaw(RotationState.movementYaw());
         }
         if (hypixelJumpDelay > 0) {
@@ -663,10 +699,10 @@ extends Module {
         if (towerOnPress.getValue() && tower.getValue() == 3 && isTowerKeyDown()) {
             minecraft.field_71439_g.field_71158_b.field_78901_c = true;
         }
-        if (!ScaffoldModule.minecraft.field_71439_g.field_70122_E || this.keepYState <= 0 || !MovementUtils.hasMovementInput()) {
+        if (!minecraft.field_71439_g.field_70122_E || this.keepYState <= 0 || !MovementUtils.hasMovementInput()) {
             return;
         }
-        ScaffoldModule.minecraft.field_71439_g.field_71158_b.field_78901_c = true;
+        minecraft.field_71439_g.field_71158_b.field_78901_c = true;
     }
 
     @EventHandler
@@ -676,39 +712,48 @@ extends Module {
         }
         float f = this.getMotionMultiplier();
         if (f != 1.0f) {
-            if (ScaffoldModule.minecraft.field_71439_g.field_71158_b.field_78900_b != 0.0f && ScaffoldModule.minecraft.field_71439_g.field_71158_b.field_78902_a != 0.0f) {
-                float f2 = 1.0f / (float)Math.sqrt(2.0);
-                ScaffoldModule.minecraft.field_71439_g.field_71158_b.field_78900_b *= f2;
-                ScaffoldModule.minecraft.field_71439_g.field_71158_b.field_78902_a *= f2;
+            if (minecraft.field_71439_g.field_71158_b.field_78900_b != 0.0f
+                    && minecraft.field_71439_g.field_71158_b.field_78902_a != 0.0f) {
+                float f2 = 1.0f / (float) Math.sqrt(2.0);
+                minecraft.field_71439_g.field_71158_b.field_78900_b *= f2;
+                minecraft.field_71439_g.field_71158_b.field_78902_a *= f2;
             }
-            ScaffoldModule.minecraft.field_71439_g.field_71158_b.field_78900_b *= f;
-            ScaffoldModule.minecraft.field_71439_g.field_71158_b.field_78902_a *= f;
+            minecraft.field_71439_g.field_71158_b.field_78900_b *= f;
+            minecraft.field_71439_g.field_71158_b.field_78902_a *= f;
         }
         if (this.shouldDisableSprint()) {
-            ScaffoldModule.minecraft.field_71439_g.func_70031_b(false);
+            minecraft.field_71439_g.func_70031_b(false);
         }
     }
 
     @EventHandler
     public void onSafeWalk(SafeWalkEvent safeWalkEvent) {
-        if (!this.isEnabled() || !((Boolean)this.safeWalk.getValue()).booleanValue() || !ScaffoldModule.minecraft.field_71439_g.field_70122_E || ScaffoldModule.minecraft.field_71439_g.field_70181_x > 0.0) {
+        if (!this.isEnabled()
+                || !this.safeWalk.getValue()
+                || !minecraft.field_71439_g.field_70122_E
+                || minecraft.field_71439_g.field_70181_x > 0.0) {
             return;
         }
-        if (PlayerUtils.isOffsetCollisionFree(ScaffoldModule.minecraft.field_71439_g.field_70159_w, -1.0, ScaffoldModule.minecraft.field_71439_g.field_70179_y)) {
+        if (PlayerUtils.isOffsetCollisionFree(minecraft.field_71439_g.field_70159_w, -1.0, minecraft.field_71439_g.field_70179_y)) {
             safeWalkEvent.setSafeWalk(true);
         }
     }
 
     @EventHandler
     public void onRenderOverlay(RenderOverlayEvent renderOverlayEvent) {
-        if (!this.isEnabled() || !((Boolean)this.blockCounter.getValue()).booleanValue()) {
+        if (!this.isEnabled() || !this.blockCounter.getValue()) {
             return;
         }
         int n = 0;
         for (int i = 0; i < 9; ++i) {
             Block block;
-            ItemStack itemStack = ScaffoldModule.minecraft.field_71439_g.field_71071_by.func_70301_a(i);
-            if (itemStack == null || itemStack.field_77994_a <= 0 || !(itemStack.func_77973_b() instanceof ItemBlock) || BlockUtils.isInteractable(block = ((ItemBlock)itemStack.func_77973_b()).func_179223_d()) || !BlockUtils.isSuitableFullBlock(block)) continue;
+            ItemStack itemStack = minecraft.field_71439_g.field_71071_by.func_70301_a(i);
+            if (itemStack == null
+                    || itemStack.field_77994_a <= 0
+                    || !(itemStack.func_77973_b() instanceof ItemBlock)
+                    || BlockUtils.isInteractable(block = ((ItemBlock) itemStack.func_77973_b()).func_179223_d())
+                    || !BlockUtils.isSuitableFullBlock(block))
+                continue;
             n += itemStack.field_77994_a;
         }
         this.drawBlockCounter(n);
@@ -751,7 +796,8 @@ extends Module {
 
     @Override
     public void onSettingChanged(String name) {
-        if ("rotations".equals(name)) resetHypixelRotation();
+        if ("rotations".equals(name))
+            resetHypixelRotation();
     }
 
     private void resetHypixelRotation() {
@@ -764,7 +810,7 @@ extends Module {
     @Override
     public void onEnable() {
         resetHypixelRotation();
-        this.previousHotbarSlot = ScaffoldModule.minecraft.field_71439_g != null ? ScaffoldModule.minecraft.field_71439_g.field_71071_by.field_70461_c : -1;
+        this.previousHotbarSlot = minecraft.field_71439_g != null ? minecraft.field_71439_g.field_71071_by.field_70461_c : -1;
         this.remainingStackBlocks = -1;
         this.placementDelayTicks = 0;
         this.placementYaw = -180.0f;
@@ -778,158 +824,168 @@ extends Module {
     @Override
     public void onDisable() {
         resetHypixelRotation();
-        if (ScaffoldModule.minecraft.field_71439_g != null && this.previousHotbarSlot != -1) {
-            ScaffoldModule.minecraft.field_71439_g.field_71071_by.field_70461_c = this.previousHotbarSlot;
+        if (minecraft.field_71439_g != null && this.previousHotbarSlot != -1) {
+            minecraft.field_71439_g.field_71071_by.field_70461_c = this.previousHotbarSlot;
         }
     }
 
     private boolean isKeepYOnPressVisible() {
-        return (Integer)this.keepY.getValue() != 0;
+        return this.keepY.getValue() != 0;
     }
 
     private static double targetDistanceSquared(BlockPos blockPos, BlockPos blockPos2) {
-        return blockPos2.func_177957_d((double)blockPos.func_177958_n() + 0.5, (double)blockPos.func_177956_o() + 0.5, (double)blockPos.func_177952_p() + 0.5);
+        return blockPos2.func_177957_d((double) blockPos.func_177958_n() + 0.5, (double) blockPos.func_177956_o() + 0.5, (double) blockPos.func_177952_p() + 0.5);
     }
 
     private void applyVanillaTowerMotion(int n, MoveFlyingEvent moveFlyingEvent) {
-        switch (this.towerPhase) {
-            case 0: {
-                if (ScaffoldModule.minecraft.field_71439_g.field_70122_E) {
-                    this.towerPhase = 1;
-                    ScaffoldModule.minecraft.field_71439_g.field_70181_x = -0.0784000015258789;
-                }
-                return;
-            }
-            case 1: {
-                if (n == 0 && PlayerUtils.hasCollisionBelow()) {
-                    this.keepYLevel = MathHelper.func_76128_c((double)ScaffoldModule.minecraft.field_71439_g.field_70163_u);
-                    this.towerPhase = 2;
-                    ScaffoldModule.minecraft.field_71439_g.field_70181_x = 0.42f;
-                    if (MovementUtils.hasMovementInput()) {
-                        MovementUtils.setHorizontalMotion(MovementUtils.horizontalSpeed(), MovementUtils.movementYaw());
-                    } else {
-                        MovementUtils.setSpeedAlongMotion(0.0);
-                        moveFlyingEvent.setForward(0.0f);
-                        moveFlyingEvent.setStrafe(0.0f);
+        switch(this.towerPhase) {
+            case 0:
+                {
+                    if (minecraft.field_71439_g.field_70122_E) {
+                        this.towerPhase = 1;
+                        minecraft.field_71439_g.field_70181_x = -0.0784000015258789;
                     }
                     return;
                 }
-                this.towerPhase = 0;
-                return;
-            }
-            case 2: {
-                this.towerPhase = 3;
-                ScaffoldModule.minecraft.field_71439_g.field_70181_x = 0.75 - ScaffoldModule.minecraft.field_71439_g.field_70163_u % 1.0;
-                return;
-            }
-            case 3: {
-                this.towerPhase = 1;
-                ScaffoldModule.minecraft.field_71439_g.field_70181_x = 1.0 - ScaffoldModule.minecraft.field_71439_g.field_70163_u % 1.0;
-                return;
-            }
+            case 1:
+                {
+                    if (n == 0 && PlayerUtils.hasCollisionBelow()) {
+                        this.keepYLevel = MathHelper.func_76128_c((double) minecraft.field_71439_g.field_70163_u);
+                        this.towerPhase = 2;
+                        minecraft.field_71439_g.field_70181_x = 0.42f;
+                        if (MovementUtils.hasMovementInput()) {
+                            MovementUtils.setHorizontalMotion(MovementUtils.horizontalSpeed(), MovementUtils.movementYaw());
+                        } else {
+                            MovementUtils.setSpeedAlongMotion(0.0);
+                            moveFlyingEvent.setForward(0.0f);
+                            moveFlyingEvent.setStrafe(0.0f);
+                        }
+                        return;
+                    }
+                    this.towerPhase = 0;
+                    return;
+                }
+            case 2:
+                {
+                    this.towerPhase = 3;
+                    minecraft.field_71439_g.field_70181_x = 0.75 - minecraft.field_71439_g.field_70163_u % 1.0;
+                    return;
+                }
+            case 3:
+                {
+                    this.towerPhase = 1;
+                    minecraft.field_71439_g.field_70181_x = 1.0 - minecraft.field_71439_g.field_70163_u % 1.0;
+                    return;
+                }
         }
         this.towerPhase = 0;
     }
 
     private void applyExtraTowerMotion(int n, MoveFlyingEvent moveFlyingEvent) {
-        switch (this.towerPhase) {
-            case 0: {
-                if (ScaffoldModule.minecraft.field_71439_g.field_70122_E) {
-                    this.towerPhase = 1;
-                    ScaffoldModule.minecraft.field_71439_g.field_70181_x = -0.0784000015258789;
-                }
-                return;
-            }
-            case 1: {
-                if (n == 0 && PlayerUtils.hasCollisionBelow()) {
-                    this.keepYLevel = MathHelper.func_76128_c((double)ScaffoldModule.minecraft.field_71439_g.field_70163_u);
-                    if (!MovementUtils.hasMovementInput()) {
-                        this.towerCycleCount = 2;
-                        MovementUtils.setSpeedAlongMotion(0.0);
-                        moveFlyingEvent.setForward(0.0f);
-                        moveFlyingEvent.setStrafe(0.0f);
-                        EnumFacing enumFacing = this.facingFromYaw(MathHelper.func_76142_g((float)(this.placementYaw - 180.0f)));
-                        double d = this.distanceToBlockEdge(enumFacing);
-                        if (d > 0.1) {
-                            if (ScaffoldModule.minecraft.field_71439_g.field_70122_E) {
-                                Vec3i vec3i = enumFacing.func_176730_m();
-                                double d2 = Math.min(this.randomEdgeApproachDistance(), d - 0.05);
-                                double d3 = RandomUtils.randomDouble(0.02, 0.03);
-                                AxisAlignedBB axisAlignedBB = ScaffoldModule.minecraft.field_71439_g.func_174813_aQ().func_72317_d((double)vec3i.func_177958_n() * (d2 - d3), 0.0, (double)vec3i.func_177952_p() * (d2 - d3));
-                                if (ScaffoldModule.minecraft.field_71441_e.func_72945_a((Entity)ScaffoldModule.minecraft.field_71439_g, axisAlignedBB).isEmpty()) {
-                                    ScaffoldModule.minecraft.field_71439_g.field_70181_x = -0.0784000015258789;
-                                    ScaffoldModule.minecraft.field_71439_g.func_70107_b(axisAlignedBB.field_72340_a + (axisAlignedBB.field_72336_d - axisAlignedBB.field_72340_a) / 2.0, axisAlignedBB.field_72338_b, axisAlignedBB.field_72339_c + (axisAlignedBB.field_72334_f - axisAlignedBB.field_72339_c) / 2.0);
-                                }
-                                return;
-                            }
-                        } else {
-                            this.towerPhase = 2;
-                            this.pendingPlacementFace = enumFacing;
-                            ScaffoldModule.minecraft.field_71439_g.field_70181_x = 0.42f;
-                        }
-                        return;
+        switch(this.towerPhase) {
+            case 0:
+                {
+                    if (minecraft.field_71439_g.field_70122_E) {
+                        this.towerPhase = 1;
+                        minecraft.field_71439_g.field_70181_x = -0.0784000015258789;
                     }
-                    this.towerPhase = 2;
-                    ++this.towerCycleCount;
-                    ScaffoldModule.minecraft.field_71439_g.field_70181_x = 0.42f;
-                    MovementUtils.setHorizontalMotion(MovementUtils.horizontalSpeed(), MovementUtils.movementYaw());
                     return;
                 }
-                this.towerPhase = 0;
-                this.towerCycleCount = 0;
-                return;
-            }
-            case 2: {
-                this.towerPhase = 3;
-                ScaffoldModule.minecraft.field_71439_g.field_70181_x -= RandomUtils.randomDouble(0.00101, 0.00109);
-                return;
-            }
-            case 3: {
-                if (this.towerCycleCount >= 4) {
-                    this.towerPhase = 4;
-                    this.towerCycleCount = 0;
-                } else {
-                    this.towerPhase = 1;
-                    ScaffoldModule.minecraft.field_71439_g.field_70181_x = 1.0 - ScaffoldModule.minecraft.field_71439_g.field_70163_u % 1.0;
-                }
-                return;
-            }
-            case 4: {
-                this.towerPhase = 5;
-                return;
-            }
-            case 5: {
-                if (!PlayerUtils.hasCollisionBelow()) {
+            case 1:
+                {
+                    if (n == 0 && PlayerUtils.hasCollisionBelow()) {
+                        this.keepYLevel = MathHelper.func_76128_c((double) minecraft.field_71439_g.field_70163_u);
+                        if (!MovementUtils.hasMovementInput()) {
+                            this.towerCycleCount = 2;
+                            MovementUtils.setSpeedAlongMotion(0.0);
+                            moveFlyingEvent.setForward(0.0f);
+                            moveFlyingEvent.setStrafe(0.0f);
+                            EnumFacing enumFacing = this.facingFromYaw(MathHelper.func_76142_g((float) (this.placementYaw - 180.0f)));
+                            double d = this.distanceToBlockEdge(enumFacing);
+                            if (d > 0.1) {
+                                if (minecraft.field_71439_g.field_70122_E) {
+                                    Vec3i vec3i = enumFacing.func_176730_m();
+                                    double d2 = Math.min(this.randomEdgeApproachDistance(), d - 0.05);
+                                    double d3 = RandomUtils.randomDouble(0.02, 0.03);
+                                    AxisAlignedBB axisAlignedBB = minecraft.field_71439_g.func_174813_aQ().func_72317_d((double) vec3i.func_177958_n() * (d2 - d3), 0.0, (double) vec3i.func_177952_p() * (d2 - d3));
+                                    if (minecraft.field_71441_e.func_72945_a((Entity) minecraft.field_71439_g, axisAlignedBB).isEmpty()) {
+                                        minecraft.field_71439_g.field_70181_x = -0.0784000015258789;
+                                        minecraft.field_71439_g.func_70107_b(axisAlignedBB.field_72340_a + (axisAlignedBB.field_72336_d - axisAlignedBB.field_72340_a) / 2.0, axisAlignedBB.field_72338_b, axisAlignedBB.field_72339_c + (axisAlignedBB.field_72334_f - axisAlignedBB.field_72339_c) / 2.0);
+                                    }
+                                    return;
+                                }
+                            } else {
+                                this.towerPhase = 2;
+                                this.pendingPlacementFace = enumFacing;
+                                minecraft.field_71439_g.field_70181_x = 0.42f;
+                            }
+                            return;
+                        }
+                        this.towerPhase = 2;
+                        ++this.towerCycleCount;
+                        minecraft.field_71439_g.field_70181_x = 0.42f;
+                        MovementUtils.setHorizontalMotion(MovementUtils.horizontalSpeed(), MovementUtils.movementYaw());
+                        return;
+                    }
                     this.towerPhase = 0;
-                } else {
-                    this.towerPhase = 1;
-                    ScaffoldModule.minecraft.field_71439_g.field_70181_x -= 0.08;
-                    ScaffoldModule.minecraft.field_71439_g.field_70181_x *= (double)0.98f;
-                    ScaffoldModule.minecraft.field_71439_g.field_70181_x -= 0.08;
-                    ScaffoldModule.minecraft.field_71439_g.field_70181_x *= (double)0.98f;
+                    this.towerCycleCount = 0;
+                    return;
                 }
-                return;
-            }
+            case 2:
+                {
+                    this.towerPhase = 3;
+                    minecraft.field_71439_g.field_70181_x -= RandomUtils.randomDouble(0.00101, 0.00109);
+                    return;
+                }
+            case 3:
+                {
+                    if (this.towerCycleCount >= 4) {
+                        this.towerPhase = 4;
+                        this.towerCycleCount = 0;
+                    } else {
+                        this.towerPhase = 1;
+                        minecraft.field_71439_g.field_70181_x = 1.0 - minecraft.field_71439_g.field_70163_u % 1.0;
+                    }
+                    return;
+                }
+            case 4:
+                {
+                    this.towerPhase = 5;
+                    return;
+                }
+            case 5:
+                {
+                    if (!PlayerUtils.hasCollisionBelow()) {
+                        this.towerPhase = 0;
+                    } else {
+                        this.towerPhase = 1;
+                        minecraft.field_71439_g.field_70181_x -= 0.08;
+                        minecraft.field_71439_g.field_70181_x *= (double) 0.98f;
+                        minecraft.field_71439_g.field_70181_x -= 0.08;
+                        minecraft.field_71439_g.field_70181_x *= (double) 0.98f;
+                    }
+                    return;
+                }
         }
         this.towerPhase = 0;
         this.towerCycleCount = 0;
     }
 
     private void drawBlockCounter(int n) {
-        HUDModule hUDModule = (HUDModule)MyauClient.moduleManager.modules.get(HUDModule.class);
-        float f = ((Float)hUDModule.scale.getValue()).floatValue();
+        HUDModule hUDModule = (HUDModule) MyauClient.moduleManager.modules.get(HUDModule.class);
+        float f = hUDModule.scale.getValue();
         GlStateManager.func_179094_E();
-        GlStateManager.func_179152_a((float)f, (float)f, (float)0.0f);
+        GlStateManager.func_179152_a((float) f, (float) f, (float) 0.0f);
         GlStateManager.func_179097_i();
         GlStateManager.func_179147_l();
-        GlStateManager.func_179112_b((int)770, (int)771);
-        FontRenderer fontRenderer = ScaffoldModule.minecraft.field_71466_p;
+        GlStateManager.func_179112_b((int) 770, (int) 771);
+        FontRenderer fontRenderer = minecraft.field_71466_p;
         String string = String.format("%d block%s left", n, n != 1 ? "s" : "");
         ScaledResolution scaledResolution = new ScaledResolution(minecraft);
-        float f2 = ((float)scaledResolution.func_78326_a() / 2.0f + (float)fontRenderer.field_78288_b * 1.5f) / f;
-        float f3 = (float)scaledResolution.func_78328_b() / 2.0f / f - (float)fontRenderer.field_78288_b / 2.0f + 1.0f;
+        float f2 = ((float) scaledResolution.func_78326_a() / 2.0f + (float) fontRenderer.field_78288_b * 1.5f) / f;
+        float f3 = (float) scaledResolution.func_78328_b() / 2.0f / f - (float) fontRenderer.field_78288_b / 2.0f + 1.0f;
         int n2 = n > 0 ? 0xFFFFFF : 0xFF5555;
-        fontRenderer.func_175065_a(string, f2, f3, n2 | 0xBF000000, ((Boolean)hUDModule.shadow.getValue()).booleanValue());
+        fontRenderer.func_175065_a(string, f2, f3, n2 | 0xBF000000, hUDModule.shadow.getValue().booleanValue());
         GlStateManager.func_179084_k();
         GlStateManager.func_179126_j();
         GlStateManager.func_179121_F();

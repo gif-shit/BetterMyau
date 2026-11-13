@@ -11,10 +11,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={ForgeHooksClient.class}, remap=false)
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { ForgeHooksClient.class }, remap = false)
 public abstract class MixinForgeHooksClient {
-    @Inject(method={"dispatchRenderLast"}, at={@At(value="RETURN")}, remap=false)
+
+    @Inject(method = { "dispatchRenderLast" }, at = { @At(value = "RETURN") }, remap = false)
     private static void afterRenderWorld(RenderGlobal renderGlobal, float partialTicks, CallbackInfo callbackInfo) {
         if (MyauClient.eventBus != null) {
             MyauClient.eventBus.post(new RenderWorldEvent(partialTicks));

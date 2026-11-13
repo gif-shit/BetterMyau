@@ -2,18 +2,18 @@ package myau;
 
 import java.util.ArrayList;
 import java.util.Vector;
-import myau.KeyScheduleChain;
-import myau.KeyTransform;
 
-public class KeySchedule
-implements KeyTransform {
+public class KeySchedule implements KeyTransform {
+
     private long a;
     private int[] b;
     private KeyTransform c;
     private long d;
     private long[] j;
     private static long[] k = new long[64];
+
     static int[] e;
+
     private static ArrayList f;
     private static Vector m;
     private static int i;
@@ -28,8 +28,8 @@ implements KeyTransform {
 
     public static KeyTransform a(long var0, long var2, Object var4) {
         KeyScheduleChain.a(var0 > 0L);
-        KeyTransform var5 = KeySchedule.d(var0);
-        KeyTransform var6 = KeySchedule.d(var2);
+        KeyTransform var5 = d(var0);
+        KeyTransform var6 = d(var2);
         KeyTransform var7 = KeyScheduleChain.a(var5, var6);
         if (var4 != null) {
             m.add(var4);
@@ -38,12 +38,12 @@ implements KeyTransform {
     }
 
     static KeyTransform c(long var0) {
-        int var2 = (int)KeySchedule.a(var0, h, 63, e, k);
+        int var2 = (int) a(var0, h, 63, e, k);
         if (var2 < i) {
-            return (KeyTransform)f.get(var2);
+            return (KeyTransform) f.get(var2);
         }
         if (f.size() % l == 0) {
-            e = (int[])e.clone();
+            e = (int[]) e.clone();
         }
         KeySchedule var3 = new KeySchedule(var0);
         f.add(var3);
@@ -56,12 +56,12 @@ implements KeyTransform {
 
     static void a(KeyScheduleChain var0) {
         i = f.size();
-        KeySchedule.c();
+        c();
         var0.d();
     }
 
     static void b(KeyScheduleChain var0) {
-        KeySchedule.c();
+        c();
         e = new int[64];
         int[] var10000 = e;
         var10000[0] = -25;
@@ -165,14 +165,14 @@ implements KeyTransform {
     }
 
     public int hashCode() {
-        return (int)this.a(8);
+        return (int) this.a(8);
     }
 
     public boolean equals(Object var1) {
         if (this == var1) {
             return true;
         }
-        return var1 instanceof KeySchedule ? this.a(56) == ((KeySchedule)var1).a(56) : false;
+        return var1 instanceof KeySchedule ? this.a(56) == ((KeySchedule) var1).a(56) : false;
     }
 
     @Override
@@ -180,7 +180,7 @@ implements KeyTransform {
         if (this == var1) {
             return true;
         }
-        return var1 instanceof KeySchedule ? this.a(56, 63) - ((KeySchedule)var1).a(56, 63) <= 0L : true;
+        return var1 instanceof KeySchedule ? this.a(56, 63) - ((KeySchedule) var1).a(56, 63) <= 0L : true;
     }
 
     @Override
@@ -193,7 +193,7 @@ implements KeyTransform {
     }
 
     private long a(int var1, int var2) {
-        return KeySchedule.a(this.a, var1, var2, this.b, this.j);
+        return a(this.a, var1, var2, this.b, this.j);
     }
 
     private static long a(long var0, int var2, int var3, int[] var4, long[] var5) {
@@ -203,11 +203,12 @@ implements KeyTransform {
         for (int var9 = 0; var9 < var8; ++var9) {
             long var10 = var0 & k[var9];
             long var12 = var4[var9];
-            if (var10 == 0L) continue;
+            if (var10 == 0L)
+                continue;
             if (var12 > 0L) {
-                var10 >>>= (int)var12;
+                var10 >>>= (int) var12;
             } else if (var12 < 0L) {
-                var10 <<= (int)((var12 ^ 0xFFFFFFFFFFFFFFFFL) + 1L);
+                var10 <<= (int) ((var12 ^ 0xFFFFFFFFFFFFFFFFL) + 1L);
             }
             var6 |= var10;
         }
@@ -215,27 +216,27 @@ implements KeyTransform {
         long var14 = var6;
         long var11 = var13 - 1 - var3;
         if (var11 > 0L) {
-            var14 <<= (int)var11;
+            var14 <<= (int) var11;
         }
-        if ((var15 = (long)(var2 + var13 - 1 - var3)) > 0L) {
-            var14 >>>= (int)var15;
+        if ((var15 = (long) (var2 + var13 - 1 - var3)) > 0L) {
+            var14 >>>= (int) var15;
         }
         return var14;
     }
 
     private static void c() {
         int var0 = 0;
-        KeySchedule.a(0, f.size() - 1, f, new ArrayList(f), var0);
+        a(0, f.size() - 1, f, new ArrayList(f), var0);
     }
 
     private static void a(int var0, int var1, ArrayList var2, ArrayList var3, int var4) {
         if (var0 < var1) {
             int var5 = var0 + (var1 - var0) / 2;
             if (++var4 < n) {
-                KeySchedule.a(var0, var5, var2, var3, var4);
-                KeySchedule.a(var5 + 1, var1, var2, var3, var4);
+                a(var0, var5, var2, var3, var4);
+                a(var5 + 1, var1, var2, var3, var4);
             }
-            KeySchedule.a(var0, var5, var1, var2, var3);
+            a(var0, var5, var1, var2, var3);
         }
     }
 
@@ -246,7 +247,7 @@ implements KeyTransform {
             var4.set(var7, var3.get(var7));
         }
         while (var5 <= var1 && var6 <= var2) {
-            KeyTransform var8 = ((KeyTransform)var4.get(var5)).b((KeyTransform)var4.get(var6)) ? (KeyTransform)var4.get(var5++) : (KeyTransform)var4.get(var6++);
+            KeyTransform var8 = ((KeyTransform) var4.get(var5)).b((KeyTransform) var4.get(var6)) ? (KeyTransform) var4.get(var5++) : (KeyTransform) var4.get(var6++);
             var3.set(var0, var8);
             ++var0;
         }
@@ -258,7 +259,7 @@ implements KeyTransform {
     }
 
     private static void a0() {
-        e = new int[]{-18, -53, -12, -20, -6, -40, -9, -21, -54, -12, 6, -37, -20, -39, 12, 9, -39, -24, 18, -32, -43, 12, -17, 20, -11, -31, -27, -10, 21, -11, -6, -28, 20, -10, -15, 11, 6, 10, -12, 17, 11, 24, -15, 10, -2, 40, 2, -14, 37, 15, 12, 32, 39, 27, 53, 39, 31, 15, -2, 28, 2, 14, 54, 43};
+        e = new int[] { -18, -53, -12, -20, -6, -40, -9, -21, -54, -12, 6, -37, -20, -39, 12, 9, -39, -24, 18, -32, -43, 12, -17, 20, -11, -31, -27, -10, 21, -11, -6, -28, 20, -10, -15, 11, 6, 10, -12, 17, 11, 24, -15, 10, -2, 40, 2, -14, 37, 15, 12, 32, 39, 27, 53, 39, 31, 15, -2, 28, 2, 14, 54, 43 };
         f.add(new KeySchedule(-3999374383051014309L));
         f.add(new KeySchedule(2635815572757692884L));
         f.add(new KeySchedule(-4201638327099795734L));
@@ -413,7 +414,7 @@ implements KeyTransform {
         f.add(new KeySchedule(6605627917133191106L));
         f.add(new KeySchedule(2369631954637843274L));
         f.add(new KeySchedule(-8426303952641529937L));
-        e = (int[])e.clone();
+        e = (int[]) e.clone();
         f.add(new KeySchedule(3673231069305525798L));
         f.add(new KeySchedule(2547734160528529856L));
         f.add(new KeySchedule(2732062510333214310L));
@@ -595,7 +596,7 @@ implements KeyTransform {
         f.add(new KeySchedule(-7610952973349638764L));
         f.add(new KeySchedule(9119522203976746211L));
         f.add(new KeySchedule(-6970467112538019001L));
-        e = (int[])e.clone();
+        e = (int[]) e.clone();
         f.add(new KeySchedule(-7533286181874820396L));
         f.add(new KeySchedule(-2719120026161751838L));
         f.add(new KeySchedule(3331822160685974436L));
@@ -693,7 +694,7 @@ implements KeyTransform {
         f.add(new KeySchedule(-323140486319127592L));
         f.add(new KeySchedule(5025333814821303319L));
         f.add(new KeySchedule(7752778006295485707L));
-        e = (int[])e.clone();
+        e = (int[]) e.clone();
         f.add(new KeySchedule(-4237624001746533235L));
         f.add(new KeySchedule(-4866691186427520773L));
         f.add(new KeySchedule(-7044267516247661557L));
@@ -836,7 +837,7 @@ implements KeyTransform {
         f.add(new KeySchedule(1822705716347574076L));
         f.add(new KeySchedule(4464849080824141358L));
         f.add(new KeySchedule(6793892191870930550L));
-        e = (int[])e.clone();
+        e = (int[]) e.clone();
         f.add(new KeySchedule(5009140985497285268L));
         f.add(new KeySchedule(-622297815301607491L));
         f.add(new KeySchedule(4915818885145960206L));
@@ -1012,7 +1013,7 @@ implements KeyTransform {
         f.add(new KeySchedule(-9040886269172364989L));
         f.add(new KeySchedule(-3680257025566430066L));
         f.add(new KeySchedule(2580595163347582250L));
-        e = (int[])e.clone();
+        e = (int[]) e.clone();
         f.add(new KeySchedule(-3695517019792454466L));
         f.add(new KeySchedule(-788793722418626288L));
         f.add(new KeySchedule(-399722199760349134L));
@@ -1106,7 +1107,7 @@ implements KeyTransform {
         f.add(new KeySchedule(5851644356016085187L));
         f.add(new KeySchedule(753352646775017378L));
         f.add(new KeySchedule(-1732851547910546586L));
-        e = (int[])e.clone();
+        e = (int[]) e.clone();
         f.add(new KeySchedule(1516209456380807042L));
         f.add(new KeySchedule(-5402647823627054294L));
         f.add(new KeySchedule(7084730030454241937L));
@@ -1250,7 +1251,7 @@ implements KeyTransform {
         f.add(new KeySchedule(-4733159239205247354L));
         f.add(new KeySchedule(1091160385817543081L));
         f.add(new KeySchedule(8856455560449025506L));
-        e = (int[])e.clone();
+        e = (int[]) e.clone();
         f.add(new KeySchedule(4267265379943229532L));
         f.add(new KeySchedule(-7352503904967666200L));
         f.add(new KeySchedule(-552096438165140553L));
@@ -1290,7 +1291,7 @@ implements KeyTransform {
         f.add(new KeySchedule(6116692205234476521L));
         f.add(new KeySchedule(-856430939527809314L));
         f.add(new KeySchedule(-2951660448253680260L));
-        e = new int[]{-52, -49, -4, -43, -23, -10, 4, -21, -41, -16, -4, -18, -28, -44, 4, 10, -40, -16, -21, -26, -24, -34, -2, -19, 2, 16, -9, 23, 21, 18, -30, -17, -2, 16, 2, 9, -18, -4, -15, 21, 28, 4, 19, -18, 24, 26, 43, -4, 17, 41, 49, 4, 52, 15, 18, 34, 40, 44, -5, -3, 30, 18, 3, 5};
+        e = new int[] { -52, -49, -4, -43, -23, -10, 4, -21, -41, -16, -4, -18, -28, -44, 4, 10, -40, -16, -21, -26, -24, -34, -2, -19, 2, 16, -9, 23, 21, 18, -30, -17, -2, 16, 2, 9, -18, -4, -15, 21, 28, 4, 19, -18, 24, 26, 43, -4, 17, 41, 49, 4, 52, 15, 18, 34, 40, 44, -5, -3, 30, 18, 3, 5 };
     }
 
     static {
@@ -1299,14 +1300,14 @@ implements KeyTransform {
         n = 17;
         long var0 = 1L;
         for (int var2 = 0; var2 < 64; ++var2) {
-            KeySchedule.k[var2] = var0;
+            k[var2] = var0;
             var0 <<= 1;
         }
         o = new Object();
         m = new Vector();
         f = new ArrayList();
-        KeySchedule.a0();
+        a0();
         i = f.size();
-        KeySchedule.c();
+        c();
     }
 }

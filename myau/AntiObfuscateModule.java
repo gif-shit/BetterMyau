@@ -1,9 +1,7 @@
 package myau;
 
-import myau.Module;
+public class AntiObfuscateModule extends Module {
 
-public class AntiObfuscateModule
-extends Module {
     public AntiObfuscateModule() {
         super("AntiObfuscate", false, 0, true);
     }

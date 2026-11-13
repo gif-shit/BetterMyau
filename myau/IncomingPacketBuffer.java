@@ -3,15 +3,8 @@ package myau;
 import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import myau.EventHandler;
-import myau.IncomingBufferOwner;
-import myau.MyauClient;
-import myau.PacketReceiveEvent;
-import myau.PacketSendEvent;
-import myau.PostTickEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.DataWatcher;
-import net.minecraft.network.INetHandler;
 import net.minecraft.network.Packet;
 import net.minecraft.network.ThreadQuickExitException;
 import net.minecraft.network.handshake.client.C00Handshake;
@@ -28,6 +21,7 @@ import net.minecraft.network.status.client.C00PacketServerQuery;
 import net.minecraft.network.status.client.C01PacketPing;
 
 public class IncomingPacketBuffer {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
     private static final int HEALTH_METADATA_ID = 6;
     private IncomingBufferOwner bufferOwner = IncomingBufferOwner.NONE;
@@ -35,7 +29,7 @@ public class IncomingPacketBuffer {
     public final Deque<Packet<INetHandlerPlayClient>> queuedPackets = new ConcurrentLinkedDeque<Packet<INetHandlerPlayClient>>();
 
     public boolean buffer(Packet<INetHandlerPlayClient> packet) {
-        List metadata;
+        List<DataWatcher.WatchableObject> metadata;
         byte opcode;
         if (this.bufferOwner == IncomingBufferOwner.NONE) {
             return false;
@@ -47,12 +41,15 @@ public class IncomingPacketBuffer {
         if (packet instanceof S00PacketKeepAlive || packet instanceof S06PacketUpdateHealth) {
             return false;
         }
-        if (packet instanceof S19PacketEntityStatus && ((opcode = ((S19PacketEntityStatus)packet).func_149160_c()) == 2 || opcode == 3)) {
+        if (packet instanceof S19PacketEntityStatus
+                && ((opcode = ((S19PacketEntityStatus) packet).func_149160_c()) == 2
+                || opcode == 3)) {
             return false;
         }
-        if (packet instanceof S1CPacketEntityMetadata && (metadata = ((S1CPacketEntityMetadata)packet).func_149376_c()) != null) {
+        if (packet instanceof S1CPacketEntityMetadata && (metadata = ((S1CPacketEntityMetadata) packet).func_149376_c()) != null) {
             for (DataWatcher.WatchableObject entry : metadata) {
-                if (entry.func_75672_a() != 6) continue;
+                if (entry.func_75672_a() != 6)
+                    continue;
                 return false;
             }
         }
@@ -78,11 +75,12 @@ public class IncomingPacketBuffer {
             Packet<INetHandlerPlayClient> packet = this.queuedPackets.poll();
             PacketReceiveEvent event = new PacketReceiveEvent(packet);
             MyauClient.eventBus.post(event);
-            if (event.isCancelled()) continue;
+            if (event.isCancelled())
+                continue;
             try {
-                packet.func_148833_a((INetHandler)minecraft.func_147114_u());
+                packet.func_148833_a(minecraft.func_147114_u());
+            } catch (ThreadQuickExitException threadQuickExitException) {
             }
-            catch (ThreadQuickExitException threadQuickExitException) {}
         }
         return true;
     }
@@ -101,14 +99,18 @@ public class IncomingPacketBuffer {
 
     @EventHandler
     public void onPacketSend(PacketSendEvent event) {
-        if (event.getPacket() instanceof C00Handshake || event.getPacket() instanceof C00PacketLoginStart || event.getPacket() instanceof C00PacketServerQuery || event.getPacket() instanceof C01PacketPing || event.getPacket() instanceof C01PacketEncryptionResponse) {
+        if (event.getPacket() instanceof C00Handshake
+                || event.getPacket() instanceof C00PacketLoginStart
+                || event.getPacket() instanceof C00PacketServerQuery
+                || event.getPacket() instanceof C01PacketPing
+                || event.getPacket() instanceof C01PacketEncryptionResponse) {
             this.setEnabled(false, this.bufferOwner);
         }
     }
 
     @EventHandler
     public void onPostTick(PostTickEvent event) {
-        if (IncomingPacketBuffer.minecraft.field_71439_g.field_70128_L) {
+        if (minecraft.field_71439_g.field_70128_L) {
             this.setEnabled(false, this.bufferOwner);
         }
         if (this.bufferOwner != IncomingBufferOwner.NONE) {

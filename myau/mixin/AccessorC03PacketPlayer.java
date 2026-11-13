@@ -6,12 +6,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={C03PacketPlayer.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { C03PacketPlayer.class })
 public interface AccessorC03PacketPlayer {
-    @Accessor(value="onGround")
+
+    @Accessor(value = "onGround")
     public void setOnGround(boolean var1);
 
-    @Accessor(value="y")
+    @Accessor(value = "y")
     public void setY(double y);
 }

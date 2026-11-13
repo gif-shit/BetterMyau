@@ -1,15 +1,10 @@
 package myau;
 
 import java.util.LinkedHashMap;
-import myau.ChatUtils;
-import myau.HUDModule;
-import myau.InputUtils;
-import myau.Module;
-import myau.MutableValue;
-import myau.SoundUtils;
 import net.minecraft.client.Minecraft;
 
 public class ModuleManager {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
     private boolean toggleSoundPending;
     public final LinkedHashMap<Class<?>, Module> modules = new LinkedHashMap();
@@ -25,11 +20,11 @@ public class ModuleManager {
     }
 
     public void update() {
-        if (ModuleManager.minecraft.field_71441_e == null || ModuleManager.minecraft.field_71439_g == null || ModuleManager.minecraft.field_71462_r != null) {
+        if (minecraft.field_71441_e == null || minecraft.field_71439_g == null || minecraft.field_71462_r != null) {
             this.resetKeyStates();
             return;
         }
-        HUDModule hud = (HUDModule)this.modules.get(HUDModule.class);
+        HUDModule hud = (HUDModule) this.modules.get(HUDModule.class);
         for (Module module : this.modules.values()) {
             int keyCode = module.getKeyCode();
             if (keyCode == 0) {
@@ -38,11 +33,11 @@ public class ModuleManager {
             }
             boolean keyDown = InputUtils.isKeyDown(keyCode);
             MutableValue<Boolean> previousKeyState = module.getPreviousKeyState();
-            if (previousKeyState != null && !((Boolean)previousKeyState.value).booleanValue() && keyDown && this.toggle(module)) {
-                if (hud != null && ((Boolean)hud.toggleAlerts.getValue()).booleanValue()) {
+            if (previousKeyState != null && !((Boolean) previousKeyState.value).booleanValue() && keyDown && this.toggle(module)) {
+                if (hud != null && hud.toggleAlerts.getValue()) {
                     ChatUtils.addFormattedMessage(String.format("%s%s: %s&r", "&7[&bMyau&7] &r", module.getName(), module.isEnabled() ? "&a&lON" : "&c&lOFF"));
                 }
-                if (hud != null && ((Boolean)hud.toggleSounds.getValue()).booleanValue()) {
+                if (hud != null && hud.toggleSounds.getValue()) {
                     this.toggleSoundPending = true;
                 }
             }

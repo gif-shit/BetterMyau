@@ -1,9 +1,7 @@
 package myau;
 
-import myau.Event;
+public class KeyPressEvent extends Event {
 
-public class KeyPressEvent
-extends Event {
     private final int keyCode;
 
     public KeyPressEvent(int keyCode) {

@@ -2,14 +2,11 @@ package myau;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import myau.ChatColor;
-import myau.ChatUtils;
-import myau.Command;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
 
-public class PlayerListCommand
-extends Command {
+public class PlayerListCommand extends Command {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
 
     public PlayerListCommand() {
@@ -26,6 +23,6 @@ extends Command {
             ChatUtils.addFormattedMessage(String.format("%sNo players&r", "&7[&bMyau&7] &r"));
             return;
         }
-        ChatUtils.addRawMessage(String.format(ChatColor.formatText("%sPlayers:&r %s"), ChatColor.formatText("&7[&bMyau&7] &r"), String.join((CharSequence)", ", players)));
+        ChatUtils.addRawMessage(String.format(ChatColor.formatText("%sPlayers:&r %s"), ChatColor.formatText("&7[&bMyau&7] &r"), String.join((CharSequence) ", ", players)));
     }
 }

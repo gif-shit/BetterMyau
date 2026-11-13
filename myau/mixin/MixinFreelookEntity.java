@@ -10,12 +10,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={Entity.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { Entity.class })
 public abstract class MixinFreelookEntity {
-    @Inject(method={"func_70082_c"}, at={@At(value="HEAD", remap=false)}, cancellable=true, remap=false)
+
+    @Inject(method = { "func_70082_c" }, at = { @At(value = "HEAD", remap = false) }, cancellable = true, remap = false)
     private void freelookSetAngles(float f, float f2, CallbackInfo callbackInfo) {
-        if (this instanceof EntityPlayerSP && FreelookModule.handleAngles(f, f2)) {
+        if ((Object) this instanceof EntityPlayerSP && FreelookModule.handleAngles(f, f2)) {
             callbackInfo.cancel();
         }
     }

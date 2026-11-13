@@ -2,10 +2,9 @@ package myau;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import myau.Module;
-import myau.Setting;
 
 public class SettingManager {
+
     public final LinkedHashMap<Class<?>, ArrayList<Setting<?>>> settingsByModule = new LinkedHashMap();
 
     public Setting<?> findSetting(Module module, String name) {

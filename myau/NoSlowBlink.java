@@ -10,11 +10,13 @@ import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.network.Packet;
 import net.minecraft.util.MovingObjectPosition;
 
-/** BetterIvory's Semi use-key cycle, exposed as Blink. */
+/**
+ * BetterIvory's Semi use-key cycle, exposed as Blink.
+ */
 public final class NoSlowBlink {
+
     private static final Minecraft mc = Minecraft.func_71410_x();
     private static final int MAX_QUEUED_PACKETS = 128;
-
     private final NoSlowModule owner;
     private final Deque<Packet<?>> packets = new ArrayDeque<>();
     private Object world;
@@ -36,16 +38,17 @@ public final class NoSlowBlink {
     }
 
     public static NoSlowBlink current() {
-        if (MyauClient.moduleManager == null) return null;
+        if (MyauClient.moduleManager == null)
+            return null;
         NoSlowModule module = (NoSlowModule) MyauClient.moduleManager.modules.get(NoSlowModule.class);
         return module == null ? null : module.blink;
     }
 
     public static boolean shouldRenderSwordBlock(AbstractClientPlayer player) {
-        if (player != mc.field_71439_g) return false;
+        if (player != mc.field_71439_g)
+            return false;
         NoSlowBlink blink = current();
-        return blink != null && blink.qualified && blink.owner.isSwordBlinkSelected()
-                && blink.sameSession();
+        return blink != null && blink.qualified && blink.owner.isSwordBlinkSelected() && blink.sameSession();
     }
 
     private Object connection() {
@@ -57,19 +60,24 @@ public final class NoSlowBlink {
     }
 
     private boolean canUse() {
-        if (((AccessorPlayerControllerMP) mc.field_71442_b).getIsHittingBlock()) return false;
-        if (mc.field_71439_g.func_71039_bw()) return true;
+        if (((AccessorPlayerControllerMP) mc.field_71442_b).getIsHittingBlock())
+            return false;
+        if (mc.field_71439_g.func_71039_bw())
+            return true;
         MovingObjectPosition hit = mc.field_71476_x;
-        if (hit == null) return true;
+        if (hit == null)
+            return true;
         if (hit.field_72313_a == MovingObjectPosition.MovingObjectType.ENTITY) {
             return hit.field_72308_g == null || hit.field_72308_g.getClass() != EntityVillager.class;
         }
         return hit.field_72313_a != MovingObjectPosition.MovingObjectType.BLOCK
-                || PlayerUtils.isSneakKeyDown() || !BlockUtils.isInteractableAt(hit.func_178782_a());
+                || PlayerUtils.isSneakKeyDown()
+                || !BlockUtils.isInteractableAt(hit.func_178782_a());
     }
 
     public void beforeSync() {
-        if (world == null) return;
+        if (world == null)
+            return;
         if (!sameSession() || !owner.isBlinkSelected()) {
             reset(true);
         } else if (qualified) {
@@ -80,13 +88,14 @@ public final class NoSlowBlink {
     }
 
     public void beginInput() {
-        if (inputScope) endInput();
-        if (!owner.isBlinkSelected() || mc.field_71439_g == null || mc.field_71441_e == null
-                || mc.field_71442_b == null) {
+        if (inputScope)
+            endInput();
+        if (!owner.isBlinkSelected() || mc.field_71439_g == null || mc.field_71441_e == null || mc.field_71442_b == null) {
             reset(true);
             return;
         }
-        if (!sameSession()) reset(false);
+        if (!sameSession())
+            reset(false);
         world = mc.field_71441_e;
         connection = connection();
         inputScope = true;
@@ -100,13 +109,20 @@ public final class NoSlowBlink {
             }
         }
         NoFallModule noFall = (NoFallModule) MyauClient.moduleManager.modules.get(NoFallModule.class);
-        if (mc.field_71462_r != null || !mc.field_71415_G || mc.field_71439_g.field_70128_L
-                || mc.field_71439_g.func_70115_ae() || otherBufferOwner() || (!physicalUse && !automaticUse)
-                || (noFall != null && noFall.isEnabled() && noFall.isPacketModeActive()) || !canUse()) {
+        if (mc.field_71462_r != null
+                || !mc.field_71415_G
+                || mc.field_71439_g.field_70128_L
+                || mc.field_71439_g.func_70115_ae()
+                || otherBufferOwner()
+                || (!physicalUse
+                && !automaticUse)
+                || (noFall != null
+                && noFall.isEnabled()
+                && noFall.isPacketModeActive())
+                || !canUse()) {
             resetCycle();
             return;
         }
-
         qualified = true;
         if (++useTick == 1) {
             forceHeld = true;
@@ -119,41 +135,50 @@ public final class NoSlowBlink {
         } else {
             buffering = true;
             suppressUse = true;
-            if (useTick > owner.blinkTicks.getValue()) useTick = 0;
+            if (useTick > owner.blinkTicks.getValue())
+                useTick = 0;
         }
     }
 
     public boolean held(KeyBinding key) {
-        if (!inputScope || key != mc.field_71474_y.field_74313_G) return key.func_151470_d();
+        if (!inputScope || key != mc.field_71474_y.field_74313_G)
+            return key.func_151470_d();
         return !suppressUse && (forceHeld || physicalUse);
     }
 
     public boolean pressed(KeyBinding key) {
         boolean actual = key.func_151468_f();
-        if (!inputScope || key != mc.field_71474_y.field_74313_G) return actual;
-        if (suppressUse) return false;
-        if (!forcePress) return actual;
+        if (!inputScope || key != mc.field_71474_y.field_74313_G)
+            return actual;
+        if (suppressUse)
+            return false;
+        if (!forcePress)
+            return actual;
         forcePress = false;
         return true;
     }
 
     public void endInput() {
-        if (!inputScope) return;
+        if (!inputScope)
+            return;
         useRead = !suppressUse && (forceHeld || physicalUse);
         forceHeld = forcePress = suppressUse = false;
         inputScope = false;
     }
 
     void postMotion() {
-        if (!rearmAfterMotion) return;
+        if (!rearmAfterMotion)
+            return;
         flush();
         buffering = true;
         rearmAfterMotion = false;
     }
 
     void packet(PacketSendEvent event) {
-        if (!buffering || event.isCancelled() || !event.getPacket().getClass().getName()
-                .startsWith("net.minecraft.network.play.client.")) return;
+        if (!buffering
+                || event.isCancelled()
+                || !event.getPacket().getClass().getName().startsWith("net.minecraft.network.play.client."))
+            return;
         if (!sameSession()) {
             reset(false);
             return;
@@ -167,24 +192,27 @@ public final class NoSlowBlink {
             return;
         }
         event.setCancelled(true);
-        if (packets.isEmpty()) bufferedAt = System.nanoTime();
+        if (packets.isEmpty())
+            bufferedAt = System.nanoTime();
         packets.addLast(event.getPacket());
-        if (packets.size() >= MAX_QUEUED_PACKETS) flush();
+        if (packets.size() >= MAX_QUEUED_PACKETS)
+            flush();
     }
 
     void watchdog() {
-        if (world == null) return;
+        if (world == null)
+            return;
         if (!sameSession() || !owner.isBlinkSelected()) {
             reset(true);
-        } else if (!packets.isEmpty()
-                && System.nanoTime() - bufferedAt >= 150_000_000L + owner.blinkTicks.getValue() * 50_000_000L) {
+        } else if (!packets.isEmpty() && System.nanoTime() - bufferedAt >= 150_000_000L + owner.blinkTicks.getValue() * 50_000_000L) {
             flush();
         }
     }
 
     private boolean otherBufferOwner() {
         OutgoingBufferOwner buffer = MyauClient.outgoingPacketBuffer.owner();
-        return (buffer != OutgoingBufferOwner.NONE && buffer != OutgoingBufferOwner.AUTO_BLOCK)
+        return (buffer != OutgoingBufferOwner.NONE
+                && buffer != OutgoingBufferOwner.AUTO_BLOCK)
                 || !MyauClient.packetDelayManager.queuedPackets.isEmpty();
     }
 
@@ -208,7 +236,8 @@ public final class NoSlowBlink {
     }
 
     void reset(boolean sendPending) {
-        if (!sendPending) packets.clear();
+        if (!sendPending)
+            packets.clear();
         resetCycle();
         world = connection = null;
         inputScope = useRead = physicalUse = forceHeld = forcePress = suppressUse = false;

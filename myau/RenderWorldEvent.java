@@ -1,9 +1,7 @@
 package myau;
 
-import myau.Event;
+public class RenderWorldEvent extends Event {
 
-public class RenderWorldEvent
-extends Event {
     private final float partialTicks;
 
     public RenderWorldEvent(float partialTicks) {

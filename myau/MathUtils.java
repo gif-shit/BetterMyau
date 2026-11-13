@@ -1,6 +1,7 @@
 package myau;
 
 public final class MathUtils {
+
     private MathUtils() {
     }
 
@@ -13,6 +14,6 @@ public final class MathUtils {
     }
 
     public static float toRadians(float degrees) {
-        return degrees / 180.0f * (float)Math.PI;
+        return degrees / 180.0f * (float) Math.PI;
     }
 }

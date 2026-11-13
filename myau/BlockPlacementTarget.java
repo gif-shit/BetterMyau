@@ -4,6 +4,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 
 class BlockPlacementTarget {
+
     private final BlockPos position;
     private final EnumFacing face;
 

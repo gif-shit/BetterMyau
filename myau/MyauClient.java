@@ -2,101 +2,9 @@ package myau;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import myau.AimAssistModule;
-import myau.AntiDebuffModule;
-import myau.AntiFireballModule;
-import myau.AntiObbyTrapModule;
-import myau.AntiObfuscateModule;
-import myau.AntiVoidModule;
-import myau.AutoClickerModule;
-import myau.AutoHealModule;
-import myau.AutoToolModule;
-import myau.BacktrackModule;
-import myau.BedESPModule;
-import myau.BedNukerModule;
-import myau.BedTrackerModule;
-import myau.BindCommand;
-import myau.BlinkModule;
-import myau.ChamsModule;
-import myau.ChestESPModule;
-import myau.ChestStealerModule;
-import myau.ClickGuiModule;
-import myau.CommandManager;
-import myau.ConfigCommand;
-import myau.DenickCommand;
-import myau.DisplaceModule;
-import myau.ESPModule;
-import myau.EagleModule;
-import myau.EnemyCommand;
-import myau.EnemyList;
-import myau.EventBus;
-import myau.FastPlaceModule;
-import myau.FlyModule;
-import myau.FreelookModule;
-import myau.FriendCommand;
-import myau.FriendList;
-import myau.FullbrightModule;
-import myau.GhostHandModule;
-import myau.GroundSpoofManager;
-import myau.HUDModule;
-import myau.HelpCommand;
-import myau.HideCommand;
-import myau.HitSelectModule;
-import myau.HurtTimeTracker;
-import myau.IncomingPacketBuffer;
-import myau.IndicatorsModule;
-import myau.InvManagerModule;
-import myau.InvWalkModule;
-import myau.ItemESPModule;
-import myau.ItemNameCommand;
-import myau.JesusModule;
-import myau.KeepSprintModule;
-import myau.KillAuraModule;
-import myau.LagRangeModule;
-import myau.LightningTrackerModule;
-import myau.LongJumpModule;
-import myau.MCFModule;
-import myau.Module;
-import myau.ModuleListCommand;
-import myau.ModuleManager;
-import myau.ModuleSettingsCommand;
-import myau.NameTagsModule;
-import myau.NickHiderModule;
-import myau.NoFallModule;
-import myau.NoHitDelayModule;
-import myau.NoHurtCamModule;
-import myau.NoJumpDelayModule;
-import myau.NoRotateModule;
-import myau.NoSlowModule;
-import myau.OutgoingPacketBuffer;
-import myau.PacketActionTracker;
-import myau.PacketDelayManager;
-import myau.PlayerListCommand;
-import myau.ReachModule;
-import myau.RotationSmoother;
-import myau.SafeWalkModule;
-import myau.ScaffoldModule;
-import myau.Setting;
-import myau.SettingManager;
-import myau.ShowCommand;
-import myau.SpammerModule;
-import myau.SpeedMineModule;
-import myau.SpeedModule;
-import myau.SprintModule;
-import myau.TargetHUDModule;
-import myau.TargetStrafeModule;
-import myau.TimerModule;
-import myau.ToggleCommand;
-import myau.TracersModule;
-import myau.TrajectoriesModule;
-import myau.UsernameCommand;
-import myau.VClipCommand;
-import myau.VelocityModule;
-import myau.ViewClipModule;
-import myau.WTapModule;
-import myau.XrayModule;
 
 public final class MyauClient {
+
     public static final String CHAT_PREFIX = "&7[&bMyau&7] &r";
     public static EventBus eventBus;
     public static RotationSmoother rotationSmoother;
@@ -133,9 +41,9 @@ public final class MyauClient {
         settingManager = new SettingManager();
         moduleManager = new ModuleManager();
         commandManager = new CommandManager();
-        MyauClient.registerInfrastructureListeners();
-        MyauClient.registerModules();
-        MyauClient.registerCommands();
+        registerInfrastructureListeners();
+        registerModules();
+        registerCommands();
         friendList.load();
         enemyList.load();
         initialized = true;
@@ -152,114 +60,113 @@ public final class MyauClient {
     }
 
     private static void registerModules() {
-        MyauClient.registerModule(new AimAssistModule());
-        MyauClient.registerModule(new AntiDebuffModule());
-        MyauClient.registerModule(new AntiFireballModule());
-        MyauClient.registerModule(new AntiObbyTrapModule());
-        MyauClient.registerModule(new AntiObfuscateModule());
-        MyauClient.registerModule(new AntiVoidModule());
-        MyauClient.registerModule(new AutoClickerModule());
-        MyauClient.registerModule(new AutoHealModule());
-        MyauClient.registerModule(new AutoToolModule());
-        MyauClient.registerModule(new BedESPModule());
-        MyauClient.registerModule(new BedNukerModule());
-        MyauClient.registerModule(new BacktrackModule());
-        MyauClient.registerModule(new BedTrackerModule());
-        MyauClient.registerModule(new BlinkModule());
-        MyauClient.registerModule(new ChamsModule());
-        MyauClient.registerModule(new ClickGuiModule());
-        MyauClient.registerModule(new ChestESPModule());
-        MyauClient.registerModule(new ChestStealerModule());
-        MyauClient.registerModule(new DisplaceModule());
-        MyauClient.registerModule(new EagleModule());
-        MyauClient.registerModule(new ESPModule());
-        MyauClient.registerModule(new FastPlaceModule());
-        MyauClient.registerModule(new FlyModule());
-        MyauClient.registerModule(new FreelookModule());
-        MyauClient.registerModule(new FullbrightModule());
-        MyauClient.registerModule(new GhostHandModule());
-        MyauClient.registerModule(new HitSelectModule());
-        MyauClient.registerModule(new HUDModule());
-        MyauClient.registerModule(new IndicatorsModule());
-        MyauClient.registerModule(new InvManagerModule());
-        MyauClient.registerModule(new InvWalkModule());
-        MyauClient.registerModule(new ItemESPModule());
-        MyauClient.registerModule(new JesusModule());
-        MyauClient.registerModule(new KeepSprintModule());
-        MyauClient.registerModule(new KillAuraModule());
-        MyauClient.registerModule(new LagRangeModule());
-        MyauClient.registerModule(new LightningTrackerModule());
-        MyauClient.registerModule(new LongJumpModule());
-        MyauClient.registerModule(new MCFModule());
-        MyauClient.registerModule(new NameTagsModule());
-        MyauClient.registerModule(new NickHiderModule());
-        MyauClient.registerModule(new NoFallModule());
-        MyauClient.registerModule(new NoHitDelayModule());
-        MyauClient.registerModule(new NoHurtCamModule());
-        MyauClient.registerModule(new NoJumpDelayModule());
-        MyauClient.registerModule(new NoRotateModule());
-        MyauClient.registerModule(new NoSlowModule());
-        MyauClient.registerModule(new PantSwapModule());
-        MyauClient.registerModule(new PitModule());
-        MyauClient.registerModule(new ReachModule());
-        MyauClient.registerModule(new SafeWalkModule());
-        MyauClient.registerModule(new ScaffoldModule());
-        MyauClient.registerModule(new SpammerModule());
-        MyauClient.registerModule(new SpeedModule());
-        MyauClient.registerModule(new SpeedMineModule());
-        MyauClient.registerModule(new SprintModule());
-        MyauClient.registerModule(new SwordSwapModule());
-        MyauClient.registerModule(new TargetHUDModule());
-        MyauClient.registerModule(new TargetStrafeModule());
-        MyauClient.registerModule(new TimerModule());
-        MyauClient.registerModule(new TracersModule());
-        MyauClient.registerModule(new TrajectoriesModule());
-        MyauClient.registerModule(new VelocityModule());
-        MyauClient.registerModule(new ViewClipModule());
-        MyauClient.registerModule(new WTapModule());
-        MyauClient.registerModule(new XrayModule());
+        registerModule(new AimAssistModule());
+        registerModule(new AntiDebuffModule());
+        registerModule(new AntiFireballModule());
+        registerModule(new AntiObbyTrapModule());
+        registerModule(new AntiObfuscateModule());
+        registerModule(new AntiVoidModule());
+        registerModule(new AutoClickerModule());
+        registerModule(new AutoHealModule());
+        registerModule(new AutoToolModule());
+        registerModule(new BedESPModule());
+        registerModule(new BedNukerModule());
+        registerModule(new BacktrackModule());
+        registerModule(new BedTrackerModule());
+        registerModule(new BlinkModule());
+        registerModule(new ChamsModule());
+        registerModule(new ClickGuiModule());
+        registerModule(new ChestESPModule());
+        registerModule(new ChestStealerModule());
+        registerModule(new DisplaceModule());
+        registerModule(new EagleModule());
+        registerModule(new ESPModule());
+        registerModule(new FastPlaceModule());
+        registerModule(new FlyModule());
+        registerModule(new FreelookModule());
+        registerModule(new FullbrightModule());
+        registerModule(new GhostHandModule());
+        registerModule(new HitSelectModule());
+        registerModule(new HUDModule());
+        registerModule(new IndicatorsModule());
+        registerModule(new InvManagerModule());
+        registerModule(new InvWalkModule());
+        registerModule(new ItemESPModule());
+        registerModule(new JesusModule());
+        registerModule(new KeepSprintModule());
+        registerModule(new KillAuraModule());
+        registerModule(new LagRangeModule());
+        registerModule(new LightningTrackerModule());
+        registerModule(new LongJumpModule());
+        registerModule(new MCFModule());
+        registerModule(new NameTagsModule());
+        registerModule(new NickHiderModule());
+        registerModule(new NoFallModule());
+        registerModule(new NoHitDelayModule());
+        registerModule(new NoHurtCamModule());
+        registerModule(new NoJumpDelayModule());
+        registerModule(new NoRotateModule());
+        registerModule(new NoSlowModule());
+        registerModule(new PantSwapModule());
+        registerModule(new PitModule());
+        registerModule(new ReachModule());
+        registerModule(new SafeWalkModule());
+        registerModule(new ScaffoldModule());
+        registerModule(new SpammerModule());
+        registerModule(new SpeedModule());
+        registerModule(new SpeedMineModule());
+        registerModule(new SprintModule());
+        registerModule(new SwordSwapModule());
+        registerModule(new TargetHUDModule());
+        registerModule(new TargetStrafeModule());
+        registerModule(new TimerModule());
+        registerModule(new TracersModule());
+        registerModule(new TrajectoriesModule());
+        registerModule(new VelocityModule());
+        registerModule(new ViewClipModule());
+        registerModule(new WTapModule());
+        registerModule(new XrayModule());
         try {
-            MyauClient.registerModule((Module)Class.forName("myau.BpsModule").newInstance());
-        }
-        catch (ReflectiveOperationException reflectiveOperationException) {
-            // empty catch block
+            registerModule((Module) Class.forName("myau.BpsModule").newInstance());
+        } catch (ReflectiveOperationException reflectiveOperationException) {
         }
     }
 
     private static void registerModule(Module module) {
-        MyauClient.moduleManager.modules.put(module.getClass(), module);
+        moduleManager.modules.put(module.getClass(), module);
         eventBus.register(module);
         ArrayList<Setting<?>> arrayList = new ArrayList<Setting<?>>();
         for (Field field : module.getClass().getFields()) {
-            if (!Setting.class.isAssignableFrom(field.getType())) continue;
+            if (!Setting.class.isAssignableFrom(field.getType()))
+                continue;
             try {
-                Setting<?> setting = (Setting<?>)field.get(module);
-                if (setting == null) continue;
+                Setting<?> setting = (Setting<?>) field.get(module);
+                if (setting == null)
+                    continue;
                 setting.setModule(module);
                 arrayList.add(setting);
-            }
-            catch (IllegalAccessException illegalAccessException) {
+            } catch (IllegalAccessException illegalAccessException) {
                 throw new IllegalStateException("Unable to register setting " + field.getName(), illegalAccessException);
             }
         }
-        MyauClient.settingManager.settingsByModule.put(module.getClass(), arrayList);
+        settingManager.settingsByModule.put(module.getClass(), arrayList);
     }
 
     private static void registerCommands() {
-        MyauClient.commandManager.commands.add(new BindCommand());
-        MyauClient.commandManager.commands.add(new ConfigCommand());
-        MyauClient.commandManager.commands.add(new DenickCommand());
-        MyauClient.commandManager.commands.add(new EnemyCommand());
-        MyauClient.commandManager.commands.add(new FriendCommand());
-        MyauClient.commandManager.commands.add(new HelpCommand());
-        MyauClient.commandManager.commands.add(new HideCommand());
-        MyauClient.commandManager.commands.add(new ItemNameCommand());
-        MyauClient.commandManager.commands.add(new ModuleListCommand());
-        MyauClient.commandManager.commands.add(new ModuleSettingsCommand());
-        MyauClient.commandManager.commands.add(new PlayerListCommand());
-        MyauClient.commandManager.commands.add(new ShowCommand());
-        MyauClient.commandManager.commands.add(new ToggleCommand());
-        MyauClient.commandManager.commands.add(new UsernameCommand());
-        MyauClient.commandManager.commands.add(new VClipCommand());
+        commandManager.commands.add(new BindCommand());
+        commandManager.commands.add(new ConfigCommand());
+        commandManager.commands.add(new DenickCommand());
+        commandManager.commands.add(new EnemyCommand());
+        commandManager.commands.add(new FriendCommand());
+        commandManager.commands.add(new HelpCommand());
+        commandManager.commands.add(new HideCommand());
+        commandManager.commands.add(new ItemNameCommand());
+        commandManager.commands.add(new ModuleListCommand());
+        commandManager.commands.add(new ModuleSettingsCommand());
+        commandManager.commands.add(new PlayerListCommand());
+        commandManager.commands.add(new ShowCommand());
+        commandManager.commands.add(new ToggleCommand());
+        commandManager.commands.add(new UsernameCommand());
+        commandManager.commands.add(new VClipCommand());
     }
 }

@@ -11,13 +11,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={BlockWeb.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { BlockWeb.class })
 public abstract class MixinBlockWeb {
-    @Inject(method={"getBlockLayer"}, at={@At(value="HEAD")}, cancellable=true)
+
+    @Inject(method = { "getBlockLayer" }, at = { @At(value = "HEAD") }, cancellable = true)
     private void onGetBlockLayer(CallbackInfoReturnable<EnumWorldBlockLayer> callbackInfo) {
         XrayModule xray;
-        if (MyauClient.moduleManager != null && (xray = (XrayModule)MyauClient.moduleManager.modules.get(XrayModule.class)).isEnabled()) {
+        if (MyauClient.moduleManager != null
+                && (xray = (XrayModule) MyauClient.moduleManager.modules.get(XrayModule.class)).isEnabled()) {
             callbackInfo.setReturnValue(EnumWorldBlockLayer.TRANSLUCENT);
         }
     }

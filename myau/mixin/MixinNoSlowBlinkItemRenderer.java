@@ -12,14 +12,18 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(value = ItemRenderer.class, remap = false)
 public abstract class MixinNoSlowBlinkItemRenderer {
-    @Shadow private ItemStack field_78453_b;
 
-    @Redirect(method = "func_78440_a", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/entity/AbstractClientPlayer;func_71052_bv()I"))
+    @Shadow
+    private ItemStack field_78453_b;
+
+    @Redirect(method = "func_78440_a", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/AbstractClientPlayer;func_71052_bv()I"))
     private int blinkFirstPersonUseCount(AbstractClientPlayer player) {
         int actual = player.func_71052_bv();
-        if (actual == 0 && this.field_78453_b != null && this.field_78453_b.func_77973_b() instanceof ItemSword
-                && NoSlowBlink.shouldRenderSwordBlock(player)) return 1;
+        if (actual == 0
+                && this.field_78453_b != null
+                && this.field_78453_b.func_77973_b() instanceof ItemSword
+                && NoSlowBlink.shouldRenderSwordBlock(player))
+            return 1;
         return actual;
     }
 }

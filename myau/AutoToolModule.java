@@ -1,17 +1,10 @@
 package myau;
 
-import myau.BooleanSetting;
-import myau.EventHandler;
-import myau.InputUtils;
-import myau.IntegerSetting;
-import myau.ItemUtils;
-import myau.Module;
-import myau.PreTickEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.MovingObjectPosition;
 
-public class AutoToolModule
-extends Module {
+public class AutoToolModule extends Module {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
     private int selectedSlot = -1;
     private int previousSlot = -1;
@@ -30,11 +23,17 @@ extends Module {
         if (!enabled) {
             return;
         }
-        if (AutoToolModule.minecraft.field_71476_x != null && AutoToolModule.minecraft.field_71476_x.field_72313_a == MovingObjectPosition.MovingObjectType.BLOCK && AutoToolModule.minecraft.field_71474_y.field_74312_F.func_151470_d() && !AutoToolModule.minecraft.field_71439_g.func_71039_bw()) {
+        if (minecraft.field_71476_x != null
+                && minecraft.field_71476_x.field_72313_a == MovingObjectPosition.MovingObjectType.BLOCK
+                && minecraft.field_71474_y.field_74312_F.func_151470_d()
+                && !minecraft.field_71439_g.func_71039_bw()) {
             int bestSlot;
-            if (this.miningTicks >= (Integer)this.delay.getValue() && (!((Boolean)this.sneakOnly.getValue()).booleanValue() || InputUtils.isKeyDown(AutoToolModule.minecraft.field_71474_y.field_74311_E.func_151463_i())) && AutoToolModule.minecraft.field_71439_g.field_71071_by.field_70461_c != (bestSlot = ItemUtils.findBestToolForBlock(AutoToolModule.minecraft.field_71439_g.field_71071_by.field_70461_c, AutoToolModule.minecraft.field_71441_e.func_180495_p(AutoToolModule.minecraft.field_71476_x.func_178782_a()).func_177230_c()))) {
-                this.previousSlot = AutoToolModule.minecraft.field_71439_g.field_71071_by.field_70461_c;
-                AutoToolModule.minecraft.field_71439_g.field_71071_by.field_70461_c = this.selectedSlot = bestSlot;
+            if (this.miningTicks >= this.delay.getValue()
+                    && (!this.sneakOnly.getValue()
+                    || InputUtils.isKeyDown(minecraft.field_71474_y.field_74311_E.func_151463_i()))
+                    && minecraft.field_71439_g.field_71071_by.field_70461_c != (bestSlot = ItemUtils.findBestToolForBlock(minecraft.field_71439_g.field_71071_by.field_70461_c, minecraft.field_71441_e.func_180495_p(minecraft.field_71476_x.func_178782_a()).func_177230_c()))) {
+                this.previousSlot = minecraft.field_71439_g.field_71071_by.field_70461_c;
+                minecraft.field_71439_g.field_71071_by.field_70461_c = this.selectedSlot = bestSlot;
             }
             ++this.miningTicks;
             return;

@@ -9,6 +9,7 @@ import net.minecraft.network.play.client.C09PacketHeldItemChange;
 import net.minecraft.network.play.client.C0APacketAnimation;
 
 public class PacketActionTracker {
+
     public boolean sentUseEntity;
     public boolean sentDigging;
     public boolean sentBlockPlacement;

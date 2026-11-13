@@ -1,10 +1,9 @@
 package myau;
 
-import myau.CancellableEvent;
 import net.minecraft.network.Packet;
 
-public class PacketReceiveEvent
-extends CancellableEvent {
+public class PacketReceiveEvent extends CancellableEvent {
+
     private final Packet<?> packet;
     private final Object connection;
 

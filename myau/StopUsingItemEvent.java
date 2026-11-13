@@ -1,7 +1,4 @@
 package myau;
 
-import myau.CancellableEvent;
-
-public class StopUsingItemEvent
-extends CancellableEvent {
+public class StopUsingItemEvent extends CancellableEvent {
 }

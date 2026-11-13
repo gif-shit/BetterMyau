@@ -1,9 +1,7 @@
 package myau;
 
-import myau.CancellableEvent;
+public class HotbarChangeEvent extends CancellableEvent {
 
-public class HotbarChangeEvent
-extends CancellableEvent {
     private static final int HOTBAR_SIZE = 9;
     private final int requestedSlot;
     private final int scrollDirection;

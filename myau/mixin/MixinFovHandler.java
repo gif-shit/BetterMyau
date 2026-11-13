@@ -12,16 +12,17 @@ import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@SideOnly(value=Side.CLIENT)
+@SideOnly(value = Side.CLIENT)
 @Pseudo
-@Mixin(targets={"club.sk1er.patcher.util.fov.FovHandler"})
+@Mixin(targets = { "club.sk1er.patcher.util.fov.FovHandler" })
 public abstract class MixinFovHandler {
-    @Redirect(method={"fovChange"}, remap=false, at=@At(value="INVOKE", target="Lnet/minecraft/entity/player/EntityPlayer;func_70051_ag()Z", remap=false))
-    @Dynamic(value="Patcher")
+
+    @Redirect(method = { "fovChange" }, remap = false, at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/EntityPlayer;func_70051_ag()Z", remap = false))
+    @Dynamic(value = "Patcher")
     private boolean redirectSprintState(EntityPlayer player) {
         boolean sprinting = player.func_70051_ag();
         if (player instanceof EntityPlayerSP && MyauClient.moduleManager != null) {
-            SprintModule sprint = (SprintModule)MyauClient.moduleManager.modules.get(SprintModule.class);
+            SprintModule sprint = (SprintModule) MyauClient.moduleManager.modules.get(SprintModule.class);
             return sprint.isEnabled() && sprint.shouldCompensateFov(sprinting) ? true : sprinting;
         }
         return sprinting;

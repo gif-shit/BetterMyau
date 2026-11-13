@@ -6,9 +6,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={C14PacketTabComplete.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { C14PacketTabComplete.class })
 public interface AccessorC14PacketTabComplete {
-    @Accessor(value="message")
+
+    @Accessor(value = "message")
     public void setMessage(String var1);
 }

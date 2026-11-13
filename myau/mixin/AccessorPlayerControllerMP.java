@@ -7,9 +7,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={PlayerControllerMP.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { PlayerControllerMP.class })
 public interface AccessorPlayerControllerMP {
+
     @Accessor
     public float getCurBlockDamageMP();
 

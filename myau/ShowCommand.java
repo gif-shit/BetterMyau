@@ -4,13 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import myau.ChatUtils;
-import myau.Command;
-import myau.Module;
-import myau.MyauClient;
 
-public class ShowCommand
-extends Command {
+public class ShowCommand extends Command {
+
     public ShowCommand() {
         super(new ArrayList<String>(Arrays.asList("show", "s", "unhide")));
     }

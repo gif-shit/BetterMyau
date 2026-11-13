@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public abstract class Command {
+
     public final ArrayList<String> aliases;
 
     public Command(ArrayList<String> list) {

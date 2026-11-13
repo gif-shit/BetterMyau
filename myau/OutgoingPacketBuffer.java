@@ -2,11 +2,6 @@ package myau;
 
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import myau.EventHandler;
-import myau.OutgoingBufferOwner;
-import myau.PacketSendEvent;
-import myau.PacketUtils;
-import myau.PostTickEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Packet;
 import net.minecraft.network.handshake.client.C00Handshake;
@@ -20,6 +15,7 @@ import net.minecraft.network.status.client.C00PacketServerQuery;
 import net.minecraft.network.status.client.C01PacketPing;
 
 public class OutgoingPacketBuffer {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
     private OutgoingBufferOwner bufferOwner = OutgoingBufferOwner.NONE;
     private boolean flushing;
@@ -74,14 +70,18 @@ public class OutgoingPacketBuffer {
 
     @EventHandler
     public void onPacketSend(PacketSendEvent event) {
-        if (event.getPacket() instanceof C00Handshake || event.getPacket() instanceof C00PacketLoginStart || event.getPacket() instanceof C00PacketServerQuery || event.getPacket() instanceof C01PacketPing || event.getPacket() instanceof C01PacketEncryptionResponse) {
+        if (event.getPacket() instanceof C00Handshake
+                || event.getPacket() instanceof C00PacketLoginStart
+                || event.getPacket() instanceof C00PacketServerQuery
+                || event.getPacket() instanceof C01PacketPing
+                || event.getPacket() instanceof C01PacketEncryptionResponse) {
             this.setEnabled(false, this.bufferOwner);
         }
     }
 
     @EventHandler
     public void onPostTick(PostTickEvent event) {
-        if (OutgoingPacketBuffer.minecraft.field_71439_g.field_70128_L) {
+        if (minecraft.field_71439_g.field_70128_L) {
             this.setEnabled(false, this.bufferOwner);
         }
     }

@@ -1,6 +1,7 @@
 package myau;
 
 final class StrafeOffset {
+
     private final double offsetX;
     private final double offsetZ;
 

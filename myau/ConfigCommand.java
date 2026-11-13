@@ -8,12 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import myau.ChatColor;
-import myau.ChatUtils;
-import myau.Command;
-import myau.ConfigProfile;
-import myau.Module;
-import myau.MyauClient;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatComponentText;
@@ -24,8 +18,8 @@ import org.apache.commons.io.IOCase;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 
-public class ConfigCommand
-extends Command {
+public class ConfigCommand extends Command {
+
     private static final File CONFIG_DIRECTORY = new File("./config/Myau/");
     private static final FileFilter CONFIG_FILE_FILTER = new WildcardFileFilter("*.json", IOCase.INSENSITIVE);
 
@@ -44,33 +38,38 @@ extends Command {
         if (subcommand.equalsIgnoreCase("l")) {
             subcommand = arguments.size() < 3 ? "list" : "load";
         }
-        switch (subcommand = subcommand.toLowerCase(Locale.ROOT)) {
+        switch(subcommand = subcommand.toLowerCase(Locale.ROOT)) {
             case "load":
-            case "reload": {
-                ConfigCommand.loadConfig(arguments);
-                return;
-            }
+            case "reload":
+                {
+                    loadConfig(arguments);
+                    return;
+                }
             case "save":
-            case "s": {
-                ConfigCommand.saveConfig(arguments);
-                return;
-            }
+            case "s":
+                {
+                    saveConfig(arguments);
+                    return;
+                }
             case "reset":
-            case "clear": {
-                ConfigCommand.resetConfig();
-                return;
-            }
-            case "list": {
-                ConfigCommand.listConfigs();
-                return;
-            }
+            case "clear":
+                {
+                    resetConfig();
+                    return;
+                }
+            case "list":
+                {
+                    listConfigs();
+                    return;
+                }
             case "folder":
             case "f":
             case "directory":
-            case "dir": {
-                ConfigCommand.openConfigDirectory();
-                return;
-            }
+            case "dir":
+                {
+                    openConfigDirectory();
+                    return;
+                }
         }
         ChatUtils.addFormattedMessage(String.format("%sInvalid argument (&o%s&r)&r", "&7[&bMyau&7] &r", arguments.get(1)));
     }
@@ -118,10 +117,9 @@ extends Command {
             for (File file : files) {
                 String displayText = ChatColor.formatText(String.format("&7\u00bb&r &o%s&r", file.getName()));
                 String command = String.format(".config load %s", FilenameUtils.removeExtension(file.getName()));
-                ChatUtils.addComponent(new ChatComponentText(displayText).func_150255_a(new ChatStyle().func_150241_a(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command)).func_150209_a(new HoverEvent(HoverEvent.Action.SHOW_TEXT, (IChatComponent)new ChatComponentText(command)))));
+                ChatUtils.addComponent(new ChatComponentText(displayText).func_150255_a(new ChatStyle().func_150241_a(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command)).func_150209_a(new HoverEvent(HoverEvent.Action.SHOW_TEXT, (IChatComponent) new ChatComponentText(command)))));
             }
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             ChatUtils.addFormattedMessage(String.format("%sFailed to read (&o%s&r)&r", "&7[&bMyau&7] &r", CONFIG_DIRECTORY));
         }
     }
@@ -129,8 +127,7 @@ extends Command {
     private static void openConfigDirectory() {
         try {
             Desktop.getDesktop().open(CONFIG_DIRECTORY);
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             ChatUtils.addFormattedMessage(String.format("%sFailed to open (&o%s&r)&r", "&7[&bMyau&7] &r", CONFIG_DIRECTORY));
         }
     }

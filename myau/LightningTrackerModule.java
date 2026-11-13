@@ -1,14 +1,10 @@
 package myau;
 
-import myau.ChatUtils;
-import myau.EventHandler;
-import myau.Module;
-import myau.PacketReceiveEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.play.server.S2CPacketSpawnGlobalEntity;
 
-public class LightningTrackerModule
-extends Module {
+public class LightningTrackerModule extends Module {
+
     private static Minecraft minecraft;
     private static final int MESSAGE_ARGUMENT_COUNT = 6;
 
@@ -58,19 +54,19 @@ extends Module {
         }
         processPacket = event.getPacket() instanceof S2CPacketSpawnGlobalEntity;
         if (processPacket) {
-            S2CPacketSpawnGlobalEntity lightning = (S2CPacketSpawnGlobalEntity)event.getPacket();
+            S2CPacketSpawnGlobalEntity lightning = (S2CPacketSpawnGlobalEntity) event.getPacket();
             int xCoordinate = lightning.func_149053_g();
             if (xCoordinate != 1) {
                 return;
             }
             xCoordinate = lightning.func_149051_d();
-            double x = (double)xCoordinate / 32.0;
-            double y = (double)lightning.func_149050_e() / 32.0;
-            double z = (double)lightning.func_149049_f() / 32.0;
-            double distance = LightningTrackerModule.minecraft.field_71439_g.func_70011_f(x, y, z);
-            String direction = this.getCompassDirection(LightningTrackerModule.minecraft.field_71439_g.field_70165_t, LightningTrackerModule.minecraft.field_71439_g.field_70161_v, x, z);
+            double x = (double) xCoordinate / 32.0;
+            double y = (double) lightning.func_149050_e() / 32.0;
+            double z = (double) lightning.func_149049_f() / 32.0;
+            double distance = minecraft.field_71439_g.func_70011_f(x, y, z);
+            String direction = this.getCompassDirection(minecraft.field_71439_g.field_70165_t, minecraft.field_71439_g.field_70161_v, x, z);
             String messageFormat = "&8[&e%s&8] &7X: &f&l%d&r &7Y: &f&l%d&r &7Z: &f&l%d&r &7D: &6&l%d&r &6%s&r";
-            Object[] messageArguments = new Object[]{this.getName(), (int)x, (int)y, (int)z, (int)distance, direction};
+            Object[] messageArguments = new Object[] { this.getName(), (int) x, (int) y, (int) z, (int) distance, direction };
             ChatUtils.addFormattedMessage(String.format(messageFormat, messageArguments));
         }
     }

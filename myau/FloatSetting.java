@@ -2,10 +2,9 @@ package myau;
 
 import com.google.gson.JsonObject;
 import java.util.function.BooleanSupplier;
-import myau.Setting;
 
-public class FloatSetting
-extends Setting<Float> {
+public class FloatSetting extends Setting<Float> {
+
     private final Float min;
     private final Float max;
 
@@ -14,7 +13,7 @@ extends Setting<Float> {
     }
 
     public FloatSetting(String name, Float defaultValue, Float min, Float max, BooleanSupplier visibilityCondition) {
-        super(name, defaultValue, (T value) -> value.floatValue() >= min.floatValue() && value.floatValue() <= max.floatValue(), visibilityCondition);
+        super(name, defaultValue, value -> value.floatValue() >= min.floatValue() && value.floatValue() <= max.floatValue(), visibilityCondition);
         this.min = min;
         this.max = max;
     }
@@ -41,6 +40,6 @@ extends Setting<Float> {
 
     @Override
     public void writeJson(JsonObject json) {
-        json.addProperty(this.getName(), (Number)this.getValue());
+        json.addProperty(this.getName(), (Number) this.getValue());
     }
 }

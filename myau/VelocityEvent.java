@@ -1,9 +1,7 @@
 package myau;
 
-import myau.CancellableEvent;
+public class VelocityEvent extends CancellableEvent {
 
-public class VelocityEvent
-extends CancellableEvent {
     private double velocityX;
     private double velocityY;
     private double velocityZ;

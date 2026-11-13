@@ -1,8 +1,5 @@
 package myau;
 
-import myau.BooleanSetting;
-import myau.EntityUtils;
-import myau.Module;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -19,8 +16,8 @@ import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 
-public class ChamsModule
-extends Module {
+public class ChamsModule extends Module {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
     public final BooleanSetting players = new BooleanSetting("players", true);
     public final BooleanSetting friends = new BooleanSetting("friends", true);
@@ -43,42 +40,45 @@ extends Module {
         if (deathTime > 0) {
             return false;
         }
-        if (minecraft.func_175606_aa().func_70032_d((Entity)entity) > 512.0f) {
+        if (minecraft.func_175606_aa().func_70032_d((Entity) entity) > 512.0f) {
             return false;
         }
         if (entity instanceof EntityPlayer) {
-            EntityPlayer player = (EntityPlayer)entity;
+            EntityPlayer player = (EntityPlayer) entity;
             if (EntityUtils.isLocalOrViewPlayer(player)) {
-                return (Boolean)this.self.getValue() != false && ChamsModule.minecraft.field_71474_y.field_74320_O != 0;
+                return this.self.getValue() && minecraft.field_71474_y.field_74320_O != 0;
             }
             if (EntityUtils.isFriend(player)) {
-                return (Boolean)this.friends.getValue();
+                return this.friends.getValue();
             }
             if (EntityUtils.isEnemy(player)) {
-                return (Boolean)this.enemies.getValue();
+                return this.enemies.getValue();
             }
             if (EntityUtils.isBot(player)) {
-                return (Boolean)this.bots.getValue();
+                return this.bots.getValue();
             }
-            return (Boolean)this.players.getValue();
+            return this.players.getValue();
         }
         if (entity instanceof EntityDragon || entity instanceof EntityWither) {
-            return !entity.func_82150_aj() && (Boolean)this.bosses.getValue() != false;
+            return !entity.func_82150_aj() && this.bosses.getValue();
         }
         if (entity instanceof EntityMob || entity instanceof EntitySlime) {
             if (entity instanceof EntityCreeper) {
-                return (Boolean)this.creepers.getValue();
+                return this.creepers.getValue();
             }
             if (entity instanceof EntityEnderman) {
-                return (Boolean)this.endermen.getValue();
+                return this.endermen.getValue();
             }
             if (entity instanceof EntityBlaze) {
-                return (Boolean)this.blazes.getValue();
+                return this.blazes.getValue();
             }
-            return (Boolean)this.mobs.getValue();
+            return this.mobs.getValue();
         }
-        if (entity instanceof EntityAnimal || entity instanceof EntityBat || entity instanceof EntitySquid || entity instanceof EntityVillager) {
-            return (Boolean)this.animals.getValue();
+        if (entity instanceof EntityAnimal
+                || entity instanceof EntityBat
+                || entity instanceof EntitySquid
+                || entity instanceof EntityVillager) {
+            return this.animals.getValue();
         }
         return false;
     }

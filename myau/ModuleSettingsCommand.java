@@ -5,16 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import myau.BooleanSetting;
-import myau.ChatUtils;
-import myau.Command;
-import myau.ModeSetting;
-import myau.Module;
-import myau.MyauClient;
-import myau.Setting;
 
-public class ModuleSettingsCommand
-extends Command {
+public class ModuleSettingsCommand extends Command {
+
     public ModuleSettingsCommand() {
         super(new ArrayList<String>(MyauClient.moduleManager.modules.values().stream().map(Module::getName).collect(Collectors.toList())));
     }
@@ -26,12 +19,12 @@ extends Command {
             this.handleSetting(module, arguments);
             return;
         }
-        List settings = MyauClient.settingManager.settingsByModule.get(module.getClass());
+        List<Setting<?>> settings = MyauClient.settingManager.settingsByModule.get(module.getClass());
         if (settings == null) {
             this.showNoProperties(module);
             return;
         }
-        List visibleSettings = settings.stream().filter(Setting::isVisible).collect(Collectors.toList());
+        List<Setting<?>> visibleSettings = settings.stream().filter(Setting::isVisible).collect(Collectors.toList());
         if (visibleSettings.isEmpty()) {
             this.showNoProperties(module);
             return;
@@ -56,15 +49,13 @@ extends Command {
             ChatUtils.addFormattedMessage(String.format("%s%s: &o%s&r is set to %s&r (%s)&r", "&7[&bMyau&7] &r", module.getName(), setting.getName(), setting.getDisplayValue(), setting.getUsage()));
             return;
         }
-        String input = arguments.size() < 3 ? null : String.join((CharSequence)" ", arguments.subList(2, arguments.size()));
+        String input = arguments.size() < 3 ? null : String.join((CharSequence) " ", arguments.subList(2, arguments.size()));
         try {
             if (setting.parseValue(input)) {
                 ChatUtils.addFormattedMessage(String.format("%s%s: &o%s&r has been set to %s&r", "&7[&bMyau&7] &r", module.getName(), setting.getName(), setting.getDisplayValue()));
                 return;
             }
-        }
-        catch (Exception exception) {
-            // empty catch block
+        } catch (Exception exception) {
         }
         ChatUtils.addFormattedMessage(String.format("%sInvalid value for property &o%s&r (%s)&r", "&7[&bMyau&7] &r", setting.getName(), setting.getUsage()));
     }
@@ -81,14 +72,16 @@ extends Command {
             return new ArrayList<String>();
         }
         if (arguments.size() == 2) {
-            List settings = MyauClient.settingManager.settingsByModule.get(module.getClass());
+            List<Setting<?>> settings = MyauClient.settingManager.settingsByModule.get(module.getClass());
             if (settings == null) {
                 return new ArrayList<String>();
             }
             return settings.stream().filter(Setting::isVisible).map(setting -> setting.getName().toLowerCase(Locale.ROOT)).collect(Collectors.toCollection(ArrayList::new));
         }
-        if (arguments.size() == 3 && (setting2 = MyauClient.settingManager.findSetting(module, arguments.get(1))) instanceof ModeSetting && setting2.isVisible()) {
-            return Arrays.stream(((ModeSetting)setting2).getModes()).map(mode -> mode.toLowerCase(Locale.ROOT)).collect(Collectors.toCollection(ArrayList::new));
+        if (arguments.size() == 3
+                && (setting2 = MyauClient.settingManager.findSetting(module, arguments.get(1))) instanceof ModeSetting
+                && setting2.isVisible()) {
+            return Arrays.stream(((ModeSetting) setting2).getModes()).map(mode -> mode.toLowerCase(Locale.ROOT)).collect(Collectors.toCollection(ArrayList::new));
         }
         return new ArrayList<String>();
     }

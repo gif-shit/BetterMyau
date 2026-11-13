@@ -14,19 +14,26 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={VisGraph.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { VisGraph.class })
 public abstract class MixinVisGraph {
-    @Inject(method={"func_178606_a"}, at={@At(value="HEAD")}, cancellable=true)
+
+    @Inject(method = { "func_178606_a" }, at = { @At(value = "HEAD") }, cancellable = true)
     private void beforeMarkOpaqueCube(CallbackInfo callbackInfo) {
-        if (MyauClient.moduleManager != null && (MyauClient.moduleManager.modules.get(ChamsModule.class).isEnabled() || MyauClient.moduleManager.modules.get(ViewClipModule.class).isEnabled() || MyauClient.moduleManager.modules.get(XrayModule.class).isEnabled())) {
+        if (MyauClient.moduleManager != null
+                && (MyauClient.moduleManager.modules.get(ChamsModule.class).isEnabled()
+                || MyauClient.moduleManager.modules.get(ViewClipModule.class).isEnabled()
+                || MyauClient.moduleManager.modules.get(XrayModule.class).isEnabled())) {
             callbackInfo.cancel();
         }
     }
 
-    @Inject(method={"computeVisibility"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method = { "computeVisibility" }, at = { @At(value = "HEAD") }, cancellable = true)
     private void beforeComputeVisibility(CallbackInfoReturnable<SetVisibility> callbackInfo) {
-        if (MyauClient.moduleManager != null && (MyauClient.moduleManager.modules.get(ChamsModule.class).isEnabled() || MyauClient.moduleManager.modules.get(ViewClipModule.class).isEnabled() || MyauClient.moduleManager.modules.get(XrayModule.class).isEnabled())) {
+        if (MyauClient.moduleManager != null
+                && (MyauClient.moduleManager.modules.get(ChamsModule.class).isEnabled()
+                || MyauClient.moduleManager.modules.get(ViewClipModule.class).isEnabled()
+                || MyauClient.moduleManager.modules.get(XrayModule.class).isEnabled())) {
             SetVisibility visibility = new SetVisibility();
             visibility.func_178618_a(true);
             callbackInfo.setReturnValue(visibility);

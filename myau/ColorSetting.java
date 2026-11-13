@@ -2,12 +2,11 @@ package myau;
 
 import com.google.gson.JsonObject;
 import java.util.function.BooleanSupplier;
-import myau.Setting;
 
-public class ColorSetting
-extends Setting<Integer> {
+public class ColorSetting extends Setting<Integer> {
+
     public ColorSetting(String name, Integer defaultValue) {
-        this(name, defaultValue, (BooleanSupplier)null);
+        this(name, defaultValue, (BooleanSupplier) null);
     }
 
     public ColorSetting(String name, Integer defaultValue, BooleanSupplier visibilityCondition) {

@@ -7,19 +7,13 @@ import java.util.Locale;
 import java.util.Map;
 
 enum ModuleCategory {
-    COMBAT("Combat", "AimAssist", "AutoClicker", "Backtrack", "HitSelect", "KeepSprint", "KillAura",
-            "LagRange", "NoHitDelay", "Reach", "TargetStrafe", "Velocity", "WTap", "AntiFireball"),
-    PLAYER("Player", "AntiDebuff", "AntiObbyTrap", "AutoHeal", "AutoTool", "BedNuker", "Blink",
-            "ChestStealer", "FastPlace", "GhostHand", "InvManager", "NoFall", "NoRotate", "PantSwap", "Scaffold", "SpeedMine", "SwordSwap"),
-    MOVEMENT("Movement", "AntiVoid", "Eagle", "Fly", "InvWalk", "Jesus", "LongJump", "NoJumpDelay",
-            "NoSlow", "SafeWalk", "Speed", "Sprint", "Timer"),
-    RENDER("Render", "BedESP", "BedTracker", "BPS", "Chams", "ChestESP", "ClickGui", "ESP", "FreeLook",
-            "Fullbright", "HUD", "Indicators", "ItemESP", "LightningTracker", "NameTags", "NickHider",
-            "NoHurtCam", "TargetHUD", "Tracers", "Trajectories", "ViewClip", "Xray"),
-    EXPLOITS("Exploits", "Pit");
+
+    COMBAT("Combat", "AimAssist", "AutoClicker", "Backtrack", "HitSelect", "KeepSprint", "KillAura", "LagRange", "NoHitDelay", "Reach", "TargetStrafe", "Velocity", "WTap", "AntiFireball"), PLAYER("Player", "AntiDebuff", "AntiObbyTrap", "AutoHeal", "AutoTool", "BedNuker", "Blink", "ChestStealer", "FastPlace", "GhostHand", "InvManager", "NoFall", "NoRotate", "PantSwap", "Scaffold", "SpeedMine", "SwordSwap"), MOVEMENT("Movement", "AntiVoid", "Eagle", "Fly", "InvWalk", "Jesus", "LongJump", "NoJumpDelay", "NoSlow", "SafeWalk", "Speed", "Sprint", "Timer"), RENDER("Render", "BedESP", "BedTracker", "BPS", "Chams", "ChestESP", "ClickGui", "ESP", "FreeLook", "Fullbright", "HUD", "Indicators", "ItemESP", "LightningTracker", "NameTags", "NickHider", "NoHurtCam", "TargetHUD", "Tracers", "Trajectories", "ViewClip", "Xray"), EXPLOITS("Exploits", "Pit");
 
     private static final Map<String, ModuleCategory> BY_MODULE = new HashMap<>();
+
     final String label;
+
     private final String[] moduleNames;
 
     static {
@@ -42,7 +36,8 @@ enum ModuleCategory {
     List<Module> modules() {
         List<Module> result = new ArrayList<>();
         for (Module module : MyauClient.moduleManager.modules.values()) {
-            if (of(module) == this) result.add(module);
+            if (of(module) == this)
+                result.add(module);
         }
         return result;
     }

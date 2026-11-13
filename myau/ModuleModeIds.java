@@ -1,10 +1,12 @@
 package myau;
 
 public final class ModuleModeIds {
+
     private ModuleModeIds() {
     }
 
     public static final class Xray {
+
         public static final int MODE_SOFT = 0;
         public static final int MODE_FULL = 1;
 
@@ -13,6 +15,7 @@ public final class ModuleModeIds {
     }
 
     public static final class Velocity {
+
         public static final int MODE_VANILLA = 0;
         public static final int MODE_JUMP = 1;
         public static final int MODE_DELAY = 2;
@@ -23,6 +26,7 @@ public final class ModuleModeIds {
     }
 
     public static final class Tracers {
+
         public static final int COLOR_DEFAULT = 0;
         public static final int COLOR_TEAMS = 1;
         public static final int COLOR_HUD = 2;
@@ -32,6 +36,7 @@ public final class ModuleModeIds {
     }
 
     public static final class Timer {
+
         public static final int MODE_VANILLA = 0;
         public static final int MODE_HYPIXEL = 1;
 
@@ -40,6 +45,7 @@ public final class ModuleModeIds {
     }
 
     public static final class TargetStrafe {
+
         public static final int SHOW_TARGET_NONE = 0;
         public static final int SHOW_TARGET_DEFAULT = 1;
         public static final int SHOW_TARGET_HUD = 2;
@@ -49,6 +55,7 @@ public final class ModuleModeIds {
     }
 
     public static final class TargetHUD {
+
         public static final int COLOR_DEFAULT = 0;
         public static final int COLOR_HUD = 1;
         public static final int POSITION_X_LEFT = 0;
@@ -63,6 +70,7 @@ public final class ModuleModeIds {
     }
 
     public static final class Scaffold {
+
         public static final int ROTATIONS_NONE = 0;
         public static final int ROTATIONS_DEFAULT = 1;
         public static final int ROTATIONS_BACKWARDS = 2;
@@ -85,6 +93,7 @@ public final class ModuleModeIds {
     }
 
     public static final class NoSlow {
+
         public static final int SWORD_MODE_NONE = 0;
         public static final int SWORD_MODE_VANILLA = 1;
         public static final int FOOD_MODE_NONE = 0;
@@ -99,6 +108,7 @@ public final class ModuleModeIds {
     }
 
     public static final class NoFall {
+
         public static final int MODE_PACKET = 0;
         public static final int MODE_BLINK = 1;
         public static final int MODE_NO_GROUND = 2;
@@ -109,6 +119,7 @@ public final class ModuleModeIds {
     }
 
     public static final class NameTags {
+
         public static final int DISTANCE_NONE = 0;
         public static final int DISTANCE_DEFAULT = 1;
         public static final int DISTANCE_VAPE = 2;
@@ -122,6 +133,7 @@ public final class ModuleModeIds {
     }
 
     public static final class LongJump {
+
         public static final int MODE_FIREBALL = 0;
         public static final int MODE_FIREBALL_MANUAL = 1;
         public static final int MODE_FIREBALL_HIGH = 2;
@@ -132,6 +144,7 @@ public final class ModuleModeIds {
     }
 
     public static final class LagRange {
+
         public static final int SHOW_POSITION_NONE = 0;
         public static final int SHOW_POSITION_DEFAULT = 1;
         public static final int SHOW_POSITION_HUD = 2;
@@ -141,6 +154,7 @@ public final class ModuleModeIds {
     }
 
     public static final class KillAura {
+
         public static final int MODE_SINGLE = 0;
         public static final int MODE_SWITCH = 1;
         public static final int SORT_DISTANCE = 0;
@@ -158,6 +172,7 @@ public final class ModuleModeIds {
     }
 
     public static final class InvWalk {
+
         public static final int MODE_VANILLA = 0;
         public static final int MODE_LEGIT = 1;
         public static final int MODE_HYPIXEL = 2;
@@ -167,6 +182,7 @@ public final class ModuleModeIds {
     }
 
     public static final class HUD {
+
         public static final int COLOR_RAINBOW = 0;
         public static final int COLOR_CHROMA = 1;
         public static final int COLOR_ASTOLFO = 2;
@@ -183,6 +199,7 @@ public final class ModuleModeIds {
     }
 
     public static final class Fullbright {
+
         public static final int MODE_GAMMA = 0;
         public static final int MODE_EFFECT = 1;
 
@@ -191,6 +208,7 @@ public final class ModuleModeIds {
     }
 
     public static final class ESP {
+
         public static final int MODE_NONE = 0;
         public static final int MODE_2D = 1;
         public static final int MODE_3D = 2;
@@ -207,6 +225,7 @@ public final class ModuleModeIds {
     }
 
     public static final class Blink {
+
         public static final int MODE_DEFAULT = 0;
         public static final int MODE_PULSE = 1;
 
@@ -215,6 +234,7 @@ public final class ModuleModeIds {
     }
 
     public static final class BedTracker {
+
         public static final int ALERTS_SOUND_NONE = 0;
         public static final int ALERTS_SOUND_MEOW = 1;
         public static final int ALERTS_SOUND_ANVIL = 2;
@@ -230,6 +250,7 @@ public final class ModuleModeIds {
     }
 
     public static final class BedNuker {
+
         public static final int MODE_LEGIT = 0;
         public static final int MODE_SWAP = 1;
         public static final int IGNORE_VELOCITY_NONE = 0;
@@ -250,6 +271,7 @@ public final class ModuleModeIds {
     }
 
     public static final class BedESP {
+
         public static final int MODE_DEFAULT = 0;
         public static final int MODE_FULL = 1;
         public static final int COLOR_CUSTOM = 0;
@@ -260,6 +282,7 @@ public final class ModuleModeIds {
     }
 
     public static final class AntiVoid {
+
         public static final int MODE_BLINK = 0;
 
         private AntiVoid() {
@@ -267,6 +290,7 @@ public final class ModuleModeIds {
     }
 
     public static final class AntiFireball {
+
         public static final int MOVE_FIX_NONE = 0;
         public static final int MOVE_FIX_SILENT = 1;
         public static final int MOVE_FIX_STRICT = 2;

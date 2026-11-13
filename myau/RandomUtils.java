@@ -3,6 +3,7 @@ package myau;
 import java.util.Random;
 
 public final class RandomUtils {
+
     private static final Random RANDOM = new Random();
 
     private RandomUtils() {
@@ -13,7 +14,7 @@ public final class RandomUtils {
     }
 
     public static long randomLong(long minInclusive, long maxInclusive) {
-        return (long)RandomUtils.randomDouble(minInclusive, maxInclusive + 1L);
+        return (long) randomDouble(minInclusive, maxInclusive + 1L);
     }
 
     public static float randomFloat(float min, float max) {

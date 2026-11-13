@@ -2,16 +2,15 @@ package myau;
 
 import com.google.gson.JsonObject;
 import java.util.function.BooleanSupplier;
-import myau.Setting;
 
-public class PercentSetting
-extends Setting<Integer> {
+public class PercentSetting extends Setting<Integer> {
+
     private static final int MAX_PERCENT = 100;
     private final Integer min;
     private final Integer max;
 
     public PercentSetting(String name, Integer defaultValue) {
-        this(name, defaultValue, (BooleanSupplier)null);
+        this(name, defaultValue, (BooleanSupplier) null);
     }
 
     public PercentSetting(String name, Integer defaultValue, BooleanSupplier visibilityCondition) {
@@ -46,6 +45,6 @@ extends Setting<Integer> {
 
     @Override
     public void writeJson(JsonObject json) {
-        json.addProperty(this.getName(), (Number)this.getValue());
+        json.addProperty(this.getName(), (Number) this.getValue());
     }
 }

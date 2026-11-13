@@ -1,9 +1,7 @@
 package myau;
 
-import myau.Event;
+public class SafeWalkEvent extends Event {
 
-public class SafeWalkEvent
-extends Event {
     private boolean safeWalk;
 
     public SafeWalkEvent(boolean safeWalk) {

@@ -15,6 +15,7 @@ import myau.mixin.AccessorMinecraft;
 import net.minecraft.client.Minecraft;
 
 public abstract class PlayerNameList {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
     private static final String CREATED_LOG_MESSAGE = "Created: {}";
     private final ArrayList<String> entries = new ArrayList();
@@ -31,29 +32,26 @@ public abstract class PlayerNameList {
             try {
                 Files.createDirectories(this.file.toPath().getParent(), new FileAttribute[0]);
                 if (this.file.createNewFile()) {
-                    ((AccessorMinecraft)minecraft).getLogger().info(CREATED_LOG_MESSAGE, new Object[]{this.file.getName()});
+                    ((AccessorMinecraft) minecraft).getLogger().info(CREATED_LOG_MESSAGE, new Object[] { this.file.getName() });
                 }
-            }
-            catch (Exception exception) {
-                ((AccessorMinecraft)minecraft).getLogger().error(exception.getMessage());
+            } catch (Exception exception) {
+                ((AccessorMinecraft) minecraft).getLogger().error(exception.getMessage());
             }
         }
         try (FileReader input = new FileReader(this.file);
-             BufferedReader reader = new BufferedReader(input);){
+            BufferedReader reader = new BufferedReader(input)) {
             this.entries.addAll(reader.lines().map(String::trim).collect(Collectors.toList()));
-        }
-        catch (Exception exception) {
-            ((AccessorMinecraft)minecraft).getLogger().error(exception.getMessage());
+        } catch (Exception exception) {
+            ((AccessorMinecraft) minecraft).getLogger().error(exception.getMessage());
         }
     }
 
     public void save() {
         try (FileWriter writer = new FileWriter(this.file);
-             PrintWriter output = new PrintWriter(writer);){
-            output.print(String.join((CharSequence)"\n", this.entries));
-        }
-        catch (Exception exception) {
-            ((AccessorMinecraft)minecraft).getLogger().error(exception.getMessage());
+            PrintWriter output = new PrintWriter(writer)) {
+            output.print(String.join((CharSequence) "\n", this.entries));
+        } catch (Exception exception) {
+            ((AccessorMinecraft) minecraft).getLogger().error(exception.getMessage());
         }
     }
 
@@ -70,7 +68,8 @@ public abstract class PlayerNameList {
         Iterator<String> iterator = this.entries.iterator();
         while (iterator.hasNext()) {
             String entry = iterator.next();
-            if (!entry.equalsIgnoreCase(name)) continue;
+            if (!entry.equalsIgnoreCase(name))
+                continue;
             iterator.remove();
             this.save();
             return entry;

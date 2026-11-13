@@ -1,7 +1,5 @@
 package myau;
 
-import myau.RandomUtils;
-import myau.RotationUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
 import net.minecraft.block.BlockBasePressurePlate;
@@ -47,13 +45,14 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 
 public class BlockUtils {
+
     private static final Minecraft minecraft = Minecraft.func_71410_x();
 
     private BlockUtils() {
     }
 
     public static boolean isReplaceableAt(BlockPos position) {
-        return BlockUtils.isReplaceable(BlockUtils.minecraft.field_71441_e.func_180495_p(position).func_177230_c());
+        return isReplaceable(minecraft.field_71441_e.func_180495_p(position).func_177230_c());
     }
 
     public static boolean isReplaceable(Block block) {
@@ -64,47 +63,93 @@ public class BlockUtils {
     }
 
     public static boolean isInteractableAt(BlockPos position) {
-        return BlockUtils.isInteractable(BlockUtils.minecraft.field_71441_e.func_180495_p(position).func_177230_c());
+        return isInteractable(minecraft.field_71441_e.func_180495_p(position).func_177230_c());
     }
 
     public static boolean isInteractable(Block block) {
-        return block instanceof BlockContainer || block instanceof BlockWorkbench || block instanceof BlockAnvil || block instanceof BlockBed || block instanceof BlockDoor && block.func_149688_o() != Material.field_151573_f || block instanceof BlockTrapDoor || block instanceof BlockFenceGate || block instanceof BlockFence || block instanceof BlockButton || block instanceof BlockLever || block instanceof BlockJukebox || block instanceof BlockNote;
+        return block instanceof BlockContainer
+                || block instanceof BlockWorkbench
+                || block instanceof BlockAnvil
+                || block instanceof BlockBed
+                || block instanceof BlockDoor
+                && block.func_149688_o() != Material.field_151573_f
+                || block instanceof BlockTrapDoor
+                || block instanceof BlockFenceGate
+                || block instanceof BlockFence
+                || block instanceof BlockButton
+                || block instanceof BlockLever
+                || block instanceof BlockJukebox
+                || block instanceof BlockNote;
     }
 
     public static boolean isSuitableFullBlock(Block block) {
-        return !(block instanceof BlockStairs) && !(block instanceof BlockSlab) && !(block instanceof BlockEndPortalFrame) && !(block instanceof BlockEndPortal) && !(block instanceof BlockVine) && !(block instanceof BlockPumpkin) && !(block instanceof BlockCactus) && !(block instanceof BlockBush) && !(block instanceof BlockFalling) && !(block instanceof BlockWeb) && !(block instanceof BlockPane) && !(block instanceof BlockCarpet) && !(block instanceof BlockSnow) && !(block instanceof BlockFence) && !(block instanceof BlockFenceGate) && !(block instanceof BlockWall) && !(block instanceof BlockLadder) && !(block instanceof BlockTorch) && !(block instanceof BlockRedstoneWire) && !(block instanceof BlockRedstoneDiode) && !(block instanceof BlockBasePressurePlate) && !(block instanceof BlockTripWire) && !(block instanceof BlockTripWireHook) && !(block instanceof BlockRailBase) && !(block instanceof BlockSlime) && !(block instanceof BlockTNT);
+        return !(block instanceof BlockStairs)
+                && !(block instanceof BlockSlab)
+                && !(block instanceof BlockEndPortalFrame)
+                && !(block instanceof BlockEndPortal)
+                && !(block instanceof BlockVine)
+                && !(block instanceof BlockPumpkin)
+                && !(block instanceof BlockCactus)
+                && !(block instanceof BlockBush)
+                && !(block instanceof BlockFalling)
+                && !(block instanceof BlockWeb)
+                && !(block instanceof BlockPane)
+                && !(block instanceof BlockCarpet)
+                && !(block instanceof BlockSnow)
+                && !(block instanceof BlockFence)
+                && !(block instanceof BlockFenceGate)
+                && !(block instanceof BlockWall)
+                && !(block instanceof BlockLadder)
+                && !(block instanceof BlockTorch)
+                && !(block instanceof BlockRedstoneWire)
+                && !(block instanceof BlockRedstoneDiode)
+                && !(block instanceof BlockBasePressurePlate)
+                && !(block instanceof BlockTripWire)
+                && !(block instanceof BlockTripWireHook)
+                && !(block instanceof BlockRailBase)
+                && !(block instanceof BlockSlime)
+                && !(block instanceof BlockTNT);
     }
 
     public static Vec3 placementHitVector(BlockPos position, EnumFacing face, float yaw, float pitch) {
-        MovingObjectPosition rayHit = RotationUtils.traceBlocks(yaw, pitch, BlockUtils.minecraft.field_71442_b.func_78757_d(), 1.0f);
-        if (rayHit == null || rayHit.field_72313_a != MovingObjectPosition.MovingObjectType.BLOCK || !rayHit.func_178782_a().equals((Object)position) || rayHit.field_178784_b != face) {
-            return BlockUtils.randomFacePoint(position, face);
+        MovingObjectPosition rayHit = RotationUtils.traceBlocks(yaw, pitch, minecraft.field_71442_b.func_78757_d(), 1.0f);
+        if (rayHit == null
+                || rayHit.field_72313_a != MovingObjectPosition.MovingObjectType.BLOCK
+                || !rayHit.func_178782_a().equals((Object) position)
+                || rayHit.field_178784_b != face) {
+            return randomFacePoint(position, face);
         }
         return rayHit.field_72307_f;
     }
 
     public static Vec3 randomFacePoint(BlockPos position, EnumFacing face) {
-        Block block = BlockUtils.minecraft.field_71441_e.func_180495_p(position).func_177230_c();
-        Vec3 point = new Vec3((double)position.func_177958_n() + Math.min(Math.max(RandomUtils.randomDouble(0.0, 1.0), block.func_149704_x()), block.func_149753_y()), (double)position.func_177956_o() + Math.min(Math.max(RandomUtils.randomDouble(0.0, 1.0), block.func_149665_z()), block.func_149669_A()), (double)position.func_177952_p() + Math.min(Math.max(RandomUtils.randomDouble(0.0, 1.0), block.func_149706_B()), block.func_149693_C()));
-        switch (face) {
-            case DOWN: {
-                return new Vec3(point.field_72450_a, (double)position.func_177956_o() + block.func_149665_z(), point.field_72449_c);
-            }
-            case UP: {
-                return new Vec3(point.field_72450_a, (double)position.func_177956_o() + block.func_149669_A(), point.field_72449_c);
-            }
-            case NORTH: {
-                return new Vec3(point.field_72450_a, point.field_72448_b, (double)position.func_177952_p() + block.func_149706_B());
-            }
-            case EAST: {
-                return new Vec3((double)position.func_177958_n() + block.func_149753_y(), point.field_72448_b, point.field_72449_c);
-            }
-            case SOUTH: {
-                return new Vec3(point.field_72450_a, point.field_72448_b, (double)position.func_177952_p() + block.func_149693_C());
-            }
-            case WEST: {
-                return new Vec3((double)position.func_177958_n() + block.func_149704_x(), point.field_72448_b, point.field_72449_c);
-            }
+        Block block = minecraft.field_71441_e.func_180495_p(position).func_177230_c();
+        Vec3 point = new Vec3((double) position.func_177958_n() + Math.min(Math.max(RandomUtils.randomDouble(0.0, 1.0), block.func_149704_x()), block.func_149753_y()), (double) position.func_177956_o() + Math.min(Math.max(RandomUtils.randomDouble(0.0, 1.0), block.func_149665_z()), block.func_149669_A()), (double) position.func_177952_p() + Math.min(Math.max(RandomUtils.randomDouble(0.0, 1.0), block.func_149706_B()), block.func_149693_C()));
+        switch(face) {
+            case DOWN:
+                {
+                    return new Vec3(point.field_72450_a, (double) position.func_177956_o() + block.func_149665_z(), point.field_72449_c);
+                }
+            case UP:
+                {
+                    return new Vec3(point.field_72450_a, (double) position.func_177956_o() + block.func_149669_A(), point.field_72449_c);
+                }
+            case NORTH:
+                {
+                    return new Vec3(point.field_72450_a, point.field_72448_b, (double) position.func_177952_p() + block.func_149706_B());
+                }
+            case EAST:
+                {
+                    return new Vec3((double) position.func_177958_n() + block.func_149753_y(), point.field_72448_b, point.field_72449_c);
+                }
+            case SOUTH:
+                {
+                    return new Vec3(point.field_72450_a, point.field_72448_b, (double) position.func_177952_p() + block.func_149693_C());
+                }
+            case WEST:
+                {
+                    return new Vec3((double) position.func_177958_n() + block.func_149704_x(), point.field_72448_b, point.field_72449_c);
+                }
         }
         return point;
     }

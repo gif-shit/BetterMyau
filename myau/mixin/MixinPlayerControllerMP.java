@@ -14,10 +14,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@SideOnly(value=Side.CLIENT)
-@Mixin(value={PlayerControllerMP.class})
+@SideOnly(value = Side.CLIENT)
+@Mixin(value = { PlayerControllerMP.class })
 public abstract class MixinPlayerControllerMP {
-    @Inject(method={"windowClick"}, at={@At(value="HEAD")}, cancellable=true)
+
+    @Inject(method = { "windowClick" }, at = { @At(value = "HEAD") }, cancellable = true)
     private void onWindowClick(int windowId, int slotId, int mouseButton, int clickMode, EntityPlayer player, CallbackInfoReturnable<ItemStack> callbackInfo) {
         if (MyauClient.eventBus != null) {
             WindowClickEvent event = new WindowClickEvent(windowId, slotId, mouseButton, clickMode);
@@ -28,7 +29,7 @@ public abstract class MixinPlayerControllerMP {
         }
     }
 
-    @Inject(method={"onStoppedUsingItem"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method = { "onStoppedUsingItem" }, at = { @At(value = "HEAD") }, cancellable = true)
     private void beforeStopUsingItem(CallbackInfo callbackInfo) {
         if (MyauClient.eventBus != null) {
             StopUsingItemEvent stopUsingItemEvent = new StopUsingItemEvent();

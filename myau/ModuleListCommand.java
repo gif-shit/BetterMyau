@@ -2,13 +2,9 @@ package myau;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import myau.ChatUtils;
-import myau.Command;
-import myau.Module;
-import myau.MyauClient;
 
-public class ModuleListCommand
-extends Command {
+public class ModuleListCommand extends Command {
+
     public ModuleListCommand() {
         super(new ArrayList<String>(Arrays.asList("list", "l", "modules", "myau")));
     }
