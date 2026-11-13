@@ -1,14 +1,18 @@
 # BetterMyau
 
-BetterMyau 5.1 is a client-side mod for Minecraft Forge 1.8.9. The client sources are in `myau/`, and the bundled profile and Forge metadata are in `resources/`.
+BetterMyau 5.2 is a client-side mod for Minecraft Forge 1.8.9. The client sources are in `myau/`, and the bundled profile and Forge metadata are in `resources/`.
 
 ## Install
 
-Download [`5.1.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.1) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
+Download [`5.2.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.2) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
+
+## What's new in 5.2
+
+- Rewound.cc flight module: Fly ported from Ivory's active Fly3 module, with Rewound A (Vanilla and OldNCP Slow/Damage), Rewound B, bow damage, drop flight, optional vertical ascent, and timer controls. The existing `Fly` config section and horizontal/vertical speed keys are retained; new settings use Ivory's defaults.
+- 1st commit from bleach
 
 ## What's new in 5.1
 
-- Fly ported from Ivory's active Fly3 module, with Rewound A (Vanilla and OldNCP Slow/Damage), Rewound B, bow damage, drop flight, optional vertical ascent, and timer controls. The existing `Fly` config section and horizontal/vertical speed keys are retained; new settings use Ivory's defaults.
 - NoSlow Blink takes priority over KillAura AutoBlock while holding a sword. The selected AutoBlock mode resumes when Blink stops taking priority.
 - NoSlow shows its current mode in the ArrayList when HUD suffixes are enabled.
 
@@ -34,7 +38,7 @@ The PowerShell build compiles the updated classes with JDK 8 and overlays them o
 .\build.ps1 -BaseJar 'C:/path/to/5.1.jar' -MinecraftSrg 'C:/path/to/mc-srg.jar' -Libraries 'C:/path/to/libraries' -Jdk 'C:/path/to/jdk8/bin'
 ```
 
-The build writes `build/5.1.jar`.
+The build writes `build/5.2.jar`.
 
 Run the headless Fly regression checks after building:
 

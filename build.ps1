@@ -58,7 +58,7 @@ try {
             Remove-Item -Force
     }
     Copy-Item -Recurse -Force (Join-Path $classes 'myau') $jarDir
-    $archive = Join-Path $stage '5.1.jar'
+    $archive = Join-Path $stage '5.2.jar'
     Push-Location $jarDir
     try {
         & "$Jdk/jar.exe" cfm $archive META-INF/MANIFEST.MF .
@@ -66,7 +66,7 @@ try {
     } finally {
         Pop-Location
     }
-    $destination = Join-Path $out '5.1.jar'
+    $destination = Join-Path $out '5.2.jar'
     Move-Item -Force -LiteralPath $archive -Destination $destination
     Write-Output "Built $destination"
 } finally {
