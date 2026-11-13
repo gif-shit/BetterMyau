@@ -27,6 +27,7 @@ $classpath = @($BaseJar, $MinecraftSrg) + @($dependencies | ForEach-Object {
 # Overlay the modified classes on the original archive.
 $sources = @(
     'ScaffoldModule', 'HypixelScaffoldPacing', 'DisplaceModule',
+    'FlyModule', 'mixin/AccessorC03PacketPlayer', 'mixin/MixinFlyPlayer',
     'HUDModule', 'TabGui', 'ModuleCategory', 'ClickGuiScreen', 'MyauForgeMod',
     'KillAuraModule', 'ModuleModeIds', 'AutoClickerModule', 'OutgoingBufferOwner',
     'NoSlowModule', 'NoSlowBlink', 'mixin/MixinNoSlowBlinkInput', 'mixin/MixinNoSlowBlinkController',

@@ -8,6 +8,7 @@ Download [`5.1.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.1) a
 
 ## What's new in 5.1
 
+- Fly ported from Ivory's active Fly3 module, with Rewound A (Vanilla and OldNCP Slow/Damage), Rewound B, bow damage, drop flight, optional vertical ascent, and timer controls. The existing `Fly` config section and horizontal/vertical speed keys are retained; new settings use Ivory's defaults.
 - NoSlow Blink takes priority over KillAura AutoBlock while holding a sword. The selected AutoBlock mode resumes when Blink stops taking priority.
 - NoSlow shows its current mode in the ArrayList when HUD suffixes are enabled.
 
@@ -34,3 +35,11 @@ The PowerShell build compiles the updated classes with JDK 8 and overlays them o
 ```
 
 The build writes `build/5.1.jar`.
+
+Run the headless Fly regression checks after building:
+
+```powershell
+.\tests\test-fly.ps1 -MinecraftSrg 'C:/path/to/mc-srg.jar' -Libraries 'C:/path/to/libraries' -Jdk 'C:/path/to/jdk8/bin'
+```
+
+These checks cover the port's movement, packet flags, damage setup, bow timeout, and timer restoration. They do not establish live server compatibility.

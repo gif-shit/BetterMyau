@@ -150,7 +150,8 @@
       "getBlockLayer": "Lnet/minecraft/block/BlockWeb;func_180664_k()Lnet/minecraft/util/EnumWorldBlockLayer;"
     },
     "myau/mixin/AccessorC03PacketPlayer": {
-      "onGround": "field_149474_g:Z"
+      "onGround": "field_149474_g:Z",
+      "y": "field_149477_b:D"
     },
     "myau/mixin/AccessorC14PacketTabComplete": {
       "message": "field_149420_a:Ljava/lang/String;"
@@ -179,6 +180,10 @@
     "myau/mixin/MixinGuiIngame": {
       "Lnet/minecraft/entity/player/InventoryPlayer;getCurrentItem()Lnet/minecraft/item/ItemStack;": "Lnet/minecraft/entity/player/InventoryPlayer;func_70448_g()Lnet/minecraft/item/ItemStack;",
       "updateTick": "Lnet/minecraft/client/gui/GuiIngame;func_73831_a()V"
+    },
+    "myau/mixin/MixinFlyPlayer": {
+      "onUpdateWalkingPlayer": "Lnet/minecraft/client/entity/EntityPlayerSP;func_175161_p()V",
+      "Lnet/minecraft/client/entity/EntityPlayerSP;onGround:Z": "Lnet/minecraft/client/entity/EntityPlayerSP;field_70122_E:Z"
     }
   },
   "data": {
@@ -333,7 +338,8 @@
         "getBlockLayer": "Lako;m()Ladf;"
       },
       "myau/mixin/AccessorC03PacketPlayer": {
-        "onGround": "f:Z"
+        "onGround": "f:Z",
+        "y": "b:D"
       },
       "myau/mixin/AccessorC14PacketTabComplete": {
         "message": "a:Ljava/lang/String;"
@@ -362,6 +368,10 @@
       "myau/mixin/MixinGuiIngame": {
         "Lnet/minecraft/entity/player/InventoryPlayer;getCurrentItem()Lnet/minecraft/item/ItemStack;": "Lwm;h()Lzx;",
         "updateTick": "Lavo;c()V"
+      },
+      "myau/mixin/MixinFlyPlayer": {
+        "onUpdateWalkingPlayer": "Lbew;p()V",
+        "Lnet/minecraft/client/entity/EntityPlayerSP;onGround:Z": "Lbew;C:Z"
       }
     },
     "searge": {
@@ -515,7 +525,8 @@
         "getBlockLayer": "Lnet/minecraft/block/BlockWeb;func_180664_k()Lnet/minecraft/util/EnumWorldBlockLayer;"
       },
       "myau/mixin/AccessorC03PacketPlayer": {
-        "onGround": "field_149474_g:Z"
+        "onGround": "field_149474_g:Z",
+        "y": "field_149477_b:D"
       },
       "myau/mixin/AccessorC14PacketTabComplete": {
         "message": "field_149420_a:Ljava/lang/String;"
@@ -544,6 +555,10 @@
       "myau/mixin/MixinGuiIngame": {
         "Lnet/minecraft/entity/player/InventoryPlayer;getCurrentItem()Lnet/minecraft/item/ItemStack;": "Lnet/minecraft/entity/player/InventoryPlayer;func_70448_g()Lnet/minecraft/item/ItemStack;",
         "updateTick": "Lnet/minecraft/client/gui/GuiIngame;func_73831_a()V"
+      },
+      "myau/mixin/MixinFlyPlayer": {
+        "onUpdateWalkingPlayer": "Lnet/minecraft/client/entity/EntityPlayerSP;func_175161_p()V",
+        "Lnet/minecraft/client/entity/EntityPlayerSP;onGround:Z": "Lnet/minecraft/client/entity/EntityPlayerSP;field_70122_E:Z"
       }
     }
   }

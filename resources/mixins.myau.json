@@ -31,6 +31,7 @@
     "MixinEntityLivingBase",
     "MixinEntityPlayer",
     "MixinEntityPlayerSP",
+    "MixinFlyPlayer",
     "MixinEntityRenderer",
     "MixinFreelookEntity",
     "MixinFreelookRenderer",
