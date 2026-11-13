@@ -8,7 +8,7 @@ Download [`5.3.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.3) a
 
 ## What's new in 5.3
 
-- Added STABLE rotations to Scaffold: yaw stays fixed while bridging, with pitch adjusting for placement. The existing Hypixel rotations are retained.
+- Added STABLE rotations to Scaffold: follows your camera and movement inputs without turning toward individual blocks. Pitch adjusts for placement. The existing Hypixel rotations are retained.
 - Added tower-on-press: hold right-click to activate the selected tower mode.
 
 -bleach

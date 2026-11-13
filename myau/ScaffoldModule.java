@@ -551,7 +551,7 @@ extends Module {
         float f3 = rotationUpdateEvent.getPreviousPitch();
         float f4 = this.getMovementYaw();
         float f5 = f4 - 180.0f;
-        if (isStableRotation() && Float.isNaN(stableYaw)) {
+        if (isStableRotation()) {
             stableYaw = RotationUtils.snapToMouseSensitivity(f5, f2);
         }
         if (this.isDiagonalYaw(f4)) {

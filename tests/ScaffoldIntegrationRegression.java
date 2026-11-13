@@ -186,7 +186,7 @@ public final class ScaffoldIntegrationRegression {
         for (int block = 1; block <= 48; ++block) {
             player.field_70161_v = block + 0.75;
             player.field_70166_s = player.field_70161_v - 1;
-            player.field_70177_z = block > 10 ? 25 : 0;
+            player.field_70177_z = 0;
             RotationUpdateEvent rotation = new RotationUpdateEvent(previousYaw, previousPitch, player.field_70177_z, 0);
             module.onRotationUpdate(rotation);
             if (block == 1) lockedYaw = rotation.getYaw();
@@ -202,6 +202,32 @@ public final class ScaffoldIntegrationRegression {
             }
         }
         check(controller.placed - start == 48, "forty-eight blocks placed without side placements");
+        player.field_70177_z = -90;
+        player.field_70161_v = player.field_70166_s = 48.5;
+        for (int block = 1; block <= 8; ++block) {
+            player.field_70165_t = block + 0.75;
+            player.field_70169_q = player.field_70165_t - 1;
+            RotationUpdateEvent turn = new RotationUpdateEvent(previousYaw, previousPitch, player.field_70177_z, 0);
+            module.onRotationUpdate(turn);
+            check(Math.abs(net.minecraft.util.MathHelper.func_76142_g(turn.getYaw() - 90)) < 0.01, "Stable follows deliberate camera turn");
+            check(world.blocks.containsKey(new BlockPos(block, 63, 48)), "Stable places along the new camera direction");
+            previousYaw = turn.getYaw(); previousPitch = turn.getPitch();
+        }
+        KeyBinding.func_74510_a(17, false);
+        KeyBinding.func_74510_a(30, true);
+        player.field_70165_t = player.field_70169_q = 8.5;
+        for (int block = 1; block <= 8; ++block) {
+            player.field_70161_v = 48.5 - block;
+            player.field_70166_s = player.field_70161_v + 1;
+            RotationUpdateEvent strafe = new RotationUpdateEvent(previousYaw, previousPitch, player.field_70177_z, 0);
+            module.onRotationUpdate(strafe);
+            check(Math.abs(net.minecraft.util.MathHelper.func_76142_g(strafe.getYaw())) < 0.01, "Stable follows deliberate WASD direction changes");
+            check(world.blocks.containsKey(new BlockPos(8, 63, 48 - block)), "Stable places along the new strafe direction");
+            previousYaw = strafe.getYaw(); previousPitch = strafe.getPitch();
+        }
+        check(controller.placed - start == 64, "straight bridge and two controlled turns have no side placements");
+        KeyBinding.func_74510_a(30, false);
+        KeyBinding.func_74510_a(17, true);
         RotationUpdateEvent competing = new RotationUpdateEvent(previousYaw, previousPitch, 25, 0);
         competing.setRotation(60, 20, 10);
         competing.setMovementYaw(60, 10);
@@ -211,12 +237,14 @@ public final class ScaffoldIntegrationRegression {
         RotationUpdateEvent reset = new RotationUpdateEvent(previousYaw, previousPitch, 90, 0);
         player.field_70177_z = 90;
         module.onRotationUpdate(reset);
-        check(Math.abs(reset.getYaw() - lockedYaw) > 10, "world change releases Stable yaw lock");
+        check(Math.abs(reset.getYaw() - lockedYaw) > 10, "Stable accepts the current direction after a world change");
         module.setEnabled(false);
         check(player.field_71071_by.field_70461_c == 3, "disable restores original hotbar slot");
 
         player.field_70161_v = player.field_70166_s = 0.5;
+        player.field_70165_t = player.field_70169_q = 0.5;
         player.field_71071_by.field_70461_c = 2;
+        player.field_71071_by.field_70462_a[2].field_77994_a = 64;
         for (int mode = 1; mode <= 2; ++mode) {
             module.tower.setValue(mode);
             module.towerOnPress.setValue(true);
