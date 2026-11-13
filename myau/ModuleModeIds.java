@@ -218,7 +218,9 @@ public final class ModuleModeIds {
         public static final int COLOR_HUD = 2;
         public static final int HEALTH_BAR_NONE = 0;
         public static final int HEALTH_BAR_2D = 1;
-        public static final int HEALTH_BAR_RAVEN = 2;
+        public static final int HEALTH_BAR_3D = 2;
+        public static final int HEALTH_BAR_STYLE_MYAU = 0;
+        public static final int HEALTH_BAR_STYLE_RAVEN = 1;
 
         private ESP() {
         }

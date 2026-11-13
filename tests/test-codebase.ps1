@@ -17,6 +17,10 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'ClickGUI category checks failed' }
     & "$Jdk/java.exe" -ea -cp ((@($out) + $classpath) -join ';') myau.ItemSpoofBlockRegression
     if ($LASTEXITCODE -ne 0) { throw 'Item-spoof visual block checks failed' }
+    & "$Jdk/java.exe" -ea -cp ((@($out) + $classpath) -join ';') myau.ItemEffectsRegression $MinecraftSrg (Join-Path $root 'build/bettermyau u6.1.jar')
+    if ($LASTEXITCODE -ne 0) { throw 'ItemEffects checks failed' }
+    & "$Jdk/java.exe" -ea -cp ((@($out) + $classpath) -join ';') myau.ESPHealthBarRegression
+    if ($LASTEXITCODE -ne 0) { throw 'ESP health-bar checks failed' }
 } finally {
     Pop-Location
 }

@@ -1,6 +1,7 @@
 package myau.mixin;
 
 import myau.AntiDebuffModule;
+import myau.ItemEffectsModule;
 import myau.KillAuraModule;
 import myau.LivingUpdateEvent;
 import myau.MovementInputEvent;
@@ -27,6 +28,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @SideOnly(value = Side.CLIENT)
 @Mixin(value = { EntityPlayerSP.class })
 public abstract class MixinEntityPlayerSP extends MixinEntityPlayer {
+
+    @Inject(method = "func_71038_i", at = @At("HEAD"), remap = false)
+    private void observeItemEffectsSwing(CallbackInfo callbackInfo) {
+        ItemEffectsModule effects = ItemEffectsModule.current();
+        if (effects != null) effects.onSwing();
+    }
 
     @Unique
     private float spoofedYaw = Float.NaN;

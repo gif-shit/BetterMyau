@@ -104,6 +104,7 @@ public final class MyauClient {
         registerModule(new InvManagerModule());
         registerModule(new InvWalkModule());
         registerModule(new ItemESPModule());
+        registerModule(new ItemEffectsModule());
         registerModule(new JesusModule());
         registerModule(new KeepSprintModule());
         registerModule(new KillAuraModule());

@@ -17,14 +17,20 @@ import org.lwjgl.util.vector.Vector4f;
 public class ESPModule extends Module {
 
     private static final Minecraft minecraft = Minecraft.func_71410_x();
-    private final OutlineShader outlineShader = new OutlineShader();
-    private final ColorMaskShader colorShader = new ColorMaskShader();
+    private OutlineShader outlineShader;
+    private ColorMaskShader colorShader;
     private Framebuffer outlineFramebuffer;
     private boolean nameTagsAllowed = true;
     private boolean enchantmentGlintAllowed = true;
     public final ModeSetting mode = new ModeSetting("mode", 2, new String[] { "NONE", "2D", "3D", "OUTLINE" });
     public final ModeSetting color = new ModeSetting("color", 0, new String[] { "DEFAULT", "TEAMS", "HUD" });
-    public final ModeSetting healthBar = new ModeSetting("health-bar", 0, new String[] { "NONE", "2D", "RAVEN" });
+    public final ModeSetting healthBar = new ModeSetting("health-bar", 0, new String[] { "NONE", "2D", "3D" }) {
+        @Override
+        public boolean parseValue(String input) {
+            return super.parseValue("RAVEN".equalsIgnoreCase(input) ? "3D" : input);
+        }
+    };
+    public final ModeSetting healthBarStyle = new ModeSetting("health-bar-style", 0, new String[] { "MYAU", "RAVEN" }, () -> healthBar.getValue() != 0);
     public final BooleanSetting players = new BooleanSetting("players", true);
     public final BooleanSetting friends = new BooleanSetting("friends", true);
     public final BooleanSetting enemies = new BooleanSetting("enemies", true);
@@ -94,6 +100,14 @@ public class ESPModule extends Module {
         ChatUtils.addFormattedMessage(String.format("%s%s: &cFramebuffer is not enabled!&r", "&7[&bMyau&7] &r", this.getName()));
     }
 
+    boolean hasOverlayHealthBar() {
+        return healthBar.getValue() == 1 && healthBarStyle.getValue() == 0;
+    }
+
+    boolean hasWorldHealthBar() {
+        return healthBar.getValue() != 0 && (healthBar.getValue() == 2 || healthBarStyle.getValue() == 1);
+    }
+
     @EventHandler
     public void onFramebufferResize(FramebufferResizeEvent event) {
         if (this.outlineFramebuffer != null) {
@@ -108,7 +122,7 @@ public class ESPModule extends Module {
             return;
         }
         int selectedMode = this.mode.getValue();
-        if (selectedMode != 1 && selectedMode != 3 && this.healthBar.getValue() != 1) {
+        if (selectedMode != 1 && selectedMode != 3 && !this.hasOverlayHealthBar()) {
             return;
         }
         if (selectedMode == 3 && !OpenGlHelper.func_148822_b()) {
@@ -122,7 +136,7 @@ public class ESPModule extends Module {
         if (selectedMode == 3) {
             this.drawOutlines(event, targets);
         }
-        if (selectedMode != 1 && this.healthBar.getValue() != 1) {
+        if (selectedMode != 1 && !this.hasOverlayHealthBar()) {
             return;
         }
         HashMap<EntityPlayer, Vector4f> screenBounds = new HashMap<EntityPlayer, Vector4f>();
@@ -148,7 +162,7 @@ public class ESPModule extends Module {
                 RenderUtils.drawBorderedRect(left, top, right, bottom, 3.0f, 0, (rgb & 0xFCFCFC) >> 2 | rgb & 0xFF000000);
                 RenderUtils.drawBorderedRect(left, top, right, bottom, 1.5f, 0, rgb);
             }
-            if (this.healthBar.getValue() != 1)
+            if (!this.hasOverlayHealthBar())
                 continue;
             float health = player.func_110143_aJ() + player.func_110139_bj();
             float fraction = Math.min(Math.max(health / player.func_110138_aP(), 0.0f), 1.0f);
@@ -163,6 +177,8 @@ public class ESPModule extends Module {
     }
 
     private void drawOutlines(RenderOverlayEvent event, List<EntityPlayer> targets) {
+        if (this.outlineShader == null) this.outlineShader = new OutlineShader();
+        if (this.colorShader == null) this.colorShader = new ColorMaskShader();
         GlStateManager.func_179094_E();
         GlStateManager.func_179123_a();
         if (this.outlineFramebuffer == null) {
@@ -203,7 +219,7 @@ public class ESPModule extends Module {
         if (!this.isEnabled()) {
             return;
         }
-        if (this.mode.getValue() != 2 && this.healthBar.getValue() != 2) {
+        if (this.mode.getValue() != 2 && !this.hasWorldHealthBar()) {
             return;
         }
         if (this.mode.getValue() == 3 && !OpenGlHelper.func_148822_b()) {
@@ -216,7 +232,7 @@ public class ESPModule extends Module {
                 Color tint = this.colorFor(player);
                 RenderUtils.outlineEntityBounds((Entity) player, tint.getRed(), tint.getGreen(), tint.getBlue(), tint.getAlpha(), 1.5f, 0.1f);
             }
-            if (this.healthBar.getValue() != 2)
+            if (!this.hasWorldHealthBar())
                 continue;
             double x = MathUtils.lerpDouble(player.field_70142_S, player.field_70165_t, event.getPartialTicks()) - ((AccessorRenderManager) minecraft.func_175598_ae()).getRenderPosX();
             double y = MathUtils.lerpDouble(player.field_70137_T, player.field_70163_u, event.getPartialTicks()) - ((AccessorRenderManager) minecraft.func_175598_ae()).getRenderPosY() - (double) 0.1f;
@@ -224,6 +240,11 @@ public class ESPModule extends Module {
             GlStateManager.func_179094_E();
             GlStateManager.func_179137_b((double) x, (double) y, (double) z);
             GlStateManager.func_179114_b((float) (minecraft.func_175598_ae().field_78735_i * -1.0f), (float) 0.0f, (float) 1.0f, (float) 0.0f);
+            if (this.healthBarStyle.getValue() == 1) {
+                RavenHealthBar.draw(player);
+                GlStateManager.func_179121_F();
+                continue;
+            }
             float currentHealth = player.func_110143_aJ() + player.func_110139_bj();
             float healthFraction = Math.min(Math.max(currentHealth / player.func_110138_aP(), 0.0f), 1.0f);
             Color tint = ColorUtils.healthGradient(healthFraction);

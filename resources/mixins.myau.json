@@ -41,6 +41,7 @@
     "MixinGuiIngame",
     "MixinGuiIngameForge",
     "MixinItemStack",
+    "MixinItemEffects",
     "MixinKeyBinding",
     "MixinMinecraft",
     "MixinNetHandlerPlayClient",
