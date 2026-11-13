@@ -15,6 +15,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Update 6.0 regression checks failed' }
     & "$Jdk/java.exe" -ea -cp ((@($out) + $classpath) -join ';') myau.ClickGuiCategoriesRegression
     if ($LASTEXITCODE -ne 0) { throw 'ClickGUI category checks failed' }
+    & "$Jdk/java.exe" -ea -cp ((@($out) + $classpath) -join ';') myau.ItemSpoofBlockRegression
+    if ($LASTEXITCODE -ne 0) { throw 'Item-spoof visual block checks failed' }
 } finally {
     Pop-Location
 }

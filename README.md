@@ -1,10 +1,18 @@
 # BetterMyau
 
-BetterMyau 6.0 is a client-side mod for Minecraft Forge 1.8.9. The client sources are in `myau/`, and the bundled profile and Forge metadata are in `resources/`.
+BetterMyau 6.1 is a client-side mod for Minecraft Forge 1.8.9. The client sources are in `myau/`, and the bundled profile and Forge metadata are in `resources/`.
 
 ## Install
 
-Download [`bettermyau u6.0.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v6.0) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
+Download [`bettermyau u6.1.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v6.1) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
+
+## What's new in 6.1
+
+- Added visual sword blocking while holding right-click with Scaffold item spoof enabled.
+- Moved DebugAC, ViewPackets, and Test into Misc.
+- Changed the BedTracker status from `SECURE` to `Secure`.
+
+-bleach
 
 ## What's new in 6.0
 
@@ -84,7 +92,7 @@ On Windows, Linux, and macOS, install Python 3 and JDK 8, then run:
 python build.py --base-jar '/path/to/5.1.jar' --minecraft-srg '/path/to/mc-srg.jar' --libraries '/path/to/libraries' --jdk '/path/to/jdk8'
 ```
 
-The build writes `build/bettermyau u6.0.jar`. The PowerShell command above calls the same builder. If `--libraries` is omitted, it uses the platform's standard Minecraft libraries folder; `--jdk` can be omitted when `JAVA_HOME` or `PATH` supplies the JDK.
+The build writes `build/bettermyau u6.1.jar`. The PowerShell command above calls the same builder. If `--libraries` is omitted, it uses the platform's standard Minecraft libraries folder; `--jdk` can be omitted when `JAVA_HOME` or `PATH` supplies the JDK.
 
 The same Forge JAR is used on all three systems. The launcher must supply Java 8 and the matching LWJGL natives. Linux/macOS game rendering has not been tested here.
 

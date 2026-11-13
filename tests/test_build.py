@@ -21,7 +21,7 @@ class BuildChecks(unittest.TestCase):
         self.assertFalse(build.source_owner("myau/predac1.json", owners))
 
     def test_artifact_name(self):
-        self.assertEqual(build.ARTIFACT.name, "bettermyau u6.0.jar")
+        self.assertEqual(build.ARTIFACT.name, "bettermyau u6.1.jar")
 
 
 if __name__ == "__main__":

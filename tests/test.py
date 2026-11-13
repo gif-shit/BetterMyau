@@ -23,7 +23,7 @@ def main():
         build.compile_java(args, sorted((build.ROOT / "tests").rglob("*.java")), classes, paths, stage)
         command = [build.executable("java", args.jdk), "-ea", "-cp", os.pathsep.join([str(classes)] + paths)]
         tests = ["myau.FlyRegression", "myau.FlyHookCheck", "myau.ScaffoldIntegrationRegression", "PitSwapChecks",
-                 "myau.PitSwapIntegrationRegression", "myau.TrajectoriesRegression", "myau.CodebaseRegression", "myau.Update60Regression", "myau.ClickGuiCategoriesRegression"]
+                 "myau.PitSwapIntegrationRegression", "myau.TrajectoriesRegression", "myau.CodebaseRegression", "myau.Update60Regression", "myau.ClickGuiCategoriesRegression", "myau.ItemSpoofBlockRegression"]
         for test in tests:
             subprocess.run(command + [test, str(args.minecraft_srg.resolve()), str(build.ARTIFACT)], cwd=str(stage), check=True)
     subprocess.run([sys.executable, "-m", "unittest", "discover", "-s", str(build.ROOT / "tests"), "-p", "test_build.py"], check=True)

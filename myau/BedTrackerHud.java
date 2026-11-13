@@ -16,7 +16,7 @@ final class BedTrackerHud {
         if (!tracked) return "searching";
         if (!loaded) return "OUT OF RANGE";
         if (!intact) return "BED LOST";
-        return threat >= 0 && threat < range ? "THREAT NEARBY" : "SECURE";
+        return threat >= 0 && threat < range ? "THREAT NEARBY" : "Secure";
     }
 
     static int accent(boolean tracked, boolean loaded, boolean intact, double threat, int range) {

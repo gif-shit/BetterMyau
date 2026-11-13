@@ -5,10 +5,12 @@ import myau.AntiDebuffModule;
 import myau.BlockReachEvent;
 import myau.EntityReachEvent;
 import myau.GhostHandModule;
+import myau.ItemUtils;
 import myau.KillAuraModule;
 import myau.MutableValue;
 import myau.MyauClient;
 import myau.NoHurtCamModule;
+import myau.PlayerUtils;
 import myau.ScaffoldModule;
 import myau.ViewClipModule;
 import net.minecraft.block.Block;
@@ -63,8 +65,13 @@ public abstract class MixinEntityRenderer {
                 this.spoofedHotbarSlot = new MutableValue<Integer>(this.field_78531_r.field_71439_g.field_71071_by.field_70461_c);
                 this.field_78531_r.field_71439_g.field_71071_by.field_70461_c = spoofedSlot;
             }
+            boolean spoofBlocking = this.spoofedHotbarSlot != null
+                    && this.field_78531_r.field_71415_G
+                    && PlayerUtils.isUseItemKeyDown()
+                    && ItemUtils.isHoldingSword();
             if ((killAura = (KillAuraModule) MyauClient.moduleManager.modules.get(KillAuraModule.class)).isEnabled()
-                    && killAura.shouldRenderBlocking()) {
+                    && killAura.shouldRenderBlocking()
+                    || spoofBlocking) {
                 this.previousItemInUse = new MutableValue<ItemStack>(((AccessorEntityPlayer) this.field_78531_r.field_71439_g).getItemInUse());
                 ((AccessorEntityPlayer) this.field_78531_r.field_71439_g).setItemInUse(this.field_78531_r.field_71439_g.field_71071_by.func_70448_g());
                 this.previousItemUseCount = new MutableValue<Integer>(((AccessorEntityPlayer) this.field_78531_r.field_71439_g).getItemInUseCount());

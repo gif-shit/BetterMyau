@@ -134,7 +134,7 @@ public final class Update60Regression {
         check(BedTrackerHud.status(true, false, false, -1, 48).equals("OUT OF RANGE"), "unloaded bed is not reported destroyed");
         check(BedTrackerHud.status(true, true, false, -1, 48).equals("BED LOST"), "destroyed bed has its own status");
         check(BedTrackerHud.status(true, true, true, 20, 48).equals("THREAT NEARBY"), "nearby threat changes bed status");
-        check(BedTrackerHud.status(true, true, true, 80, 48).equals("SECURE"), "distant enemy does not trigger danger status");
+        check(BedTrackerHud.status(true, true, true, 80, 48).equals("Secure"), "distant enemy does not trigger danger status");
         check(BedTrackerHud.searching(0).equals("searching"), "searching starts lowercase without dots");
         check(BedTrackerHud.searching(400).equals("searching."), "searching animation advances by elapsed time");
         check(BedTrackerHud.searching(800).equals("searching.."), "searching animation has a second dot");
@@ -167,7 +167,7 @@ public final class Update60Regression {
             ((myau.openb4.module.Module) module).link();
             ((myau.openb4.module.Module) module).guiUpdate();
             ModuleCategory expected = module instanceof AutoBlockinModule ? ModuleCategory.PLAYER
-                    : module instanceof BedWarsModule || module instanceof SkyWarsModule || module instanceof AutoLadderModule || module instanceof WeatherModule ? ModuleCategory.MISC : ModuleCategory.RENDER;
+                    : module instanceof BedWarsModule || module instanceof SkyWarsModule || module instanceof AutoLadderModule || module instanceof WeatherModule || module instanceof DebugAcModule || module instanceof ViewPacketsModule || module instanceof TestModule ? ModuleCategory.MISC : ModuleCategory.RENDER;
             check(ModuleCategory.of(module) == expected, module.getName() + " appears in its requested category");
         }
         BedWarsModule bedwars = (BedWarsModule) modules[4];
