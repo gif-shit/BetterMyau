@@ -22,17 +22,6 @@ extends Event {
         this.movementYaw = yaw;
     }
 
-    public RotationUpdateEvent(RotationUpdateEvent source) {
-        this.previousYaw = source.previousYaw;
-        this.previousPitch = source.previousPitch;
-        this.yaw = source.yaw;
-        this.pitch = source.pitch;
-        this.movementYaw = source.movementYaw;
-        this.rotationPriority = source.rotationPriority;
-        this.movementPriority = source.movementPriority;
-        this.modified = source.modified;
-    }
-
     public float getPreviousYaw() {
         return this.previousYaw;
     }
@@ -55,10 +44,6 @@ extends Event {
 
     public int getMovementPriority() {
         return this.movementPriority;
-    }
-
-    public int getRotationPriority() {
-        return this.rotationPriority;
     }
 
     public boolean isModified() {

@@ -8,8 +8,8 @@ Download [`5.3.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.3) a
 
 ## What's new in 5.3
 
-- Reworked Scaffold placement, hotbar selection, movement, towers, keep-Y, sneaking, and multi-place. The existing Hypixel rotations are retained.
-- Added STABLE rotations, OLDNCP keep-Y, vertical tower prediction, tower-on-press, and sneak controls.
+- Added STABLE rotations to Scaffold: yaw stays fixed while bridging, with pitch adjusting for placement. The existing Hypixel rotations are retained.
+- Added tower-on-press: hold right-click to activate the selected tower mode.
 
 -bleach
 
@@ -55,7 +55,7 @@ Run the headless Fly regression checks after building:
 
 These checks cover movement, packet flags, damage setup, bow timeout, and timer restoration. They do not establish live server compatibility.
 
-Run the Scaffold core and integration checks, including the Fly checks for the shared event hooks:
+Run the Scaffold rotation and tower checks, including the Fly checks:
 
 ```powershell
 .\tests\test-scaffold.ps1 -MinecraftSrg 'C:/path/to/mc-srg.jar' -Libraries 'C:/path/to/libraries' -Jdk 'C:/path/to/jdk8/bin'

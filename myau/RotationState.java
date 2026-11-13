@@ -6,7 +6,6 @@ import net.minecraft.util.MathHelper;
 public final class RotationState {
     private static final Minecraft minecraft = Minecraft.func_71410_x();
     private static int ticksSinceActive = -1;
-    private static int updateTicks = -1;
     private static float previousBodyYaw;
     private static float bodyYaw;
     private static float previousHeadYaw;
@@ -45,7 +44,6 @@ public final class RotationState {
 
     public static void update(boolean active, float requestedYaw, float requestedPitch, float requestedMovementYaw, int requestedMovementPriority) {
         ticksSinceActive = active ? 0 : ticksSinceActive + 1;
-        updateTicks = ticksSinceActive;
         previousBodyYaw = bodyYaw;
         bodyYaw = active ? RotationState.computeBodyYaw(requestedYaw, bodyYaw) : RotationState.minecraft.field_71439_g.field_70761_aq;
         previousHeadYaw = headYaw;
@@ -58,15 +56,6 @@ public final class RotationState {
 
     public static boolean isActive() {
         return RotationState.isActiveWithinTicks(0);
-    }
-
-    public static void replace(boolean active, float requestedYaw, float requestedPitch, float requestedMovementYaw, int requestedMovementPriority) {
-        ticksSinceActive = active ? 0 : updateTicks;
-        bodyYaw = active ? RotationState.computeBodyYaw(requestedYaw, previousBodyYaw) : minecraft.field_71439_g.field_70761_aq;
-        headYaw = active ? requestedYaw : minecraft.field_71439_g.field_70759_as;
-        pitch = active ? requestedPitch : minecraft.field_71439_g.field_70125_A;
-        movementYaw = requestedMovementYaw;
-        movementPriority = requestedMovementPriority;
     }
 
     public static boolean isActiveWithinTicks(int maximumInactiveTicks) {

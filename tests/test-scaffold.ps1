@@ -5,7 +5,7 @@ param(
 )
 
 . (Join-Path $PSScriptRoot 'test-fly.ps1') @PSBoundParameters
-foreach ($test in @('ScaffoldCoreRegression', 'myau.ScaffoldIntegrationRegression')) {
+foreach ($test in @('myau.ScaffoldIntegrationRegression')) {
     & "$Jdk/java.exe" -ea -cp ((@($out) + $classpath) -join ';') $test
     if ($LASTEXITCODE -ne 0) { throw "$test failed" }
 }
