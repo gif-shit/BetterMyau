@@ -38,6 +38,8 @@ extends MixinEntityPlayer {
     private float originalYaw;
     @Unique
     private float originalPitch;
+    @Unique
+    private RotationUpdateEvent walkingRotation;
     @Shadow
     private float field_175164_bL;
     @Shadow
@@ -52,6 +54,7 @@ extends MixinEntityPlayer {
         if (this.field_70170_p.func_175667_e(new BlockPos(this.field_70165_t, 0.0, this.field_70161_v)) && MyauClient.eventBus != null) {
             RotationUpdateEvent event = new RotationUpdateEvent(this.field_175164_bL, this.field_175165_bM, this.field_70177_z, this.field_70125_A);
             MyauClient.eventBus.post(event);
+            this.walkingRotation = event;
             RotationState.update(event.isModified() && !this.func_70115_ae(), event.getYaw(), event.getPitch(), event.getMovementYaw(), event.getMovementPriority());
             if (event.isModified()) {
                 this.originalYaw = this.field_70177_z;
@@ -98,7 +101,20 @@ extends MixinEntityPlayer {
     @Inject(method={"onUpdate"}, at={@At(value="INVOKE", target="Lnet/minecraft/client/entity/EntityPlayerSP;onUpdateWalkingPlayer()V")})
     private void beforeWalkingPlayerUpdate(CallbackInfo callbackInfo) {
         if (MyauClient.eventBus != null) {
-            MyauClient.eventBus.post(new PreWalkingUpdateEvent());
+            float yaw = this.field_70177_z;
+            float pitch = this.field_70125_A;
+            PreWalkingUpdateEvent event = new PreWalkingUpdateEvent(this.walkingRotation);
+            MyauClient.eventBus.post(event);
+            RotationUpdateEvent rotation = event.getRotation();
+            if (rotation != null && rotation != this.walkingRotation) {
+                if (Float.isNaN(this.originalYaw) || Float.isNaN(this.originalPitch)) {
+                    this.originalYaw = yaw;
+                    this.originalPitch = pitch;
+                }
+                RotationState.replace(rotation.isModified() && !this.func_70115_ae(), rotation.getYaw(), rotation.getPitch(), rotation.getMovementYaw(), rotation.getMovementPriority());
+                this.field_70177_z = rotation.getYaw();
+                this.field_70125_A = rotation.getPitch();
+            }
         }
     }
 

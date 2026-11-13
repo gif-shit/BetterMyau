@@ -6,6 +6,11 @@ BetterMyau 5.2 is a client-side mod for Minecraft Forge 1.8.9. The client source
 
 Download [`5.2.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.2) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
 
+## Development changes
+
+- Scaffold now uses the supplied 260811 reconstruction for placement, hotbar selection, movement, towers, keep-Y, sneaking, and multi-place. The existing Hypixel rotation smoothing and turn pacing are retained. STABLE rotations, OLDNCP keep-Y, vertical tower prediction, and tower-on-press are available.
+- The supplied Scaffold is a functional reconstruction with inferred search and advanced movement policies; original-client and live-server equivalence remain unverified.
+
 ## What's new in 5.2
 
 - Rewound.cc flight module: Fly ported from Ivory's active Fly3 module, with Rewound A (Vanilla and OldNCP Slow/Damage), Rewound B, bow damage, drop flight, optional vertical ascent, and timer controls. The existing `Fly` config section and horizontal/vertical speed keys are retained; new settings use Ivory's defaults.
@@ -47,3 +52,9 @@ Run the headless Fly regression checks after building:
 ```
 
 These checks cover the port's movement, packet flags, damage setup, bow timeout, and timer restoration. They do not establish live server compatibility.
+
+Run the Scaffold core and integration checks, including the Fly checks for the shared event hooks:
+
+```powershell
+.\tests\test-scaffold.ps1 -MinecraftSrg 'C:/path/to/mc-srg.jar' -Libraries 'C:/path/to/libraries' -Jdk 'C:/path/to/jdk8/bin'
+```
