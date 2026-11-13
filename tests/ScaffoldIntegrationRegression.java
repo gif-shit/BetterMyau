@@ -267,8 +267,8 @@ public final class ScaffoldIntegrationRegression {
             float error = Math.abs(net.minecraft.util.MathHelper.func_76142_g(-180 - turn.getYaw()));
             float pitch = targetPitch.getFloat(module);
             if (smoothing[preset] == 100) {
-                check(yawSteps[preset] > 130 && yawSteps[preset] < 180, "hardcoded Stable speed accelerates yaw while preserving smoothing");
-                check(pitchSteps[preset] > pitch * 0.6f && pitchSteps[preset] < pitch, "hardcoded Stable speed accelerates pitch without overshooting");
+                check(yawSteps[preset] > 160 && yawSteps[preset] < 180, "hardcoded Stable speed accelerates yaw while preserving smoothing");
+                check(pitchSteps[preset] > pitch * 0.8f && pitchSteps[preset] < pitch, "hardcoded Stable speed accelerates pitch without overshooting");
             }
             for (int tick = 0; tick < 8; ++tick) {
                 RotationUpdateEvent next = new RotationUpdateEvent(turn.getYaw(), turn.getPitch(), 0, 0);
@@ -287,6 +287,33 @@ public final class ScaffoldIntegrationRegression {
         check(yawSteps[2] < yawSteps[1] && yawSteps[1] <= yawSteps[0], "higher smoothing makes yaw turns progressively gentler");
         check(pitchSteps[2] < pitchSteps[1] && pitchSteps[1] <= pitchSteps[0], "higher smoothing makes pitch turns progressively gentler");
         module.stableSmoothing.setValue(0);
+        world.blocks.clear();
+        world.blocks.put(new BlockPos(0, 63, 0), Blocks.field_150348_b.func_176223_P());
+        module.setEnabled(true);
+        random.setSeed(42);
+        RotationUpdateEvent edge = new RotationUpdateEvent(0, 0, 0, 0);
+        module.onRotationUpdate(edge);
+        start = controller.placed;
+        check(!world.blocks.containsKey(new BlockPos(0, 63, 1)), "no placement before reaching the edge");
+        EventBus bus = new EventBus();
+        bus.register(module);
+        player.field_70161_v = 1.01;
+        bus.post(new PreWalkingUpdateEvent());
+        check(controller.placed == start, "extra placement pass requires a valid current ray");
+        player.field_70161_v = 1 + (player.field_70163_u + player.func_70047_e() - 63.5) / Math.tan(Math.toRadians(edge.getPitch()));
+        bus.post(new PreWalkingUpdateEvent());
+        check(world.blocks.containsKey(new BlockPos(0, 63, 1)) && controller.placed == start + 1, "Stable places after movement in the same tick");
+        bus.post(new PreWalkingUpdateEvent());
+        check(controller.placed == start + 1, "extra placement pass does not duplicate an existing block");
+        world.blocks.remove(new BlockPos(0, 63, 1));
+        module.rotations.setValue(4);
+        bus.post(new PreWalkingUpdateEvent());
+        check(controller.placed == start + 1, "Hypixel keeps its existing placement cadence");
+        module.rotations.setValue(5);
+        module.setEnabled(false);
+        bus.post(new PreWalkingUpdateEvent());
+        check(controller.placed == start + 1, "disabled Scaffold does not run the extra placement pass");
+        player.field_70161_v = player.field_70166_s = 0.5;
         for (int mode = 1; mode <= 2; ++mode) {
             module.tower.setValue(mode);
             module.towerOnPress.setValue(true);

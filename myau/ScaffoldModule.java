@@ -398,7 +398,7 @@ extends Module {
                 yaw = turn[0];
                 pitch = turn[1];
             }
-            float speed = 1.5f;
+            float speed = 1.8f;
             float yawStep = RotationUtils.clampAngleChange(MathHelper.func_76142_g(yaw - previousYaw) * speed, Math.abs(MathHelper.func_76142_g(stableYaw - previousYaw)));
             float pitchStep = RotationUtils.clampAngleChange((pitch - previousPitch) * speed, Math.abs(placementPitch - previousPitch));
             yaw = RotationUtils.snapToMouseSensitivity(previousYaw + yawStep, previousYaw);
@@ -602,6 +602,20 @@ extends Module {
             return;
         }
         this.handleExtraKeepYRecovery();
+    }
+
+    @EventHandler
+    public void onPreWalkingUpdate(PreWalkingUpdateEvent event) {
+        if (!this.isEnabled() || !isStableRotation() || Float.isNaN(stableYaw)
+                || !this.canPlaceWithActiveModules()) {
+            return;
+        }
+        BlockPlacementTarget target = this.findPlacementTarget();
+        if (target == null) return;
+        MovingObjectPosition hit = this.tracePlacement(target.position(), target.face(), tickPlacementYaw, tickPlacementPitch);
+        if (hit == null) return;
+        this.selectPlacementHotbarSlot();
+        this.placeCurrentAndAdditionalBlocks(target, hit.field_72307_f);
     }
 
     @EventHandler
