@@ -45,10 +45,12 @@ public class ScaffoldModule extends Module {
     private boolean wasOnGround;
     private int jumpBaseY;
     private int hypixelJumpDelay;
-    private float stableYaw = Float.NaN;
-    public final ModeSetting rotations = new ModeSetting("rotations", 2, new String[] { "NONE", "DEFAULT", "BACKWARDS", "SIDEWAYS", "HYPIXEL", "STABLE" });
+    private boolean smoothPlaced;
+    private int smoothGroundTicks;
+    private int smoothTicks;
+    private float smoothLimit = 35.0f;
+    public final ModeSetting rotations = new ModeSetting("rotations", 2, new String[] { "NONE", "DEFAULT", "BACKWARDS", "SIDEWAYS", "HYPIXEL", "SMOOTH" });
     public final PercentSetting rotationSmoothing = new PercentSetting("rotation-smoothing", 65, () -> rotations.getValue() == 1 || isHypixelRotation());
-    public final PercentSetting stableSmoothing = new PercentSetting("stable-smoothing", 0, this::isStableRotation);
     public final ModeSetting moveFix = new ModeSetting("move-fix", 1, new String[] { "NONE", "SILENT" });
     public final ModeSetting sprint = new ModeSetting("sprint", 0, new String[] { "NONE", "VANILLA" });
     public final PercentSetting groundMotion = new PercentSetting("ground-motion", 100);
@@ -88,12 +90,11 @@ public class ScaffoldModule extends Module {
     private EnumFacing findConnectingFace(BlockPos blockPos, BlockPos blockPos2) {
         EnumFacing enumFacing = null;
         EnumFacing preferred = null;
-        if (isStableRotation() && !Float.isNaN(stableYaw)) {
+        if (isSmoothRotation()) {
             Vec3 eye = minecraft.field_71439_g.func_174824_e(1.0f);
             AxisAlignedBB bounds = new AxisAlignedBB(blockPos.func_177958_n(), eye.field_72448_b - 1, blockPos.func_177952_p(), blockPos.func_177958_n() + 1, eye.field_72448_b + 1, blockPos.func_177952_p() + 1);
-            MovingObjectPosition hit = RotationUtils.intersectBoundsFrom(bounds, eye, stableYaw, 0, minecraft.field_71442_b.func_78757_d());
-            if (hit != null)
-                preferred = hit.field_178784_b;
+            MovingObjectPosition hit = RotationUtils.intersectBoundsFrom(bounds, eye, getMovementYaw() - 180, 0, minecraft.field_71442_b.func_78757_d());
+            if (hit != null) preferred = hit.field_178784_b;
         }
         double d = 0.0;
         for (EnumFacing enumFacing2 : EnumFacing.field_82609_l) {
@@ -172,6 +173,7 @@ public class ScaffoldModule extends Module {
         if (!bl) {
             return;
         }
+        if (isSmoothRotation()) smoothPlaced = true;
         if (minecraft.field_71442_b.func_178889_l() != WorldSettings.GameType.CREATIVE) {
             --this.remainingStackBlocks;
         }
@@ -235,7 +237,7 @@ public class ScaffoldModule extends Module {
         return rotations.getValue() == HYPIXEL_ROTATION;
     }
 
-    private boolean isStableRotation() {
+    private boolean isSmoothRotation() {
         return rotations.getValue() == 5;
     }
 
@@ -311,8 +313,8 @@ public class ScaffoldModule extends Module {
         if (blockPlacementTarget == null) {
             return null;
         }
-        if (isHypixelRotation() || isStableRotation()) {
-            float yaw = isStableRotation() ? stableYaw : RotationUtils.snapToMouseSensitivity(this.placementYaw, f);
+        if (isHypixelRotation() || isSmoothRotation()) {
+            float yaw = RotationUtils.snapToMouseSensitivity(this.placementYaw, f);
             float pitch = MathHelper.func_76131_a(RotationUtils.snapToMouseSensitivity(this.placementPitch, f2), -90.0f, 90.0f);
             MovingObjectPosition hit = tracePlacement(blockPlacementTarget.position(), blockPlacementTarget.face(), yaw, pitch);
             if (hit != null
@@ -368,7 +370,7 @@ public class ScaffoldModule extends Module {
                     double d5 = (double) blockPlacementTarget.position().func_177956_o() + d2 - minecraft.field_71439_g.field_70163_u - (double) minecraft.field_71439_g.func_70047_e();
                     double d6 = (double) blockPlacementTarget.position().func_177952_p() + d3 - minecraft.field_71439_g.field_70161_v;
                     float[] fArray = RotationUtils.rotationsFromDelta(d4, d5, d6);
-                    fArray[0] = isStableRotation() ? stableYaw : RotationUtils.snapToMouseSensitivity(fArray[0], f);
+                    fArray[0] = RotationUtils.snapToMouseSensitivity(fArray[0], f);
                     fArray[1] = RotationUtils.snapToMouseSensitivity(fArray[1], f2);
                     fArray[1] = MathHelper.func_76131_a((float) fArray[1], (float) -90.0f, (float) 90.0f);
                     MovingObjectPosition movingObjectPosition = RotationUtils.traceBlocks(fArray[0], fArray[1], minecraft.field_71442_b.func_78757_d(), 1.0f);
@@ -399,23 +401,13 @@ public class ScaffoldModule extends Module {
         int mode = rotations.getValue();
         if (mode == 0)
             return;
-        if (isStableRotation()) {
-            float yaw = stableYaw;
-            float pitch = placementPitch;
-            if (stableSmoothing.getValue() > 0) {
-                placementYaw = stableYaw;
-                float[] turn = smoothPlacement(previousYaw, previousPitch, MathHelper.func_76142_g(stableYaw - previousYaw), stableSmoothing.getValue(), 180.0f);
-                yaw = turn[0];
-                pitch = turn[1];
-            }
-            float speed = 1.8f;
-            float yawStep = RotationUtils.clampAngleChange(MathHelper.func_76142_g(yaw - previousYaw) * speed, Math.abs(MathHelper.func_76142_g(stableYaw - previousYaw)));
-            float pitchStep = RotationUtils.clampAngleChange((pitch - previousPitch) * speed, Math.abs(placementPitch - previousPitch));
-            yaw = RotationUtils.snapToMouseSensitivity(previousYaw + yawStep, previousYaw);
-            pitch = RotationUtils.snapToMouseSensitivity(previousPitch + pitchStep, previousPitch);
+        if (isSmoothRotation()) {
+            float[] turn = smoothRotation(previousYaw, previousPitch, placementYaw, placementPitch,
+                    smoothPlaced && smoothGroundTicks <= 3, smoothLimit, smoothTicks);
+            float yaw = RotationUtils.snapToMouseSensitivity(turn[0], previousYaw);
+            float pitch = RotationUtils.snapToMouseSensitivity(turn[1], previousPitch);
             event.setRotation(yaw, pitch, 3);
-            if (moveFix.getValue() == 1)
-                event.setMovementYaw(yaw, 3);
+            if (moveFix.getValue() == 1) event.setMovementYaw(yaw, 3);
             return;
         }
         if (hasPlacementRotation
@@ -467,6 +459,16 @@ public class ScaffoldModule extends Module {
         event.setRotation(yaw, pitch, 3);
         if (moveFix.getValue() == 1)
             event.setMovementYaw(yaw, 3);
+    }
+
+    static float[] smoothRotation(float previousYaw, float previousPitch, float targetYaw, float targetPitch,
+            boolean limited, float limit, int ticks) {
+        float difference = MathHelper.func_76142_g(targetYaw - previousYaw);
+        if (limited) {
+            return new float[] { previousYaw + RotationUtils.clampAngleChange(difference, limit), targetPitch };
+        }
+        float fraction = ticks == 0 ? 0.3f : ticks == 1 ? 0.8f : ticks == 2 ? 0.55f : 1;
+        return new float[] { previousYaw + difference * fraction, previousPitch + (targetPitch - previousPitch) * fraction };
     }
 
     private float[] smoothPlacement(float previousYaw, float previousPitch, float yawDifference, int percent, float maxChange) {
@@ -557,6 +559,8 @@ public class ScaffoldModule extends Module {
             --this.placementDelayTicks;
         }
         boolean onGround = minecraft.field_71439_g.field_70122_E;
+        smoothGroundTicks = onGround ? smoothGroundTicks + 1 : 0;
+        ++smoothTicks;
         if (hypixelJumpDelay > 0)
             --hypixelJumpDelay;
         if (onGround && !wasOnGround && isHypixelRotation() && isJumpCycleActive()) {
@@ -595,9 +599,6 @@ public class ScaffoldModule extends Module {
         float f3 = rotationUpdateEvent.getPreviousPitch();
         float f4 = this.getMovementYaw();
         float f5 = f4 - 180.0f;
-        if (isStableRotation()) {
-            stableYaw = RotationUtils.snapToMouseSensitivity(f5, f2);
-        }
         if (this.isDiagonalYaw(f4)) {
             f = f5;
         } else {
@@ -611,7 +612,7 @@ public class ScaffoldModule extends Module {
             switch(this.rotations.getValue()) {
                 case 5:
                     {
-                        this.placementYaw = stableYaw;
+                        this.placementYaw = RotationUtils.snapToMouseSensitivity(f5, f2);
                         break;
                     }
                 case 2:
@@ -627,6 +628,7 @@ public class ScaffoldModule extends Module {
         }
         BlockPlacementTarget blockPlacementTarget = this.findPlacementTarget();
         Vec3 vec3 = this.findBestPlacementHit(blockPlacementTarget, f2, f3);
+        if (isSmoothRotation() && blockPlacementTarget != null) smoothLimit = RandomUtils.randomFloat(35.0f, 36.0f);
         this.applyPlacementRotation(rotationUpdateEvent, blockPlacementTarget, f2, f3, f5, f);
         this.tickPlacementYaw = rotationUpdateEvent.getYaw();
         this.tickPlacementPitch = rotationUpdateEvent.getPitch();
@@ -639,7 +641,7 @@ public class ScaffoldModule extends Module {
 
     @EventHandler
     public void onPreWalkingUpdate(PreWalkingUpdateEvent event) {
-        if (!this.isEnabled() || !isStableRotation() || Float.isNaN(stableYaw) || !this.canPlaceWithActiveModules()) {
+        if (!this.isEnabled() || !isSmoothRotation() || !hasPlacementRotation || !this.canPlaceWithActiveModules()) {
             return;
         }
         BlockPlacementTarget target = this.findPlacementTarget();
@@ -801,7 +803,10 @@ public class ScaffoldModule extends Module {
     }
 
     private void resetHypixelRotation() {
-        stableYaw = Float.NaN;
+        smoothPlaced = false;
+        smoothGroundTicks = 0;
+        smoothTicks = -1;
+        smoothLimit = 35.0f;
         hypixelJumpDelay = 0;
         wasOnGround = minecraft.field_71439_g != null && minecraft.field_71439_g.field_70122_E;
         jumpBaseY = minecraft.field_71439_g == null ? 0 : MathHelper.func_76128_c(minecraft.field_71439_g.field_70163_u);
@@ -887,6 +892,10 @@ public class ScaffoldModule extends Module {
                 {
                     if (minecraft.field_71439_g.field_70122_E) {
                         this.towerPhase = 1;
+                        if (isSmoothRotation() && isDiagonalYaw(getMovementYaw())) {
+                            applyExtraTowerMotion(n, moveFlyingEvent);
+                            return;
+                        }
                         minecraft.field_71439_g.field_70181_x = -0.0784000015258789;
                     }
                     return;

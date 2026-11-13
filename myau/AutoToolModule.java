@@ -17,6 +17,10 @@ public class AutoToolModule extends Module {
         super("AutoTool", false, 0);
     }
 
+    public int getPreviousSlot() {
+        return this.previousSlot;
+    }
+
     @EventHandler
     public void onPreTick(PreTickEvent event) {
         boolean enabled = this.isEnabled();

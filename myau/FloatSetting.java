@@ -7,6 +7,7 @@ public class FloatSetting extends Setting<Float> {
 
     private final Float min;
     private final Float max;
+    private float step;
 
     public FloatSetting(String name, Float defaultValue, Float min, Float max) {
         this(name, defaultValue, min, max, null);
@@ -16,6 +17,18 @@ public class FloatSetting extends Setting<Float> {
         super(name, defaultValue, value -> value.floatValue() >= min.floatValue() && value.floatValue() <= max.floatValue(), visibilityCondition);
         this.min = min;
         this.max = max;
+    }
+
+    public FloatSetting(String name, Float defaultValue, Float min, Float max, float step) {
+        this(name, defaultValue, min, max);
+        this.step = step;
+    }
+
+    @Override
+    public boolean setValue(Float value) {
+        if (value == null || !Float.isFinite(value) || value < min || value > max) return false;
+        if (step > 0) value = Math.max(min, Math.min(max, min + Math.round((value - min) / step) * step));
+        return super.setValue(value);
     }
 
     @Override

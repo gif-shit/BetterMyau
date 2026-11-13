@@ -113,6 +113,27 @@ public final class RenderUtils {
         GlStateManager.func_179117_G();
     }
 
+    public static void roundedRect(float left, float top, float right, float bottom, float radius, int color) {
+        if (right <= left || bottom <= top) return;
+        radius = Math.max(0, Math.min(radius, Math.min(right - left, bottom - top) / 2));
+        GlStateManager.func_179090_x();
+        GlStateManager.func_179147_l();
+        GlStateManager.func_179112_b(770, 771);
+        setColor(color);
+        GL11.glBegin(GL11.GL_POLYGON);
+        for (int corner = 0; corner < 4; corner++) {
+            double cx = corner < 2 ? left + radius : right - radius;
+            double cy = corner == 0 || corner == 3 ? top + radius : bottom - radius;
+            for (int step = 0; step <= 12; step++) {
+                double angle = Math.toRadians(270 - corner * 90 - step * 7.5);
+                GL11.glVertex2d(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius);
+            }
+        }
+        GL11.glEnd();
+        GlStateManager.func_179098_w();
+        GlStateManager.func_179117_G();
+    }
+
     public static void drawBorderedRect(float left, float top, float right, float bottom, float lineWidth, int fillColor, int borderColor) {
         fillRect(left, top, right, bottom, fillColor);
         if (lineWidth <= 0.0f || borderColor == 0) {

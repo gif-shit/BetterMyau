@@ -1,10 +1,23 @@
 # BetterMyau
 
-BetterMyau 5.4 is a client-side mod for Minecraft Forge 1.8.9. The client sources are in `myau/`, and the bundled profile and Forge metadata are in `resources/`.
+BetterMyau 5.5 is a client-side mod for Minecraft Forge 1.8.9. The client sources are in `myau/`, and the bundled profile and Forge metadata are in `resources/`.
 
 ## Install
 
-Download [`5.4.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.4) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
+Download [`bettermyau u5.5.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.5) and put it in the `mods` folder of a Forge 1.8.9 instance. Profiles, friends, enemies, and config binds use `config/Myau/`.
+
+## What's new in 5.5
+
+- Added Raven and Myau TargetHUD modes. Myau remains the default.
+- Added DamageTags, DebugAC, ViewPackets, and Test in Render, and AutoBlockin in Player.
+- Added BedWars, SkyWars, AutoLadder, and Weather in Misc. The modules are off by default; enable `show-misc` in ClickGui settings to show the category.
+- Moved BedTracker into BedWars, with a new bed status card, threat indicator, distance display, and bed marker.
+- Replaced RGB sliders with a colour wheel and brightness control.
+- Replaces stable rotations with smooth rotations.
+- Added portable build and test tools for Windows, Linux, and macOS.
+- Renamed the release JAR to `bettermyau u5.5.jar`.
+
+-bleach
 
 ## What's new in 5.4
 
@@ -57,13 +70,21 @@ Download [`5.4.jar`](https://github.com/gif-shit/BetterMyau/releases/tag/v5.4) a
 
 ## Build
 
-The PowerShell build compiles every Java source with JDK 8 and packages it with the bundled runtime from an existing BetterMyau JAR. A rebuild also requires an SRG-mapped Minecraft 1.8.9 JAR and the Forge 1.8.9 client libraries.
+The Python build compiles every Java source with JDK 8 and packages it with the bundled runtime from an existing BetterMyau JAR. A rebuild also requires an SRG-mapped Minecraft 1.8.9 JAR and the Forge 1.8.9 client libraries.
 
 ```powershell
 .\build.ps1 -BaseJar 'C:/path/to/5.1.jar' -MinecraftSrg 'C:/path/to/mc-srg.jar' -Libraries 'C:/path/to/libraries' -Jdk 'C:/path/to/jdk8/bin'
 ```
 
-The build writes `build/5.4.jar`.
+On Windows, Linux, and macOS, install Python 3 and JDK 8, then run:
+
+```sh
+python build.py --base-jar '/path/to/5.1.jar' --minecraft-srg '/path/to/mc-srg.jar' --libraries '/path/to/libraries' --jdk '/path/to/jdk8'
+```
+
+The build writes `build/bettermyau u5.5.jar`. The PowerShell command above calls the same builder. If `--libraries` is omitted, it uses the platform's standard Minecraft libraries folder; `--jdk` can be omitted when `JAVA_HOME` or `PATH` supplies the JDK.
+
+The same Forge JAR is used on all three systems. The launcher must supply Java 8 and the matching LWJGL natives. Linux/macOS game rendering has not been tested here.
 
 Run the headless Fly regression checks after building:
 
@@ -84,3 +105,11 @@ Run all regression checks, including settings, config files, and event dispatch:
 ```powershell
 .\tests\test-codebase.ps1 -MinecraftSrg 'C:/path/to/mc-srg.jar' -Libraries 'C:/path/to/libraries' -Jdk 'C:/path/to/jdk8/bin'
 ```
+
+The complete suite also runs through Python on all three systems:
+
+```sh
+python tests/test.py --base-jar '/path/to/5.1.jar' --minecraft-srg '/path/to/mc-srg.jar' --libraries '/path/to/libraries' --jdk '/path/to/jdk8'
+```
+
+These checks cover Smooth bridging and diagonal towers, profile migration, colour selection, Raven health animation, module defaults and categories, weather restoration, and damage/heal tracking. They run without launching Minecraft or connecting to a server.

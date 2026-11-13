@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
+import myau.render.raven.RavenTargetHud;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiChat;
@@ -32,16 +33,18 @@ public class TargetHUDModule extends Module {
     private float previousHearts;
     private float targetHearts;
     private float maximumHearts;
+    private final RavenTargetHud raven = new RavenTargetHud();
+    public final ModeSetting mode = new ModeSetting("mode", 0, new String[] { "MYAU", "RAVEN" });
     public final ModeSetting color = new ModeSetting("color", 0, new String[] { "DEFAULT", "HUD" });
     public final ModeSetting positionX = new ModeSetting("position-x", 1, new String[] { "LEFT", "MIDDLE", "RIGHT" });
     public final ModeSetting positionY = new ModeSetting("position-y", 1, new String[] { "TOP", "MIDDLE", "BOTTOM" });
     public final FloatSetting scale = new FloatSetting("scale", 1.0f, 0.5f, 1.5f);
     public final IntegerSetting offsetX = new IntegerSetting("offset-x", 0, -255, 255);
     public final IntegerSetting offsetY = new IntegerSetting("offset-y", 40, -255, 255);
-    public final PercentSetting background = new PercentSetting("background", 25);
-    public final BooleanSetting head = new BooleanSetting("head", true);
+    public final PercentSetting background = new PercentSetting("background", 25, () -> mode.getValue() == 0);
+    public final BooleanSetting head = new BooleanSetting("head", true, () -> mode.getValue() == 0);
     public final BooleanSetting indicator = new BooleanSetting("indicator", true);
-    public final BooleanSetting outline = new BooleanSetting("outline", false);
+    public final BooleanSetting outline = new BooleanSetting("outline", false, () -> mode.getValue() == 0);
     public final BooleanSetting animations = new BooleanSetting("animations", true);
     public final BooleanSetting shadow = new BooleanSetting("shadow", true);
     public final BooleanSetting kaOnly = new BooleanSetting("ka-only", true);
@@ -103,6 +106,10 @@ public class TargetHUDModule extends Module {
             return;
         }
         if (minecraft.field_71439_g == null) {
+            return;
+        }
+        if (mode.getValue() == 1) {
+            raven.render(this, this.selectTarget());
             return;
         }
         EntityLivingBase previousTarget = this.displayedTarget;
@@ -207,6 +214,21 @@ public class TargetHUDModule extends Module {
         GlStateManager.func_179084_k();
         GlStateManager.func_179126_j();
         GlStateManager.func_179121_F();
+    }
+
+    @Override
+    public void onDisable() {
+        raven.reset();
+    }
+
+    @Override
+    public void onSettingChanged(String name) {
+        if ("mode".equals(name)) raven.reset();
+    }
+
+    @EventHandler
+    public void onWorldLoad(WorldLoadEvent event) {
+        raven.reset();
     }
 
     @EventHandler

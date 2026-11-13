@@ -11,6 +11,8 @@ Push-Location $sandbox
 try {
     & "$Jdk/java.exe" -ea -cp ((@($out) + $classpath) -join ';') myau.CodebaseRegression
     if ($LASTEXITCODE -ne 0) { throw 'Codebase regression checks failed' }
+    & "$Jdk/java.exe" -ea -cp ((@($out) + $classpath) -join ';') myau.Update55Regression
+    if ($LASTEXITCODE -ne 0) { throw 'Update 5.5 regression checks failed' }
 } finally {
     Pop-Location
 }

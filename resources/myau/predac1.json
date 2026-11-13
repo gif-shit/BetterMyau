@@ -109,28 +109,6 @@
     "show-target": "DEFAULT",
     "show-progress": "DEFAULT"
   },
-  "BedTracker": {
-    "toggled": false,
-    "key": 0,
-    "hidden": true,
-    "alerts": true,
-    "alerts-range": 48,
-    "alerts-on-pearl": true,
-    "alerts-sound": "MEOW",
-    "alerts-frequency": 5,
-    "macro": false,
-    "macro-range": 24,
-    "macro-on-pearl": false,
-    "macro-text": "/lobby",
-    "macro-delay": 1,
-    "hud": true,
-    "hud-position-x": "LEFT",
-    "hud-position-y": "TOP",
-    "hud-offset-x": 2,
-    "hud-offset-y": 2,
-    "hud-scale": 1.0,
-    "hud-shadow": true
-  },
   "Blink": {
     "toggled": false,
     "key": 19,
@@ -651,5 +629,28 @@
     "canes-tracers": false,
     "warts": false,
     "warts-tracers": false
+  },
+  "BedWars": {
+    "toggled": false,
+    "key": 0,
+    "hidden": true,
+    "alerts": true,
+    "alerts-range": 48,
+    "alerts-on-pearl": true,
+    "alerts-sound": "MEOW",
+    "alerts-frequency": 5,
+    "macro": false,
+    "macro-range": 24,
+    "macro-on-pearl": false,
+    "macro-text": "/lobby",
+    "macro-delay": 1,
+    "hud": true,
+    "hud-position-x": "RIGHT",
+    "hud-position-y": "TOP",
+    "hud-offset-x": 8,
+    "hud-offset-y": 8,
+    "hud-scale": 1.0,
+    "hud-shadow": true,
+    "bed-tracker": true
   }
 }

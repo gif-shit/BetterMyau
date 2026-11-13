@@ -7,6 +7,8 @@ public class ClickGuiModule extends Module {
 
     private static final Minecraft minecraft = Minecraft.func_71410_x();
 
+    public final BooleanSetting showMisc = new BooleanSetting("show-misc", false);
+
     public ClickGuiModule() {
         super("ClickGui", false, 210, true);
         ConfigBinds.load();

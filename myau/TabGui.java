@@ -24,12 +24,21 @@ final class TabGui {
     private static final int MAX_VISIBLE_ROWS = 10;
     private static final int BACKGROUND = 0xD8111014;
     private static final int BORDER = 0xFF302A37;
-    private static final ModuleCategory[] CATEGORIES = ModuleCategory.values();
+    private ModuleCategory[] categories = ModuleCategory.visibleCategories();
     private static final int[] KEYS = { Keyboard.KEY_UP, Keyboard.KEY_DOWN, Keyboard.KEY_LEFT, Keyboard.KEY_RIGHT, Keyboard.KEY_RETURN, Keyboard.KEY_NUMPADENTER };
     private int category;
     private int selection;
     private int previousKeys;
     private List<Module> modules = Collections.emptyList();
+
+    private void refreshCategories() {
+        ModuleCategory[] visible = ModuleCategory.visibleCategories();
+        if (categories.length != visible.length) {
+            categories = visible;
+            category = Math.min(category, categories.length - 1);
+            modules = Collections.emptyList();
+        }
+    }
 
     void tick(Minecraft minecraft, boolean enabled) {
         if (!Keyboard.isCreated())
@@ -50,12 +59,13 @@ final class TabGui {
     }
 
     void handleKey(int key) {
+        refreshCategories();
         switch(key) {
             case Keyboard.KEY_UP:
             case Keyboard.KEY_DOWN:
                 int step = key == Keyboard.KEY_UP ? -1 : 1;
                 if (modules.isEmpty())
-                    category = Math.floorMod(category + step, CATEGORIES.length);
+                    category = Math.floorMod(category + step, categories.length);
                 else
                     selection = Math.floorMod(selection + step, modules.size());
                 break;
@@ -66,7 +76,7 @@ final class TabGui {
             case Keyboard.KEY_RETURN:
             case Keyboard.KEY_NUMPADENTER:
                 if (modules.isEmpty()) {
-                    modules = CATEGORIES[category].modules();
+                    modules = categories[category].modules();
                     selection = 0;
                 } else {
                     MyauClient.moduleManager.toggle(modules.get(selection));
@@ -78,10 +88,12 @@ final class TabGui {
     }
 
     int bottom(boolean watermark, boolean tabs) {
-        return TOP + (watermark ? LOGO_HEIGHT : 0) + (tabs ? 2 + CATEGORIES.length * ROW_HEIGHT : 0);
+        refreshCategories();
+        return TOP + (watermark ? LOGO_HEIGHT : 0) + (tabs ? 2 + categories.length * ROW_HEIGHT : 0);
     }
 
     void draw(Minecraft minecraft, boolean watermark, boolean tabs, int rgb) {
+        refreshCategories();
         FontRenderer font = minecraft.field_71466_p;
         int accent = 0xFF000000 | rgb;
         int top = TOP;
@@ -99,12 +111,12 @@ final class TabGui {
         }
         if (!tabs)
             return;
-        panel(LEFT, top, WIDTH, CATEGORIES.length);
-        for (int i = 0; i < CATEGORIES.length; i++) {
+        panel(LEFT, top, WIDTH, categories.length);
+        for (int i = 0; i < categories.length; i++) {
             int y = top + 1 + i * ROW_HEIGHT;
             if (i == category)
                 highlight(LEFT + 1, y, WIDTH - 2, accent);
-            font.func_175063_a(CATEGORIES[i].label, LEFT + 4, y + 3, i == category ? 0xFFFFFFFF : 0xFFC1BCC7);
+            font.func_175063_a(categories[i].label, LEFT + 4, y + 3, i == category ? 0xFFFFFFFF : 0xFFC1BCC7);
         }
         if (modules.isEmpty())
             return;

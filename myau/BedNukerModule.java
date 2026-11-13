@@ -250,7 +250,8 @@ public class BedNukerModule extends Module {
             for (int y = blockY - 6; y <= blockY + 6; ++y) {
                 for (int z = blockZ - 6; z <= blockZ + 6; ++z) {
                     BlockPos position = new BlockPos(x, y, z);
-                    if (this.whitelist.getValue()
+                    if (myau.openb4.module.minigames.BedWarsModule.isOwnBed(position)
+                            || this.whitelist.getValue()
                             && this.whitelistedBed != null
                             && this.whitelistedBed.func_177951_i((Vec3i) position) < 10.0
                             || !(minecraft.field_71441_e.func_180495_p(position).func_177230_c() instanceof BlockBed)

@@ -57,6 +57,10 @@ public final class MyauClient {
         eventBus.register(incomingPacketBuffer);
         eventBus.register(packetDelayManager);
         eventBus.register(commandManager);
+        myau.openb4.ModuleEvents modules = new myau.openb4.ModuleEvents();
+        eventBus.register(modules);
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(modules);
+        net.minecraftforge.fml.common.FMLCommonHandler.instance().bus().register(modules);
     }
 
     private static void registerModules() {
@@ -72,7 +76,15 @@ public final class MyauClient {
         registerModule(new BedESPModule());
         registerModule(new BedNukerModule());
         registerModule(new BacktrackModule());
-        registerModule(new BedTrackerModule());
+        registerModule(new myau.openb4.module.render.DamageTagsModule(0));
+        registerModule(new myau.openb4.module.dev.DebugAcModule(0));
+        registerModule(new myau.openb4.module.dev.ViewPacketsModule(0));
+        registerModule(new myau.openb4.module.dev.TestModule(0));
+        registerModule(new myau.openb4.module.minigames.BedWarsModule(0));
+        registerModule(new myau.openb4.module.minigames.SkyWarsModule(0));
+        registerModule(new myau.openb4.module.player.AutoBlockinModule(0));
+        registerModule(new myau.openb4.module.player.AutoLadderModule(0));
+        registerModule(new myau.openb4.module.world.WeatherModule(0));
         registerModule(new BlinkModule());
         registerModule(new ChamsModule());
         registerModule(new ClickGuiModule());
@@ -133,14 +145,26 @@ public final class MyauClient {
     }
 
     private static void registerModule(Module module) {
+        if (module instanceof myau.openb4.module.Module) ((myau.openb4.module.Module) module).link();
         moduleManager.modules.put(module.getClass(), module);
         eventBus.register(module);
         ArrayList<Setting<?>> arrayList = new ArrayList<Setting<?>>();
-        for (Field field : module.getClass().getFields()) {
+        registerSettings(module, module, arrayList);
+        if (module instanceof myau.openb4.module.minigames.BedWarsModule) {
+            BedTrackerModule tracker = ((myau.openb4.module.minigames.BedWarsModule) module).bedGuard;
+            eventBus.register(tracker);
+            registerSettings(module, tracker, arrayList);
+        }
+        settingManager.settingsByModule.put(module.getClass(), arrayList);
+        if (module instanceof myau.openb4.module.Module) ((myau.openb4.module.Module) module).guiUpdate();
+    }
+
+    private static void registerSettings(Module module, Object source, ArrayList<Setting<?>> arrayList) {
+        for (Field field : source.getClass().getFields()) {
             if (!Setting.class.isAssignableFrom(field.getType()))
                 continue;
             try {
-                Setting<?> setting = (Setting<?>) field.get(module);
+                Setting<?> setting = (Setting<?>) field.get(source);
                 if (setting == null)
                     continue;
                 setting.setModule(module);
@@ -149,7 +173,6 @@ public final class MyauClient {
                 throw new IllegalStateException("Unable to register setting " + field.getName(), illegalAccessException);
             }
         }
-        settingManager.settingsByModule.put(module.getClass(), arrayList);
     }
 
     private static void registerCommands() {

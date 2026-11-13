@@ -5,3 +5,6 @@
 *.jar
 *.class
 .idea/
+
+__pycache__/
+*.pyc

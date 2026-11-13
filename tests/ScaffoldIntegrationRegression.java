@@ -176,144 +176,68 @@ public final class ScaffoldIntegrationRegression {
         KeyBinding.func_74510_a(17, true);
         ScaffoldModule module = new ScaffoldModule();
         bind(module);
-        check(module.rotations.getModes()[4].equals("HYPIXEL") && module.rotations.getModes()[5].equals("STABLE"), "Hypixel retained and Stable added");
-        check(module.keepY.getModes().length == 4 && !module.towerOnPress.getValue(), "previous Scaffold settings and jump trigger restored");
-        check(!module.stableSmoothing.isVisible() && module.stableSmoothing.getValue() == 0, "Stable smoothing is hidden outside Stable and defaults to fastest");
+        check(module.rotations.getModes()[4].equals("HYPIXEL") && module.rotations.getModes()[5].equals("SMOOTH"), "Hypixel retained and Stable replaced with Smooth");
+        check(module.keepY.getModes().length == 4 && !module.towerOnPress.getValue(), "existing tower and keep-y controls retained");
+        float[] limited = ScaffoldModule.smoothRotation(170, 0, -170, 80, true, 35.5f, 10);
+        near(limited[0], 190, "Smooth takes the short path across the yaw boundary");
+        near(limited[1], 80, "Smooth sets the placement pitch");
+        limited = ScaffoldModule.smoothRotation(0, 0, 150, 80, true, 35.5f, 10);
+        near(limited[0], 35.5f, "Smooth uses the supplied rotation limit");
+        float yaw = 0;
+        for (int tick = 0; tick < 6; tick++) {
+            float next = ScaffoldModule.smoothRotation(yaw, 80, 150, 80, true, 35.5f, 10)[0];
+            check(next >= yaw && next <= 150 && next - yaw <= 35.501f, "Smooth approaches the target without overshoot");
+            yaw = next;
+        }
+        near(yaw, 150, "Smooth reaches the target within five limited turns");
+        check(Math.abs(ScaffoldModule.smoothRotation(0, 0, 100, 80, false, 35, 0)[0] - 30) < 0.001, "Smooth eases the first rotation");
         module.rotations.setValue(5);
-        check(module.stableSmoothing.isVisible(), "Stable smoothing slider is visible in Stable");
-        check(!module.stableSmoothing.setValue(-1) && !module.stableSmoothing.setValue(101), "Stable smoothing is limited to zero through one hundred percent");
         module.setEnabled(true);
         float previousYaw = 0, previousPitch = 0;
-        float lockedYaw = Float.NaN;
         int start = controller.placed;
         for (int block = 1; block <= 48; ++block) {
             player.field_70161_v = block + 0.75;
             player.field_70166_s = player.field_70161_v - 1;
             player.field_70177_z = 0;
-            RotationUpdateEvent rotation = new RotationUpdateEvent(previousYaw, previousPitch, player.field_70177_z, 0);
-            module.onRotationUpdate(rotation);
-            if (block == 1) lockedYaw = rotation.getYaw();
-            near(rotation.getYaw(), lockedYaw, "Stable yaw stays fixed after block " + block);
-            check(world.blocks.containsKey(new BlockPos(0, 63, block)), "Stable places straight bridge block " + block);
-            previousYaw = rotation.getYaw();
-            previousPitch = rotation.getPitch();
-            for (int gap = 0; gap < 2; ++gap) {
-                RotationUpdateEvent idle = new RotationUpdateEvent(previousYaw, previousPitch, player.field_70177_z, 0);
-                module.onRotationUpdate(idle);
-                near(idle.getYaw(), lockedYaw, "Stable holds yaw between placements");
-                previousYaw = idle.getYaw(); previousPitch = idle.getPitch();
+            BlockPos expected = new BlockPos(0, 63, block);
+            for (int tick = 0; tick < 8 && !world.blocks.containsKey(expected); tick++) {
+                RotationUpdateEvent rotation = new RotationUpdateEvent(previousYaw, previousPitch, player.field_70177_z, 0);
+                module.onRotationUpdate(rotation);
+                previousYaw = rotation.getYaw();
+                previousPitch = rotation.getPitch();
             }
+            check(world.blocks.containsKey(expected), "Smooth places bridge block " + block);
+            RotationUpdateEvent idle = new RotationUpdateEvent(previousYaw, previousPitch, player.field_70177_z, 0);
+            module.onRotationUpdate(idle);
+            check(Math.abs(net.minecraft.util.MathHelper.func_76142_g(idle.getYaw() - 180)) < 45, "Smooth keeps looking toward the bridge between blocks: " + idle.getYaw());
+            previousYaw = idle.getYaw(); previousPitch = idle.getPitch();
         }
-        check(controller.placed - start == 48, "forty-eight blocks placed without side placements");
+        check(controller.placed - start == 48, "Smooth places a forty-eight block bridge without side placements");
         player.field_70177_z = -90;
         player.field_70161_v = player.field_70166_s = 48.5;
         for (int block = 1; block <= 8; ++block) {
             player.field_70165_t = block + 0.75;
             player.field_70169_q = player.field_70165_t - 1;
-            RotationUpdateEvent turn = new RotationUpdateEvent(previousYaw, previousPitch, player.field_70177_z, 0);
-            module.onRotationUpdate(turn);
-            check(Math.abs(net.minecraft.util.MathHelper.func_76142_g(turn.getYaw() - 90)) < 0.01, "Stable follows deliberate camera turn");
-            check(world.blocks.containsKey(new BlockPos(block, 63, 48)), "Stable places along the new camera direction");
-            previousYaw = turn.getYaw(); previousPitch = turn.getPitch();
+            BlockPos expected = new BlockPos(block, 63, 48);
+            for (int tick = 0; tick < 8 && !world.blocks.containsKey(expected); tick++) {
+                RotationUpdateEvent turn = new RotationUpdateEvent(previousYaw, previousPitch, player.field_70177_z, 0);
+                module.onRotationUpdate(turn);
+                previousYaw = turn.getYaw(); previousPitch = turn.getPitch();
+            }
+            check(world.blocks.containsKey(expected), "Smooth follows a deliberate direction change " + block);
         }
-        KeyBinding.func_74510_a(17, false);
-        KeyBinding.func_74510_a(30, true);
-        player.field_70165_t = player.field_70169_q = 8.5;
-        for (int block = 1; block <= 8; ++block) {
-            player.field_70161_v = 48.5 - block;
-            player.field_70166_s = player.field_70161_v + 1;
-            RotationUpdateEvent strafe = new RotationUpdateEvent(previousYaw, previousPitch, player.field_70177_z, 0);
-            module.onRotationUpdate(strafe);
-            check(Math.abs(net.minecraft.util.MathHelper.func_76142_g(strafe.getYaw())) < 0.01, "Stable follows deliberate WASD direction changes");
-            check(world.blocks.containsKey(new BlockPos(8, 63, 48 - block)), "Stable places along the new strafe direction");
-            previousYaw = strafe.getYaw(); previousPitch = strafe.getPitch();
-        }
-        check(controller.placed - start == 64, "straight bridge and two controlled turns have no side placements");
-        KeyBinding.func_74510_a(30, false);
-        KeyBinding.func_74510_a(17, true);
         RotationUpdateEvent competing = new RotationUpdateEvent(previousYaw, previousPitch, 25, 0);
         competing.setRotation(60, 20, 10);
         competing.setMovementYaw(60, 10);
         module.onRotationUpdate(competing);
         near(competing.getYaw(), 60, "higher-priority rotation is respected");
         module.onWorldLoad(new WorldLoadEvent());
-        RotationUpdateEvent reset = new RotationUpdateEvent(previousYaw, previousPitch, 90, 0);
-        player.field_70177_z = 90;
-        module.onRotationUpdate(reset);
-        check(Math.abs(reset.getYaw() - lockedYaw) > 10, "Stable accepts the current direction after a world change");
         module.setEnabled(false);
         check(player.field_71071_by.field_70461_c == 3, "disable restores original hotbar slot");
-
         player.field_70161_v = player.field_70166_s = 0.5;
         player.field_70165_t = player.field_70169_q = 0.5;
         player.field_71071_by.field_70461_c = 2;
         player.field_71071_by.field_70462_a[2].field_77994_a = 64;
-        player.field_70177_z = 0;
-        Field randomField = RandomUtils.class.getDeclaredField("RANDOM");
-        randomField.setAccessible(true);
-        java.util.Random random = (java.util.Random)randomField.get(null);
-        Field targetPitch = ScaffoldModule.class.getDeclaredField("placementPitch");
-        targetPitch.setAccessible(true);
-        float[] yawSteps = new float[3], pitchSteps = new float[3];
-        int[] smoothing = {0, 35, 100};
-        for (int preset = 0; preset < smoothing.length; ++preset) {
-            module.stableSmoothing.setValue(smoothing[preset]);
-            module.setEnabled(true);
-            random.setSeed(42);
-            RotationUpdateEvent turn = new RotationUpdateEvent(0, 0, 0, 0);
-            module.onRotationUpdate(turn);
-            yawSteps[preset] = Math.abs(net.minecraft.util.MathHelper.func_76142_g(turn.getYaw()));
-            pitchSteps[preset] = turn.getPitch();
-            float error = Math.abs(net.minecraft.util.MathHelper.func_76142_g(-180 - turn.getYaw()));
-            float pitch = targetPitch.getFloat(module);
-            if (smoothing[preset] == 100) {
-                check(yawSteps[preset] > 160 && yawSteps[preset] < 180, "hardcoded Stable speed accelerates yaw while preserving smoothing");
-                check(pitchSteps[preset] > pitch * 0.8f && pitchSteps[preset] < pitch, "hardcoded Stable speed accelerates pitch without overshooting");
-            }
-            for (int tick = 0; tick < 8; ++tick) {
-                RotationUpdateEvent next = new RotationUpdateEvent(turn.getYaw(), turn.getPitch(), 0, 0);
-                module.onRotationUpdate(next);
-                float remaining = Math.abs(net.minecraft.util.MathHelper.func_76142_g(-180 - next.getYaw()));
-                check(remaining <= error + 0.01, "Stable smoothing approaches the requested direction without reversing");
-                near(next.getMovementYaw(), next.getYaw(), "movement correction follows the applied smoothed yaw");
-                error = remaining;
-                turn = next;
-            }
-            check(error < 0.01, "Stable smoothing reaches the requested yaw");
-            near(turn.getPitch(), pitch, "Stable smoothing reaches the placement pitch");
-            module.setEnabled(false);
-        }
-        check(yawSteps[0] > 179.99, "zero smoothing gives the fastest full turn in one tick");
-        check(yawSteps[2] < yawSteps[1] && yawSteps[1] <= yawSteps[0], "higher smoothing makes yaw turns progressively gentler");
-        check(pitchSteps[2] < pitchSteps[1] && pitchSteps[1] <= pitchSteps[0], "higher smoothing makes pitch turns progressively gentler");
-        module.stableSmoothing.setValue(0);
-        world.blocks.clear();
-        world.blocks.put(new BlockPos(0, 63, 0), Blocks.field_150348_b.func_176223_P());
-        module.setEnabled(true);
-        random.setSeed(42);
-        RotationUpdateEvent edge = new RotationUpdateEvent(0, 0, 0, 0);
-        module.onRotationUpdate(edge);
-        start = controller.placed;
-        check(!world.blocks.containsKey(new BlockPos(0, 63, 1)), "no placement before reaching the edge");
-        EventBus bus = new EventBus();
-        bus.register(module);
-        player.field_70161_v = 1.01;
-        bus.post(new PreWalkingUpdateEvent());
-        check(controller.placed == start, "extra placement pass requires a valid current ray");
-        player.field_70161_v = 1 + (player.field_70163_u + player.func_70047_e() - 63.5) / Math.tan(Math.toRadians(edge.getPitch()));
-        bus.post(new PreWalkingUpdateEvent());
-        check(world.blocks.containsKey(new BlockPos(0, 63, 1)) && controller.placed == start + 1, "Stable places after movement in the same tick");
-        bus.post(new PreWalkingUpdateEvent());
-        check(controller.placed == start + 1, "extra placement pass does not duplicate an existing block");
-        world.blocks.remove(new BlockPos(0, 63, 1));
-        module.rotations.setValue(4);
-        bus.post(new PreWalkingUpdateEvent());
-        check(controller.placed == start + 1, "Hypixel keeps its existing placement cadence");
-        module.rotations.setValue(5);
-        module.setEnabled(false);
-        bus.post(new PreWalkingUpdateEvent());
-        check(controller.placed == start + 1, "disabled Scaffold does not run the extra placement pass");
-        player.field_70161_v = player.field_70166_s = 0.5;
         for (int mode = 1; mode <= 2; ++mode) {
             module.tower.setValue(mode);
             module.towerOnPress.setValue(true);

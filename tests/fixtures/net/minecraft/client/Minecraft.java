@@ -19,6 +19,10 @@ public class Minecraft implements AccessorMinecraft {
     public PlayerControllerMP field_71442_b;
     public GuiScreen field_71462_r;
     public NetHandlerPlayClient handler;
+    public boolean field_71415_G = true;
+    public boolean func_147113_T() { return false; }
+    public boolean func_71356_B() { return false; }
+    public com.google.common.util.concurrent.ListenableFuture<Object> func_152344_a(Runnable task) { task.run(); return com.google.common.util.concurrent.Futures.immediateFuture(null); }
     private Timer timer;
 
     public static Minecraft func_71410_x() { return instance; }

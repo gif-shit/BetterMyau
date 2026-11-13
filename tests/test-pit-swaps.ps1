@@ -6,6 +6,6 @@ param(
 
 . (Join-Path $PSScriptRoot 'test-scaffold.ps1') @PSBoundParameters
 foreach ($test in @('PitSwapChecks', 'myau.PitSwapIntegrationRegression')) {
-    & "$Jdk/java.exe" -ea -cp ((@($out) + $classpath) -join ';') $test $MinecraftSrg (Join-Path $root 'build/5.4.jar')
+    & "$Jdk/java.exe" -ea -cp ((@($out) + $classpath) -join ';') $test $MinecraftSrg (Join-Path $root 'build/bettermyau u5.5.jar')
     if ($LASTEXITCODE -ne 0) { throw "$test failed" }
 }

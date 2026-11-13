@@ -8,7 +8,7 @@ import java.util.Map;
 
 enum ModuleCategory {
 
-    COMBAT("Combat", "AimAssist", "AutoClicker", "Backtrack", "HitSelect", "KeepSprint", "KillAura", "LagRange", "NoHitDelay", "Reach", "TargetStrafe", "Velocity", "WTap", "AntiFireball"), PLAYER("Player", "AntiDebuff", "AntiObbyTrap", "AutoHeal", "AutoTool", "BedNuker", "Blink", "ChestStealer", "FastPlace", "GhostHand", "InvManager", "NoFall", "NoRotate", "PantSwap", "Scaffold", "SpeedMine", "SwordSwap"), MOVEMENT("Movement", "AntiVoid", "Eagle", "Fly", "InvWalk", "Jesus", "LongJump", "NoJumpDelay", "NoSlow", "SafeWalk", "Speed", "Sprint", "Timer"), RENDER("Render", "BedESP", "BedTracker", "BPS", "Chams", "ChestESP", "ClickGui", "ESP", "FreeLook", "Fullbright", "HUD", "Indicators", "ItemESP", "LightningTracker", "NameTags", "NickHider", "NoHurtCam", "TargetHUD", "Tracers", "Trajectories", "ViewClip", "Xray"), EXPLOITS("Exploits", "Pit");
+    COMBAT("Combat", "AimAssist", "AutoClicker", "Backtrack", "HitSelect", "KeepSprint", "KillAura", "LagRange", "NoHitDelay", "Reach", "TargetStrafe", "Velocity", "WTap", "AntiFireball"), PLAYER("Player", "AntiDebuff", "AntiObbyTrap", "AutoHeal", "AutoBlockin", "AutoTool", "BedNuker", "Blink", "ChestStealer", "FastPlace", "GhostHand", "InvManager", "NoFall", "NoRotate", "PantSwap", "Scaffold", "SpeedMine", "SwordSwap"), MOVEMENT("Movement", "AntiVoid", "Eagle", "Fly", "InvWalk", "Jesus", "LongJump", "NoJumpDelay", "NoSlow", "SafeWalk", "Speed", "Sprint", "Timer"), RENDER("Render", "DamageTags", "DebugAC", "ViewPackets", "Test", "BedESP", "BPS", "Chams", "ChestESP", "ClickGui", "ESP", "FreeLook", "Fullbright", "HUD", "Indicators", "ItemESP", "LightningTracker", "NameTags", "NickHider", "NoHurtCam", "TargetHUD", "Tracers", "Trajectories", "ViewClip", "Xray"), EXPLOITS("Exploits", "Pit"), MISC("Misc", "BedWars", "SkyWars", "AutoLadder", "Weather");
 
     private static final Map<String, ModuleCategory> BY_MODULE = new HashMap<>();
 
@@ -31,6 +31,15 @@ enum ModuleCategory {
 
     static ModuleCategory of(Module module) {
         return BY_MODULE.getOrDefault(module.getName().toLowerCase(Locale.ROOT), EXPLOITS);
+    }
+
+    static boolean miscVisible() {
+        ClickGuiModule gui = (ClickGuiModule) MyauClient.moduleManager.modules.get(ClickGuiModule.class);
+        return gui != null && gui.showMisc.getValue();
+    }
+
+    static ModuleCategory[] visibleCategories() {
+        return java.util.Arrays.stream(values()).filter(category -> category != MISC || miscVisible()).toArray(ModuleCategory[]::new);
     }
 
     List<Module> modules() {

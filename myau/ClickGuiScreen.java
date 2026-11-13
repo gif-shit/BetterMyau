@@ -46,6 +46,9 @@ public class ClickGuiScreen extends GuiScreen {
     private int dragOffsetX;
     private int dragOffsetY;
     private Row draggingSlider;
+    private Row draggingColor;
+    private boolean brightnessDrag;
+    private final Map<ColorSetting, ColorWheel> colorWheels = new HashMap<>();
     private boolean closeArmed;
     private Module bindingModule;
     private String bindingConfig;
@@ -59,6 +62,7 @@ public class ClickGuiScreen extends GuiScreen {
             PANELS.add(new Panel(ModuleCategory.PLAYER.label));
             PANELS.add(new Panel(ModuleCategory.RENDER.label));
             PANELS.add(new Panel(ModuleCategory.EXPLOITS.label));
+            PANELS.add(new Panel(ModuleCategory.MISC.label));
             PANELS.add(new Panel(CONFIGS_TITLE));
         }
         for (Panel panel : PANELS) {
@@ -185,6 +189,10 @@ public class ClickGuiScreen extends GuiScreen {
         int toggle = this.toggleKey();
         if (toggle == 0 || !Keyboard.isKeyDown(toggle))
             this.closeArmed = true;
+        if (this.draggingColor != null) {
+            if (Mouse.isButtonDown(0)) this.applyColor(draggingColor, mouseX, mouseY);
+            else draggingColor = null;
+        }
         if (this.draggingSlider != null) {
             if (Mouse.isButtonDown(0))
                 this.applySlider(this.draggingSlider, mouseX);
@@ -334,6 +342,10 @@ public class ClickGuiScreen extends GuiScreen {
         Gui.func_73734_a(row.x, row.y, row.x + row.w, row.y + row.h, hovered ? 0xFF27262D : 0xFF1D1C22);
         Gui.func_73734_a(row.x + 3, row.y, row.x + 4, row.y + row.h, BORDER);
         String label = setting.getName().replace('-', ' ');
+        if (setting instanceof ColorSetting) {
+            drawColor(font, row);
+            return;
+        }
         if (setting instanceof BooleanSetting) {
             boolean enabled = (Boolean) setting.getValue();
             font.func_175063_a(fit(font, label, right - labelX - 15), labelX, y, LABEL);
@@ -354,7 +366,7 @@ public class ClickGuiScreen extends GuiScreen {
             valueColor = editing ? BINDING : MUTED;
         } else {
             double number = numericValue(row);
-            double[] range = row.channel < 0 ? rangeOf(setting) : null;
+            double[] range = rangeOf(setting);
             double min = range == null ? 0.0 : range[0];
             double max = range == null ? 255.0 : range[1];
             double fraction = max <= min ? 0.0 : Math.max(0.0, Math.min(1.0, (number - min) / (max - min)));
@@ -362,10 +374,6 @@ public class ClickGuiScreen extends GuiScreen {
             int trackStart = row.x + 4;
             int trackY = row.y + row.h - 2;
             Gui.func_73734_a(trackStart, trackY, trackEnd, trackY + 1, BORDER);
-            if (row.channel >= 0) {
-                label += " " + "RGB".charAt(row.channel);
-                valueColor = row.channel == 0 ? 0xFFE48484 : row.channel == 1 ? 0xFF81D49A : 0xFF8EAAEF;
-            }
             Gui.func_73734_a(trackStart, trackY, trackStart + (int) ((trackEnd - trackStart) * fraction), trackY + 1, valueColor);
             value = formatValue(row, number);
         }
@@ -374,6 +382,30 @@ public class ClickGuiScreen extends GuiScreen {
         int valueWidth = font.func_78256_a(value);
         font.func_175063_a(fit(font, label, room - valueWidth - 5), labelX, y, LABEL);
         font.func_175063_a(value, right - valueWidth, y, valueColor);
+    }
+
+    private ColorWheel wheel(ColorSetting setting) {
+        ColorWheel wheel = colorWheels.computeIfAbsent(setting, key -> new ColorWheel());
+        wheel.sync(setting.getValue());
+        return wheel;
+    }
+
+    private void drawColor(FontRenderer font, Row row) {
+        ColorSetting setting = (ColorSetting) row.setting;
+        font.func_175063_a(fit(font, setting.getName().replace('-', ' '), row.w - 18), row.x + 9, row.y + 2, LABEL);
+        ColorWheel wheel = wheel(setting);
+        wheel.draw(row.x + 44, row.y + 49, 30, row.x + row.w - 23);
+        String hex = String.format(Locale.ROOT, "#%06X", setting.getValue());
+        font.func_175063_a(hex, row.x + 10, row.y + 83, MUTED);
+        RenderUtils.roundedRect(row.x + row.w - 28, row.y + 83, row.x + row.w - 10, row.y + 90, 2, 0xff000000 | setting.getValue());
+    }
+
+    private void applyColor(Row row, int mouseX, int mouseY) {
+        ColorSetting setting = (ColorSetting) row.setting;
+        ColorWheel wheel = wheel(setting);
+        int rgb = brightnessDrag ? wheel.brightness((row.y + 79 - mouseY) / 60f)
+                : wheel.select(mouseX - (row.x + 44), mouseY - (row.y + 49), 30);
+        setting.setValue(rgb);
     }
 
     private void layout() {
@@ -399,11 +431,9 @@ public class ClickGuiScreen extends GuiScreen {
                     for (Setting<?> setting : settingsOf(module)) {
                         if (!setting.isVisible())
                             continue;
-                        int n2 = setting instanceof ColorSetting ? 3 : 1;
-                        for (int i = 0; i < n2; ++i) {
-                            this.rows.add(new Row(2, panel, module, setting, setting instanceof ColorSetting ? i : -1, null, panel.x, n, width, SETTING_HEIGHT));
-                            n += SETTING_HEIGHT;
-                        }
+                        int height = setting instanceof ColorSetting ? 94 : SETTING_HEIGHT;
+                        this.rows.add(new Row(2, panel, module, setting, -1, null, panel.x, n, width, height));
+                        n += height;
                     }
                 }
             }
@@ -437,17 +467,10 @@ public class ClickGuiScreen extends GuiScreen {
 
     private static double numericValue(Row row) {
         Setting<?> setting = row.setting;
-        if (row.channel >= 0) {
-            int n = (Integer) ((ColorSetting) setting).getValue();
-            return n >> 16 - 8 * row.channel & 0xFF;
-        }
         return ((Number) setting.getValue()).doubleValue();
     }
 
     private static String formatValue(Row row, double d) {
-        if (row.channel >= 0) {
-            return String.valueOf((int) d);
-        }
         if (row.setting instanceof FloatSetting) {
             String string = String.format("%.2f", d);
             string = string.indexOf(46) >= 0 ? string.replaceAll("0+$", "").replaceAll("\\.$", "") : string;
@@ -462,14 +485,6 @@ public class ClickGuiScreen extends GuiScreen {
     private void applySlider(Row row, int n) {
         Setting<?> setting = row.setting;
         double d = Math.max(0.0, Math.min(1.0, (double) (n - (row.x + 4)) / (double) (row.w - 8)));
-        if (row.channel >= 0) {
-            int n2 = (int) Math.round(d * 255.0);
-            int n3 = 16 - 8 * row.channel;
-            int n4 = (Integer) ((ColorSetting) setting).getValue();
-            n4 = n4 & ~(255 << n3) | n2 << n3;
-            ((ColorSetting) setting).setValue(n4 & 0xFFFFFF);
-            return;
-        }
         double[] dArray = rangeOf(setting);
         double d2 = dArray[0] + d * (dArray[1] - dArray[0]);
         if (setting instanceof FloatSetting) {
@@ -567,7 +582,19 @@ public class ClickGuiScreen extends GuiScreen {
                     }
             }
             Setting<?> setting = row.setting;
-            if (setting instanceof BooleanSetting) {
+            if (setting instanceof ColorSetting) {
+                if (n3 == 0) {
+                    float x = n - (row.x + 44), y = n2 - (row.y + 49);
+                    boolean slider = n >= row.x + row.w - 29 && n2 >= row.y + 19 && n2 <= row.y + 79;
+                    if (slider || Math.hypot(x, y) <= 30) {
+                        brightnessDrag = slider;
+                        draggingColor = row;
+                        applyColor(row, n, n2);
+                    }
+                } else if (n3 == 1) {
+                    setting.reset();
+                }
+            } else if (setting instanceof BooleanSetting) {
                 if (n3 == 0) {
                     ((BooleanSetting) setting).setValue(!(Boolean) setting.getValue());
                 }
@@ -593,6 +620,7 @@ public class ClickGuiScreen extends GuiScreen {
 
     protected void func_146286_b(int n, int n2, int n3) {
         this.draggingSlider = null;
+        this.draggingColor = null;
         this.draggingPanel = null;
     }
 
@@ -651,8 +679,6 @@ public class ClickGuiScreen extends GuiScreen {
 
         final Setting<?> setting;
 
-        final int channel;
-
         final String config;
 
         final int x;
@@ -668,7 +694,6 @@ public class ClickGuiScreen extends GuiScreen {
             this.panel = panel;
             this.module = module;
             this.setting = setting;
-            this.channel = n2;
             this.config = string;
             this.x = n3;
             this.y = n4;
@@ -705,7 +730,7 @@ public class ClickGuiScreen extends GuiScreen {
                     continue;
                 for (Setting<?> setting : settingsOf(module)) {
                     if (setting.isVisible())
-                        height += SETTING_HEIGHT * (setting instanceof ColorSetting ? 3 : 1);
+                        height += setting instanceof ColorSetting ? 94 : SETTING_HEIGHT;
                 }
             }
             return height;
@@ -716,6 +741,7 @@ public class ClickGuiScreen extends GuiScreen {
         }
 
         boolean isEmpty() {
+            if (this.title.equals(ModuleCategory.MISC.label) && !ModuleCategory.miscVisible()) return true;
             return this.modules.isEmpty() && this.configs.isEmpty();
         }
     }
